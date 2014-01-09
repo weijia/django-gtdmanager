@@ -6,7 +6,7 @@ def home(request):
     return HttpResponseRedirect(reverse('gtdmanager:next'))
 
 def inbox(request):
-    return render_to_response('gtdmanager/inbox.html')
+    return render_to_response('gtdmanager/inbox.html', {'btnName': 'inbox'})
 
 def next(request):
-    return render_to_response('gtdmanager/next.html')
+    return render_to_response('gtdmanager/next.html', {'btnName': 'next'})
