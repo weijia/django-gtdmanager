@@ -2,6 +2,7 @@
 *.pot
 *.pyc
 local_settings.py
+*sqlite*
 
 # Eclipse files
 .project
