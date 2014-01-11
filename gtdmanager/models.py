@@ -1,4 +1,5 @@
 from django.db import models
+from django.core.exceptions import ValidationError
 
 class ItemManager(models.Manager):
     pass
@@ -43,3 +44,19 @@ class Project(Item):
     def __init__(self, *args, **kwargs):
         kwargs['status'] = kwargs.get('status', self.PROJECT)
         super(Project, self).__init__(*args, **kwargs)
+        
+    def is_parent_of(self, child):
+        if child.parent is None:
+            return False
+
+        if child.parent == self:
+            return True
+        
+        return self.is_parent_of(child.parent)
+    
+    def clean_fields(self, exclude=None):
+        super(Project, self).clean_fields(exclude)
+        if self.is_parent_of(self.parent):
+            raise ValidationError("%(parent)s parenting %(child)s creates circular project reference",
+                      params={ 'parent': self.parent, 'child': self }
+                  )
