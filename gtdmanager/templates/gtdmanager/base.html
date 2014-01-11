@@ -1,22 +1,15 @@
 <!DOCTYPE html>
 <html lang="en">
 {% load static %}
-
 <head>
+	<title>GTD Manager</title>
+	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<link href="{% static 'gtdmanager/bootstrap/css/bootstrap.min.css'%}" rel="stylesheet">
+	<link href="{% static 'gtdmanager/css/main.css'%}" rel="stylesheet">
 </head>
-
+	
 <body>
-	<style>
- 		.navbar {
- 			padding-top: 8px;
- 			padding-bottom: 8px;
- 		}
- 		
-		form { margin-top: 5px; }
-		.form-group {margin-bottom: 5px;}
-	</style>
 	
 	<div class="container">
 		<nav class="navbar navbar-default" role="navigation">
@@ -36,7 +29,7 @@
 			    </ul>
 			  </li>
 			  
-			  <li id="navbtn-projects" class="dropdown">
+			  <li id="navbtn-manage" class="dropdown">
 			  	<a class="dropdown-toggle" data-toggle="dropdown" data-hover="dropdown" href="#">
 			  		Manage<span class="caret"></span>
 			  	</a>

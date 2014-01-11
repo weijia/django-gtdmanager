@@ -1,0 +1,16 @@
+.navbar {
+	padding-top: 8px;
+	padding-bottom: 8px;
+}
+
+form {
+	margin-top: 5px;
+}
+
+.form-group {
+	margin-bottom: 5px;
+}
+
+.clearDiv {
+	clear: both;
+}

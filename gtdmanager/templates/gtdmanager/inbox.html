@@ -10,4 +10,32 @@
 		{% crispy itemform %}
 	</div>
 </div>
+<div class="clearDiv"></div>
+<br>
+
+<div class="col-xs-10">
+	<table class="table table-condensed table-striped">
+		<thead><tr>
+			<th class="col-xs-2">Project</th>
+			<th class="col-xs-3">Task</th>
+			<th class="col-xs-5">Action</th>
+		</tr></thead>
+		{% for item in items %}
+		<tr>
+			<td><a href="">{% if item.parent != None %}[{{item.parent}}]{% endif %}</a></td>
+			<td><a href="">{{item.name}}</a></td>
+			<td>
+				<a href="#" class="btn btn-danger btn-sm disabled">X</a>
+				<a href="#" class="btn btn-primary btn-sm disabled">Ref</a>
+				<a href="#" class="btn btn-primary btn-sm disabled">Project</a>
+				<a href="#" class="btn btn-primary btn-sm disabled">Someday</a>
+				<a href="#" class="btn btn-primary btn-sm disabled">Wait</a>
+				<a href="#" class="btn btn-success btn-sm disabled">Done</a>
+				<a href="#" class="btn btn-primary btn-sm disabled">Remind</a>
+				<a href="#" class="btn btn-primary btn-sm disabled">Next</a>
+			</td>
+		</tr>
+		{% endfor %}
+	</table>
+</div>
 {% endblock %}
