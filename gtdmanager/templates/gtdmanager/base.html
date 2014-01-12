@@ -14,8 +14,8 @@
 	<div class="container">
 		<nav class="navbar navbar-default" role="navigation">
 			<ul class="nav nav-pills">
-			  <li id="navbtn-inbox"><a href="inbox">Inbox</a></li>
-			  <li id="navbtn-next"><a href="next">Next</a></li>
+			  <li id="navbtn-inbox"><a href="{% url 'gtdmanager:inbox' %}">Inbox</a></li>
+			  <li id="navbtn-next"><a href="{% url 'gtdmanager:next' %}">Next</a></li>
 			  <li id="navbtn-projects" class="disabled"><a href="">Projects</a></li>
 			  <li id="navbtn-pending" class="dropdown">
 			  	<a class="dropdown-toggle" data-toggle="dropdown" data-hover="dropdown" href="#">

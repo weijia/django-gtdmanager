@@ -1,10 +1,10 @@
-from django.shortcuts import render_to_response
+from django.shortcuts import render_to_response, get_object_or_404
 from django.http import HttpResponseRedirect
 from django.core.urlresolvers import reverse
 from django.template import RequestContext
 
 from gtdmanager.forms import ItemForm
-from gtdmanager.models import Item
+from gtdmanager.models import Item, Project
 
 def home(request):
     return HttpResponseRedirect(reverse('gtdmanager:next'))
@@ -28,3 +28,11 @@ def inbox(request):
 
 def next(request):
     return render_to_response('gtdmanager/next.html', {'btnName': 'next'})
+
+def project_detail(request, project_id):
+    p = get_object_or_404(Project, pk=project_id)
+    # get all and split - should be faster than multiple requests with .filter(status=)
+    items = p.item_set.all()
+    nexts = [item for item in items if item.status == Item.NEXT]
+    return render_to_response('gtdmanager/project_detail.html',
+            {'p': p, 'nexts': nexts} )

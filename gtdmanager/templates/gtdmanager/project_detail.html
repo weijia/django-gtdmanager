@@ -1,0 +1,20 @@
+{% extends 'gtdmanager/base.html' %}
+
+{% block body %}
+<h2>Project {{ p.name }}</h2>
+{% if nexts %}
+	<table class="table table-condensed table-striped">
+		<caption>Next</caption>
+		<thead><tr>
+			<th class="col-xs-2">Name</th>
+			<th class="col-xs-2">Description</th>
+		</tr></thead>
+		{% for next in nexts %}
+		<tr>
+			<td>{{ next.name }}</td>
+			<td>{{ next.description }}</td>
+		</tr>
+		{% endfor %}
+	</table>
+{% endif %}
+{% endblock %}

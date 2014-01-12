@@ -22,7 +22,10 @@
 		</tr></thead>
 		{% for item in items %}
 		<tr>
-			<td><a href="">{% if item.parent != None %}[{{item.parent}}]{% endif %}</a></td>
+			<td>{% if item.parent != None %}
+				<a href="{% url 'gtdmanager:project_detail' item.parent.id %}">[ {{item.parent}} ]</a>
+				{% endif %}
+			</td>
 			<td><a href="">{{item.name}}</a></td>
 			<td>
 				<a href="#" class="btn btn-danger btn-sm disabled">X</a>
