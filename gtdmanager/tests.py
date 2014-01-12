@@ -8,7 +8,16 @@ class ItemTest(TestCase):
         item = Item.objects.create(name=expected_name)
         self.assertEqual(item.name, expected_name)
         self.assertEqual(item.status, Item.UNRESOLVED)
-    
+        
+    def test_has_short_id(self):
+        """
+        Tests whether Item class has some sort of short id (e.g. id field)
+        that can be used for identifying in URLs
+        """
+        item = Item(name="item")
+        item.save()
+        self.assertTrue(item.id in (0,1))
+        
 class ProjectTest(TestCase):
     def test_init(self):
         expected_name = 'some name'

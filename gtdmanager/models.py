@@ -26,7 +26,7 @@ class Item(models.Model):
     )
     
     objects = ItemManager()
-    name = models.CharField(max_length=64, primary_key=True)
+    name = models.CharField(max_length=64, unique=True)
     description = models.TextField(blank=True)
     status = models.CharField(max_length=1, choices=STATUSES, db_index=True)
     parent = models.ForeignKey('Project', blank=True, null=True)    
