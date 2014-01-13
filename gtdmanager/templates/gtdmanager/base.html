@@ -50,6 +50,8 @@
 	<script src="{% static 'gtdmanager/bootstrap/js/bootstrap-hover-dropdown.min.js'%}"></script>
 	<script>
 		$('#navbtn-{{ btnName }}').addClass('active')
+		{% block finish_scripts%}
+		{% endblock %}
 	</script>
 </body>
 </html>

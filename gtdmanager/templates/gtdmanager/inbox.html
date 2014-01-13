@@ -26,7 +26,7 @@
 				<a href="{% url 'gtdmanager:project_detail' item.parent.id %}">[ {{item.parent}} ]</a>
 				{% endif %}
 			</td>
-			<td><a href="">{{item.name}}</a></td>
+			<td><a href="{% url 'gtdmanager:inbox_edit_item' item.id %}">{{item.name}}</a></td>
 			<td>
 				<a href="#" class="btn btn-danger btn-sm disabled">X</a>
 				<a href="#" class="btn btn-primary btn-sm disabled">Ref</a>
@@ -41,4 +41,16 @@
 		{% endfor %}
 	</table>
 </div>
+
+{% block edit_modal %}
+{% endblock %}
+
+{% endblock %} 
+
+{% block finish_scripts %}
+	{% if editDivPrefix != None %}
+		item = $('#{{editDivPrefix}}Modal') 
+		item.modal('show')
+		item.on('hide.bs.modal', function (e) {window.location="{% url 'gtdmanager:inbox' %}"})
+	{% endif %}
 {% endblock %}

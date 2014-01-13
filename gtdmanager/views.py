@@ -26,6 +26,19 @@ def inbox(request):
     return render_to_response('gtdmanager/inbox.html', context_instance=RequestContext(request), 
         dictionary={ 'btnName': 'inbox', 'itemform': form, 'show_form' : show_form, 'items' : items })
 
+def inbox_edit_item(request, item_id):
+    item = get_object_or_404(Item, pk=item_id)
+    if request.method == "POST":
+        form = ItemForm(request.POST, instance=item)
+        if form.is_valid():
+            form.save()
+            return HttpResponseRedirect(reverse('gtdmanager:inbox'))
+    else:
+        form = ItemForm(instance=item)
+        
+    return render_to_response("gtdmanager/edititem.html",
+        {'itemform': form, 'editDivPrefix': "item"}, RequestContext(request))
+    
 def next(request):
     return render_to_response('gtdmanager/next.html', {'btnName': 'next'})
 
