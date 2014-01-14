@@ -6,6 +6,19 @@ from django.template import RequestContext
 from gtdmanager.forms import ItemForm
 from gtdmanager.models import Item, Project
 
+"""
+Helpers
+"""
+def inbox_change_item_status(item_id, new_status):
+    item = get_object_or_404(Item, pk=item_id)
+    item.status = new_status
+    item.save()
+    return HttpResponseRedirect(reverse('gtdmanager:inbox'))
+
+"""
+Views
+"""
+
 def home(request):
     return HttpResponseRedirect(reverse('gtdmanager:next'))
 
@@ -38,7 +51,22 @@ def inbox_edit_item(request, item_id):
         
     return render_to_response("gtdmanager/edititem.html",
         {'itemform': form, 'editDivPrefix': "item"}, RequestContext(request))
-    
+
+def inbox_delete_item(request, item_id):
+    return inbox_change_item_status(item_id, Item.DELETED)
+
+def inbox_complete_item(request, item_id):
+    return inbox_change_item_status(item_id, Item.COMPLETED)
+
+def inbox_reference_item(request, item_id):
+    return inbox_change_item_status(item_id, Item.REFERENCE)
+
+def inbox_someday_item(request, item_id):
+    return inbox_change_item_status(item_id, Item.SOMEDAY)
+
+def inbox_wait_item(request, item_id):
+    return inbox_change_item_status(item_id, Item.WAITING_FOR)
+
 def next(request):
     return render_to_response('gtdmanager/next.html', {'btnName': 'next'})
 

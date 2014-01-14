@@ -2,6 +2,10 @@ from django.test import TestCase
 from django.core.exceptions import ValidationError
 from gtdmanager.models import Item, Project
 
+"""
+Models Tests
+"""
+
 class ItemTest(TestCase):
     def test_item(self):
         expected_name = 'some name'

@@ -7,8 +7,9 @@ class ItemManager(models.Manager):
 class Item(models.Model):
     UNRESOLVED = 'U'
     DELETED = 'D'
+    COMPLETED = 'C'
     WAITING_FOR = 'W'
-    SOMEDAY_MAYBE = 'S'
+    SOMEDAY = 'S'
     REFERENCE = 'F'
     REMINDER = 'R'
     NEXT = 'N'
@@ -17,8 +18,9 @@ class Item(models.Model):
     STATUSES = (
         (UNRESOLVED, 'Unresolved'),
         (DELETED, 'Deleted'),
+        (COMPLETED, 'Completed'),
         (WAITING_FOR, 'Waiting for'),
-        (SOMEDAY_MAYBE, 'Someday/Maybe'),
+        (SOMEDAY, 'Someday/Maybe'),
         (REFERENCE, 'Reference'),
         (REMINDER, 'Reminder'),
         (NEXT, 'Next'),
