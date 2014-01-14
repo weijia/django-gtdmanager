@@ -30,7 +30,7 @@
 			<td>
 				<a href="{% url 'gtdmanager:inbox_delete_item' item.id %}" class="btn btn-danger btn-sm">X</a>
 				<a href="{% url 'gtdmanager:inbox_reference_item' item.id %}" class="btn btn-primary btn-sm">Ref</a>
-				<a href="#" class="btn btn-primary btn-sm disabled">Project</a>
+				<a href="{% url 'gtdmanager:inbox_item_to_project' item.id %}" class="btn btn-primary btn-sm">Project</a>
 				<a href="{% url 'gtdmanager:inbox_someday_item' item.id %}" class="btn btn-primary btn-sm">Someday</a>
 				<a href="{% url 'gtdmanager:inbox_wait_item' item.id %}" class="btn btn-primary btn-sm">Wait</a>
 				<a href="{% url 'gtdmanager:inbox_complete_item' item.id %}" class="btn btn-success btn-sm">Done</a>

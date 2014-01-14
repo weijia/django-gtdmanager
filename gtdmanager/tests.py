@@ -66,3 +66,19 @@ class ProjectTest(TestCase):
         with self.assertRaises(ValidationError):
             p1.parent = p3
             p1.clean_fields()
+
+    def test_convert(self):
+        item = Item(name='Tst')
+        item.save()
+        self.assertEqual(item.status, Item.UNRESOLVED)
+        self.assertEqual(len(Item.objects.all()), 1)
+        self.assertEqual(len(Project.objects.all()), 0)
+        p = Item.objects.convertTo(Project, item)
+        self.assertEqual(p.status, Item.PROJECT)
+        self.assertEqual(len(Item.objects.all()), 1)
+        self.assertEqual(len(Project.objects.all()), 1)
+    
+    def test_convert_nonitem(self):
+        item = Project('proj')
+        with self.assertRaises(RuntimeError):
+            Item.objects.convertTo(Project, item) #TODO - change to another model type

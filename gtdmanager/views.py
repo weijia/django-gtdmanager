@@ -67,6 +67,11 @@ def inbox_someday_item(request, item_id):
 def inbox_wait_item(request, item_id):
     return inbox_change_item_status(item_id, Item.WAITING_FOR)
 
+def inbox_item_to_project(request, item_id):
+    item = get_object_or_404(Item, pk=item_id)
+    Item.objects.convertTo(Project, item)
+    return HttpResponseRedirect(reverse('gtdmanager:project_detail', args=(item.id,)))
+
 def next(request):
     return render_to_response('gtdmanager/next.html', {'btnName': 'next'})
 

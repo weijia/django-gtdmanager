@@ -1,9 +1,23 @@
 from django.db import models
 from django.core.exceptions import ValidationError
-
-class ItemManager(models.Manager):
-    pass
     
+class ItemManager(models.Manager):
+    def convertTo(self, cls, item):
+        """
+        Converts unresolved Item class instance to class cls extending Item
+        @return: converted item
+        Modified from code in https://code.djangoproject.com/ticket/7623#comment:21
+        """
+        if not isinstance(item, Item) or item.status != Item.UNRESOLVED:
+            raise RuntimeError("passed item is not unresolved Item")
+        
+        converted = cls(item_ptr_id=item.id)
+        attrs = item.__dict__
+        attrs.pop('status')
+        converted.__dict__.update(attrs)
+        converted.save()
+        return converted
+
 class Item(models.Model):
     UNRESOLVED = 'U'
     DELETED = 'D'
