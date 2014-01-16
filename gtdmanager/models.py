@@ -83,7 +83,7 @@ class Item(models.Model):
 
 class Project(Item):
     def __init__(self, *args, **kwargs):
-        kwargs['status'] = kwargs.get('status', self.PROJECT)
+        kwargs['status'] = self.PROJECT
         super(Project, self).__init__(*args, **kwargs)
         
     def is_parent_of(self, child):
