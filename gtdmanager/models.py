@@ -112,4 +112,7 @@ def init_models():
        default_context = Context(name=Context.default_name, is_default=True)
        default_context.save()
 
-init_models()
+try:
+    init_models()
+except:
+    print "Models init failed. Ignore if performing syncdb"
