@@ -1,6 +1,31 @@
 from django.db import models
 from django.core.exceptions import ValidationError
+
+class ContextManager(models.Manager):
     
+    def default_context(self):
+        return self.filter(is_default=True).first()
+
+class Context(models.Model):    
+    default_name = 'Everywhere'
+    
+    name = models.CharField(max_length=64, unique=True)
+    is_default = models.BooleanField(default=False)
+    
+    objects = ContextManager()
+    
+    def __unicode__(self):
+        return self.name
+    
+    def save(self, force_insert=False, force_update=False, using=None,
+             update_fields=None):
+        if self.is_default:
+            default = Context.objects.default_context()
+            if default is not None:     # in model init
+                default.is_default = False
+                default.save(update_fields=['is_default'])
+        super(Context, self).save(force_insert, force_update, using, update_fields)
+
 class ItemManager(models.Manager):
     def convertTo(self, cls, item):
         """
@@ -76,3 +101,15 @@ class Project(Item):
             raise ValidationError("%(parent)s parenting %(child)s creates circular project reference",
                       params={ 'parent': self.parent, 'child': self }
                   )
+
+"""
+Post init procedures, should be called in test setup
+Should be solved via signalS, but they aren't working well in Django 1.6
+"""
+def init_models():
+    # Ensure at least one Context instance with default true
+    if Context.objects.count() == 0:
+       default_context = Context(name=Context.default_name, is_default=True)
+       default_context.save()
+
+init_models()

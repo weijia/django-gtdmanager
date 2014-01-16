@@ -1,12 +1,17 @@
 from django.test import TestCase
 from django.core.exceptions import ValidationError
-from gtdmanager.models import Item, Project
+from gtdmanager.models import Item, Project, Context, init_models
 
 """
 Models Tests
 """
 
-class ItemTest(TestCase):
+class GtdManagerTestCase(TestCase):
+    def _pre_setup(self):
+        super(GtdManagerTestCase, self)._pre_setup()
+        init_models()
+
+class ItemTest(GtdManagerTestCase):
     def test_item(self):
         expected_name = 'some name'
         item = Item.objects.create(name=expected_name)
@@ -22,7 +27,7 @@ class ItemTest(TestCase):
         item.save()
         self.assertTrue(item.id in (0,1))
         
-class ProjectTest(TestCase):
+class ProjectTest(GtdManagerTestCase):
     def test_init(self):
         expected_name = 'some name'
         p = Project.objects.create(name=expected_name)
@@ -82,3 +87,18 @@ class ProjectTest(TestCase):
         item = Project('proj')
         with self.assertRaises(RuntimeError):
             Item.objects.convertTo(Project, item) #TODO - change to another model type
+
+class ContextTest(GtdManagerTestCase):
+    def check_consistency(self):
+        self.assertEqual(len(Context.objects.filter(is_default=True)), 1)
+        
+    def test_default_always_exists(self):
+        self.check_consistency()
+        self.assertEquals(Context.objects.count(), 1)
+    
+    def test_create_new_default_context(self):
+        new_def_context = Context(name='context5', is_default=True)
+        new_def_context.save()
+        self.assertEqual(new_def_context.is_default, True)
+        self.assertEqual(Context.objects.default_context(), new_def_context)
+        self.check_consistency()
