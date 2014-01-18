@@ -35,7 +35,7 @@
 				<a href="{% url 'gtdmanager:item_wait' item.id %}" class="btn btn-primary btn-sm">Wait</a>
 				<a href="{% url 'gtdmanager:item_complete' item.id %}" class="btn btn-success btn-sm">Done</a>
 				<a href="#" class="btn btn-primary btn-sm disabled">Remind</a>
-				<a href="#" class="btn btn-primary btn-sm disabled">Next</a>
+				<a href="{% url 'gtdmanager:inbox_next_edit' item.id %}" class="btn btn-primary btn-sm">Next</a>
 			</td>
 		</tr>
 		{% endfor %}
@@ -51,6 +51,6 @@
 	{% if editDivPrefix != None %}
 		item = $('#{{editDivPrefix}}Modal') 
 		item.modal('show')
-		item.on('hide.bs.modal', function (e) {window.location="{% url 'gtdmanager:inbox' %}"})
+		item.on('hide.bs.modal', function (e) {window.location="{% if cancel_url %}{{cancel_url}}{% else %}{% url 'gtdmanager:inbox' %}{% endif %}"})
 	{% endif %}
 {% endblock %}

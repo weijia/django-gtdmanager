@@ -15,6 +15,10 @@ urlpatterns = patterns('',
     url(r'^item/(?P<item_id>\d+)/to_project$', views.item_to_project, name='item_to_project'),
     
     url(r'^next$', views.next, name='next'),
+    url(r'^next/(?P<item_id>\d+)/edit$', views.inbox_next_edit, name='inbox_next_edit'),
+    url(r'^next/(?P<next_id>\d+)/to_item$', views.inbox_next_to_item, name='inbox_next_to_item'),
+    
+    
     url(r'^projects/(?P<project_id>\d+)$', views.project_detail, name='project_detail'),
 
     url(r'^contexts$', views.contexts, name='contexts'),

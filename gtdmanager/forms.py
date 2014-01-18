@@ -1,7 +1,7 @@
 from django import forms
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Layout, Submit
-from gtdmanager.models import Item, Context
+from gtdmanager.models import Item, Context, Next
 
 class ItemForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
@@ -31,3 +31,8 @@ class ContextForm(forms.ModelForm):
     class Meta:
         model = Context
         exclude = ('is_default',)
+
+class NextForm(ItemForm):
+    class Meta:
+        model = Next
+        exclude = ('status',)

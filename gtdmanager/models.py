@@ -47,9 +47,9 @@ class ItemManager(models.Manager):
         if not isinstance(item, Item) or item.status != Item.UNRESOLVED:
             raise RuntimeError("passed item is not unresolved Item")
         
-        converted = cls(item_ptr_id=item.id)
         attrs = item.__dict__
         attrs.pop('status')
+        converted = cls(item_ptr_id=item.id, instance=item)
         converted.__dict__.update(attrs)
         return converted
 
@@ -94,6 +94,7 @@ class Item(models.Model):
 class Project(Item):
     def __init__(self, *args, **kwargs):
         kwargs['status'] = self.PROJECT
+        kwargs.pop('instance', None)
         super(Project, self).__init__(*args, **kwargs)
         
     def is_parent_of(self, child):
@@ -112,29 +113,42 @@ class Project(Item):
                       params={ 'parent': self.parent, 'child': self }
                   )
 
-class Next(Item):
+class ContextsItem(Item):
     """
     Warning: due to containing ManyToManyField forcing at least one association,
     it is autosaved on creation
     """
 
     contexts = models.ManyToManyField(Context)
-
+    
+    class Meta:
+        abstract = True
+    
     def __init__(self, *args, **kwargs):
-        kwargs['status'] = self.NEXT
         contextSet = []
         if 'context' in kwargs:
             contextSet.append(kwargs.pop('context'))
         if 'contexts' in kwargs:
             contextSet.extend(kwargs.pop('contexts'))
+        instance = kwargs.pop('instance', None)
 
-        super(Next, self).__init__(*args, **kwargs)
+        super(ContextsItem, self).__init__(*args, **kwargs)
+        
+        if instance:
+            self.__dict__.update(instance.__dict__)
         self.createdAt = timezone.now() # next save would failed otherwise
         self.save()
         if contextSet:
             self.contexts.add(*contextSet)
         elif self.contexts.count() == 0:
             self.contexts.add(Context.objects.default_context())
+
+class Next(ContextsItem):
+
+    def __init__(self, *args, **kwargs):
+        kwargs['status'] = self.NEXT
+        super(Next, self).__init__(*args, **kwargs)
+
 
 """
 Post init procedures, should be called in test setup
