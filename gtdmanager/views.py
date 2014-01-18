@@ -69,7 +69,8 @@ def item_wait(request, item_id):
 
 def item_to_project(request, item_id):
     item = get_object_or_404(Item, pk=item_id)
-    Item.objects.convertTo(Project, item)
+    project = Item.objects.convertTo(Project, item)
+    project.save()
     return HttpResponseRedirect(reverse('gtdmanager:project_detail', args=(item.id,)))
 
 def next(request):

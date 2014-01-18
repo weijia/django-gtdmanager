@@ -79,6 +79,7 @@ class ProjectTest(GtdManagerTestCase):
         self.assertEqual(len(Item.objects.all()), 1)
         self.assertEqual(len(Project.objects.all()), 0)
         p = Item.objects.convertTo(Project, item)
+        p.save()
         self.assertEqual(p.status, Item.PROJECT)
         self.assertEqual(len(Item.objects.all()), 1)
         self.assertEqual(len(Project.objects.all()), 1)
@@ -86,7 +87,7 @@ class ProjectTest(GtdManagerTestCase):
     def test_convert_nonitem(self):
         item = Project('proj')
         with self.assertRaises(RuntimeError):
-            Item.objects.convertTo(Project, item) #TODO - change to another model type
+            Item.objects.convertTo(Next, item)
 
 class ContextTest(GtdManagerTestCase):
     def check_consistency(self):

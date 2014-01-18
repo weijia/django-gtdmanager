@@ -40,7 +40,6 @@ class ItemManager(models.Manager):
         attrs = item.__dict__
         attrs.pop('status')
         converted.__dict__.update(attrs)
-        converted.save()
         return converted
 
 class Item(models.Model):
@@ -75,7 +74,7 @@ class Item(models.Model):
     lastChanged = models.DateTimeField(auto_now=True)
             
     def __init__(self, *args, **kwargs):
-        kwargs['status'] = kwargs.get('status', self.UNRESOLVED)
+        kwargs.setdefault('status', self.UNRESOLVED)
         super(Item, self).__init__(*args, **kwargs)
         
     def __unicode__(self):
