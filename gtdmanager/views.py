@@ -1,15 +1,15 @@
-from django.shortcuts import render_to_response, get_object_or_404
+from django.shortcuts import render_to_response, get_object_or_404, get_list_or_404
 from django.http import HttpResponseRedirect
 from django.core.urlresolvers import reverse
 from django.template import RequestContext
 
-from gtdmanager.forms import ItemForm
-from gtdmanager.models import Item, Project
+from gtdmanager.models import Item, Project, Context
+from gtdmanager.forms import ItemForm, ContextForm
 
 """
 Helpers
 """
-def inbox_change_item_status(item_id, new_status):
+def change_item_status(item_id, new_status):
     item = get_object_or_404(Item, pk=item_id)
     item.status = new_status
     item.save()
@@ -39,7 +39,7 @@ def inbox(request):
     return render_to_response('gtdmanager/inbox.html', context_instance=RequestContext(request), 
         dictionary={ 'btnName': 'inbox', 'itemform': form, 'show_form' : show_form, 'items' : items })
 
-def inbox_edit_item(request, item_id):
+def inbox_item_edit(request, item_id):
     item = get_object_or_404(Item, pk=item_id)
     if request.method == "POST":
         form = ItemForm(request.POST, instance=item)
@@ -52,22 +52,22 @@ def inbox_edit_item(request, item_id):
     return render_to_response("gtdmanager/edititem.html",
         {'itemform': form, 'editDivPrefix': "item"}, RequestContext(request))
 
-def inbox_delete_item(request, item_id):
-    return inbox_change_item_status(item_id, Item.DELETED)
+def item_delete(request, item_id):
+    return change_item_status(item_id, Item.DELETED)
 
-def inbox_complete_item(request, item_id):
-    return inbox_change_item_status(item_id, Item.COMPLETED)
+def item_complete(request, item_id):
+    return change_item_status(item_id, Item.COMPLETED)
 
-def inbox_reference_item(request, item_id):
-    return inbox_change_item_status(item_id, Item.REFERENCE)
+def item_reference(request, item_id):
+    return change_item_status(item_id, Item.REFERENCE)
 
-def inbox_someday_item(request, item_id):
-    return inbox_change_item_status(item_id, Item.SOMEDAY)
+def item_someday(request, item_id):
+    return change_item_status(item_id, Item.SOMEDAY)
 
-def inbox_wait_item(request, item_id):
-    return inbox_change_item_status(item_id, Item.WAITING_FOR)
+def item_wait(request, item_id):
+    return change_item_status(item_id, Item.WAITING_FOR)
 
-def inbox_item_to_project(request, item_id):
+def item_to_project(request, item_id):
     item = get_object_or_404(Item, pk=item_id)
     Item.objects.convertTo(Project, item)
     return HttpResponseRedirect(reverse('gtdmanager:project_detail', args=(item.id,)))
@@ -81,4 +81,4 @@ def project_detail(request, project_id):
     items = p.item_set.all()
     nexts = [item for item in items if item.status == Item.NEXT]
     return render_to_response('gtdmanager/project_detail.html',
-            {'p': p, 'nexts': nexts} )
+            {'p': p, 'nexts': nexts, 'btnName': 'projects',} )
