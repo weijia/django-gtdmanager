@@ -30,7 +30,7 @@
 			<td>
 				<a href="{% url 'gtdmanager:context_edit' context.id %}">{{context.name}}</a>
 				{% if not context.is_default %}
-				<a class="btn btn-danger pull-right btn-sm disabled" href="{% url 'gtdmanager:context_delete' context.id %}">X</a><br>
+				<a class="btn btn-danger pull-right btn-sm" href="{% url 'gtdmanager:context_delete' context.id %}">X</a><br>
 				{% endif %}
 			</td>
 		</tr>

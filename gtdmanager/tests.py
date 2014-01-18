@@ -104,6 +104,11 @@ class ContextTest(GtdManagerTestCase):
         self.assertEqual(Context.objects.default_context(), new_def_context)
         self.check_consistency()
 
+    def test_disallow_delete_default(self):
+        context = Context.objects.default_context()
+        with self.assertRaises(RuntimeError):
+            context.delete()
+
 class NextTest(GtdManagerTestCase):
     def test_status(self):
         item = Next(name='something')
@@ -142,3 +147,36 @@ class NextTest(GtdManagerTestCase):
     
     def test_convert_no_save(self):
         self.convert(False)
+
+    def test_new_default_context_not_added(self):
+        task = Next(name='task')
+        self.assertEqual(task.contexts.count(), 1)
+        new_def = Context(name='newdef', is_default=True)
+        new_def.save()
+        self.assertEqual(task.contexts.count(), 1)
+        task = Next.objects.get(pk=task.id)
+        self.assertEqual(task.contexts.count(), 1)
+    
+    def delete_owning_setup(self):
+        ctx = Context(name='ctx')
+        ctx.save()
+        new_def = Context(name='default', is_default=True)
+        new_def.save()
+        return (ctx, new_def)
+
+    def test_delete_owning_single_context(self):
+        context, new_def = self.delete_owning_setup()
+        task = Next(name='task', context=context) #saved
+        context.delete()
+        self.assertEqual(Context.objects.count(), 2)
+        self.assertItemsEqual(task.contexts.all(), (new_def,))
+    
+    def test_delete_owning_multiple_contexts(self):
+        old_def = Context.objects.default_context()
+        context, _ = self.delete_owning_setup()
+        task = Next(name='task', contexts=(old_def, context)) #saved
+        self.assertEqual(task.contexts.count(), 2)
+        old_def = Context.objects.get(pk=old_def.id)
+        old_def.delete()
+        self.assertEqual(Context.objects.count(), 2)
+        self.assertItemsEqual(task.contexts.all(), (context,))

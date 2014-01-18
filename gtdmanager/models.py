@@ -22,10 +22,20 @@ class Context(models.Model):
              update_fields=None):
         if self.is_default:
             default = Context.objects.default_context()
-            if default is not None:     # in model init
+            if default is not None and default is not self:     # in model init
                 default.is_default = False
                 default.save(update_fields=['is_default'])
         super(Context, self).save(force_insert, force_update, using, update_fields)
+
+    def delete(self, using=None):
+        if self.is_default:
+            raise RuntimeError("Cannot delete default context")
+        super(Context, self).delete(using=using)
+
+        # get nexts with no context and assign them the default one
+        default = Context.objects.default_context()
+        for item in Next.objects.filter(contexts__isnull = True):
+            item.contexts.add(default)
 
 class ItemManager(models.Manager):
     def convertTo(self, cls, item):
@@ -123,7 +133,7 @@ class Next(Item):
         self.save()
         if contextSet:
             self.contexts.add(*contextSet)
-        else:
+        elif self.contexts.count() == 0:
             self.contexts.add(Context.objects.default_context())
 
 """
