@@ -1,5 +1,6 @@
 from django.db import models
 from django.core.exceptions import ValidationError
+from django.utils import timezone
 
 class ContextManager(models.Manager):
     
@@ -101,6 +102,30 @@ class Project(Item):
                       params={ 'parent': self.parent, 'child': self }
                   )
 
+class Next(Item):
+    """
+    Warning: due to containing ManyToManyField forcing at least one association,
+    it is autosaved on creation
+    """
+
+    contexts = models.ManyToManyField(Context)
+
+    def __init__(self, *args, **kwargs):
+        kwargs['status'] = self.NEXT
+        contextSet = []
+        if 'context' in kwargs:
+            contextSet.append(kwargs.pop('context'))
+        if 'contexts' in kwargs:
+            contextSet.extend(kwargs.pop('contexts'))
+
+        super(Next, self).__init__(*args, **kwargs)
+        self.createdAt = timezone.now() # next save would failed otherwise
+        self.save()
+        if contextSet:
+            self.contexts.add(*contextSet)
+        else:
+            self.contexts.add(Context.objects.default_context())
+
 """
 Post init procedures, should be called in test setup
 Should be solved via signalS, but they aren't working well in Django 1.6
@@ -108,8 +133,8 @@ Should be solved via signalS, but they aren't working well in Django 1.6
 def init_models():
     # Ensure at least one Context instance with default true
     if Context.objects.count() == 0:
-       default_context = Context(name=Context.default_name, is_default=True)
-       default_context.save()
+        default_context = Context(name=Context.default_name, is_default=True)
+        default_context.save()
 
 try:
     init_models()
