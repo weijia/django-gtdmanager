@@ -82,3 +82,41 @@ def project_detail(request, project_id):
     nexts = [item for item in items if item.status == Item.NEXT]
     return render_to_response('gtdmanager/project_detail.html',
             {'p': p, 'nexts': nexts, 'btnName': 'projects',} )
+
+def contexts(request):
+    contexts = get_list_or_404(Context)
+    
+    if request.method == "POST":
+        form = ContextForm(request.POST)
+        if form.is_valid():
+            form.save()
+            form = ContextForm()
+            return HttpResponseRedirect(reverse('gtdmanager:contexts'))
+    else:
+        form = ContextForm()
+    return render_to_response('gtdmanager/contexts.html',
+        {'btnName': 'manage', 'contexts': contexts, 'form': form}, RequestContext(request))
+
+def context_edit(request, ctx_id):
+    context = get_object_or_404(Context, pk=ctx_id)
+    if request.method == "POST":
+        form = ContextForm(request.POST, instance=context)
+        if form.is_valid():
+            form.save()
+            return HttpResponseRedirect(reverse('gtdmanager:contexts'))
+    else:
+        form = ContextForm(instance=context)
+        
+    return render_to_response("gtdmanager/editcontext.html",
+        {'form': form, 'editDivPrefix': "context"}, RequestContext(request))
+
+def context_set_default(request, ctx_id):
+    context = get_object_or_404(Context, pk=ctx_id)
+    context.is_default = True
+    context.save()
+    return HttpResponseRedirect(reverse('gtdmanager:contexts'))
+
+def context_delete(request, ctx_id):
+    context = get_object_or_404(Context, pk=ctx_id)
+    context.delete()
+    return HttpResponseRedirect(reverse('gtdmanager:contexts'))

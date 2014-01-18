@@ -1,7 +1,7 @@
 from django import forms
 from crispy_forms.helper import FormHelper
-from crispy_forms.layout import Submit
-from gtdmanager.models import Item
+from crispy_forms.layout import Layout, Submit
+from gtdmanager.models import Item, Context
 
 class ItemForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
@@ -14,3 +14,20 @@ class ItemForm(forms.ModelForm):
     class Meta:
         model = Item
         exclude = ('status',)
+
+class ContextForm(forms.ModelForm):
+    def __init__(self, *args, **kwargs):
+        if 'instance' not in kwargs:
+            kwargs['instance'] = Context()
+        super(ContextForm, self).__init__(*args, **kwargs)
+        self.helper = FormHelper()
+        self.helper.form_class = 'form-inline'
+        self.helper.field_template = 'bootstrap3/layout/inline_field.html'
+        self.helper.layout = Layout(
+            'name',
+            Submit('submit', 'Submit'),
+        )
+        
+    class Meta:
+        model = Context
+        exclude = ('is_default',)

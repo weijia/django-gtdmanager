@@ -16,4 +16,9 @@ urlpatterns = patterns('',
     
     url(r'^next$', views.next, name='next'),
     url(r'^projects/(?P<project_id>\d+)$', views.project_detail, name='project_detail'),
+
+    url(r'^contexts$', views.contexts, name='contexts'),
+    url(r'^contexts/(?P<ctx_id>\d+)/edit$', views.context_edit, name='context_edit'),
+    url(r'^contexts/(?P<ctx_id>\d+)/delete$', views.context_delete, name='context_delete'),
+    url(r'^contexts/(?P<ctx_id>\d+)/setdefault$', views.context_set_default, name='context_set_default'),
 )

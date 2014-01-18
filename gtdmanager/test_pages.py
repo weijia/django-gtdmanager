@@ -86,3 +86,16 @@ class InboxTest(GtdManagerTestCase):
     def test_item_to_project_nonexisting(self):
         response = Client().get(reverse('gtdmanager:item_to_project', args=(15,)))
         self.assertEqual(response.status_code, 404)
+
+class ContextsTest(GtdManagerTestCase):
+
+    def test_working(self):
+        response = Client().get(reverse('gtdmanager:contexts'))
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.context['btnName'], 'manage')
+        self.assertTrue('contexts', response.context)
+        self.assertIn('form', response.context)
+    
+    def test_edit(self):
+        response = Client().get(reverse('gtdmanager:context_edit', args=(1,)))
+        self.assertEqual(response.status_code, 200)

@@ -14,3 +14,7 @@ form {
 .clearDiv {
 	clear: both;
 }
+
+.errorDiv {
+	color: red;
+}

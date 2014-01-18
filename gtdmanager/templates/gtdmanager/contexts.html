@@ -1,0 +1,58 @@
+{% extends 'gtdmanager/base.html' %}
+{% load crispy_forms_tags %}
+
+{% block body %}
+<h3>Contexts</h3>
+
+<strong>Add new context</strong>
+{% if form.errors %}
+  <div class="errorDiv">
+	{% for fieldname, error in form.errors.iteritems %} 
+		{{ error|striptags }}
+	{% endfor %}
+  </div>
+{% endif %}
+{% crispy form %}
+<hr>
+
+<div class="col-xs-4">
+	<table class="table table-condensed table-striped">
+		<thead>
+			<th class="col-xs-1">Default</th>
+			<th>Name</th>
+		</thead>
+		{% for context in contexts %}	
+		<tr>
+			<td>
+				<input type="radio" name="default" id="option_default_{{forloop.counter}}"
+				value="{{context.id}}"{% if context.is_default %} checked {% endif%}>
+			</td>
+			<td>
+				<a href="{% url 'gtdmanager:context_edit' context.id %}">{{context.name}}</a>
+				{% if not context.is_default %}
+				<a class="btn btn-danger pull-right btn-sm disabled" href="{% url 'gtdmanager:context_delete' context.id %}">X</a><br>
+				{% endif %}
+			</td>
+		</tr>
+		{% endfor %}
+	</table>
+</div>
+
+{% block edit_modal %}
+{% endblock %}
+
+{% endblock %}
+
+{% block finish_scripts %}
+	{% if editDivPrefix != None %}
+		item = $('#{{editDivPrefix}}Modal') 
+		item.modal('show')
+		item.on('hide.bs.modal', function (e) {window.location="{% url 'gtdmanager:contexts' %}"})
+	{% endif %}
+	
+	$("input[name='default']").change(function() {
+	    var selected_id = $("input[name='default']:checked").val();
+	    var redir_base = "{% url 'gtdmanager:context_set_default' 0 %}"
+	    window.location = redir_base.replace('/0/', '/'+selected_id+'/')
+	});
+{% endblock %}
