@@ -24,6 +24,7 @@ urlpatterns = patterns('',
     url(r'^projects/(?P<project_id>\d+)$', views.project_detail, name='project_detail'),
     
     url(r'^waiting$', views.waiting, name='waiting'),
+    url(r'^references', views.references, name='references'),
 
     url(r'^contexts$', views.contexts, name='contexts'),
     url(r'^contexts/(?P<ctx_id>\d+)/edit$', views.context_edit, name='context_edit'),

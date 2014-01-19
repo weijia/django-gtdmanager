@@ -169,8 +169,15 @@ def contexts(request):
 
 def waiting(request):
     waiting = Item.objects.filter(status=Item.WAITING_FOR)
-    return render_to_response('gtdmanager/waiting.html',
-        {'btnName': 'pending', 'waiting': waiting}, RequestContext(request))
+    return render_to_response('gtdmanager/itemlist.html',
+       {'btnName': 'pending', 'header': 'Waiting', 'redir_page': 'waiting', 'items': waiting},
+        RequestContext(request))
+
+def references(request):
+    items = Item.objects.filter(status=Item.REFERENCE)
+    return render_to_response('gtdmanager/itemlist.html',
+        {'btnName': 'pending', 'header': 'References', 'redir_page': 'references', 'items': items},
+        RequestContext(request))
 
 def context_edit(request, ctx_id):
     context = get_object_or_404(Context, pk=ctx_id)

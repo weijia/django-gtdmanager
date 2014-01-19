@@ -8,6 +8,13 @@ from gtdmanager.tests import GtdManagerTestCase
 """
 Test pages funcionality
 """
+def prepare_completed_finished():
+    item = Item(name='completed')
+    item.status = Item.COMPLETED
+    item.save()
+    item2 = Item(name='deleted')
+    item2.status = Item.DELETED
+    item2.save()
 
 class InboxTest(GtdManagerTestCase):
     def test_page_working(self):
@@ -150,6 +157,7 @@ class ContextsTest(GtdManagerTestCase):
         self.assertIn('form', response.context)
     
     def test_edit(self):
+        prepare_completed_finished()
         response = Client().get(reverse('gtdmanager:context_edit', args=(1,)))
         self.assertEqual(response.status_code, 200)
 
@@ -160,15 +168,26 @@ class WaitingTest(GtdManagerTestCase):
         item.save()
         response = Client().get(reverse('gtdmanager:waiting'))
         self.assertEqual(response.status_code, 200)
-        self.assertItemsEqual((item,), response.context['waiting'])
+        self.assertItemsEqual((item,), response.context['items'])
 
     def test_hide_finished(self):
-        item = Item(name='completed')
-        item.status = Item.COMPLETED
-        item.save()
-        item2 = Item(name='deleted')
-        item2.status = Item.DELETED
-        item2.save()
+        prepare_completed_finished()
         response = Client().get(reverse('gtdmanager:waiting'))
         self.assertEqual(response.status_code, 200)
-        self.assertItemsEqual((), response.context['waiting'])
+        self.assertItemsEqual((), response.context['items'])
+
+
+class ReferencesTest(GtdManagerTestCase):
+    def test_working(self):
+        item = Item(name='ref')
+        item.status = Item.REFERENCE
+        item.save()
+        response = Client().get(reverse('gtdmanager:references'))
+        self.assertEqual(response.status_code, 200)
+        self.assertItemsEqual((item,), response.context['items'])
+
+    def test_hide_finished(self):
+        prepare_completed_finished()
+        response = Client().get(reverse('gtdmanager:references'))
+        self.assertEqual(response.status_code, 200)
+        self.assertItemsEqual((), response.context['items'])
