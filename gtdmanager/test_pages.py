@@ -191,3 +191,18 @@ class ReferencesTest(GtdManagerTestCase):
         response = Client().get(reverse('gtdmanager:references'))
         self.assertEqual(response.status_code, 200)
         self.assertItemsEqual((), response.context['items'])
+
+class SomkedayTest(GtdManagerTestCase):
+    def test_working(self):
+        item = Item(name='ref')
+        item.status = Item.SOMEDAY
+        item.save()
+        response = Client().get(reverse('gtdmanager:someday'))
+        self.assertEqual(response.status_code, 200)
+        self.assertItemsEqual((item,), response.context['items'])
+
+    def test_hide_finished(self):
+        prepare_completed_finished()
+        response = Client().get(reverse('gtdmanager:someday'))
+        self.assertEqual(response.status_code, 200)
+        self.assertItemsEqual((), response.context['items'])

@@ -172,6 +172,12 @@ def waiting(request):
     return render_to_response('gtdmanager/itemlist.html',
        {'btnName': 'pending', 'header': 'Waiting', 'redir_page': 'waiting', 'items': waiting},
         RequestContext(request))
+    
+def someday(request):
+    items = Item.objects.filter(status=Item.SOMEDAY)
+    return render_to_response('gtdmanager/itemlist.html',
+       {'btnName': 'pending', 'header': 'Someday / Maybe', 'redir_page': 'someday', 'items': items},
+        RequestContext(request))
 
 def references(request):
     items = Item.objects.filter(status=Item.REFERENCE)
