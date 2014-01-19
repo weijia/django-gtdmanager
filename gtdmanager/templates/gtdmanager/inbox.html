@@ -34,7 +34,7 @@
 				<a href="{% url 'gtdmanager:item_someday' item.id %}" class="btn btn-primary btn-sm">Someday</a>
 				<a href="{% url 'gtdmanager:item_wait' item.id %}" class="btn btn-primary btn-sm">Wait</a>
 				<a href="{% url 'gtdmanager:item_complete' item.id %}" class="btn btn-success btn-sm">Done</a>
-				<a href="#" class="btn btn-primary btn-sm disabled">Remind</a>
+				<a href="{% url 'gtdmanager:inbox_reminder_edit' item.id %}" class="btn btn-primary btn-sm">Remind</a>
 				<a href="{% url 'gtdmanager:inbox_next_edit' item.id %}" class="btn btn-primary btn-sm">Next</a>
 			</td>
 		</tr>

@@ -4,8 +4,8 @@ from django.core.urlresolvers import reverse
 from django.template import RequestContext
 from django.db import connection, transaction
 
-from gtdmanager.models import Item, Project, Context, Next
-from gtdmanager.forms import ItemForm, ContextForm, NextForm
+from gtdmanager.models import Item, Project, Context, Next, Reminder
+from gtdmanager.forms import ItemForm, ContextForm, NextForm, ReminderForm
 
 """
 Helpers
@@ -81,6 +81,32 @@ def item_to_project(request, item_id):
     project.save()
     return HttpResponseRedirect(reverse('gtdmanager:project_detail', args=(item.id,)))
 
+def inbox_reminder_edit(request, item_id):
+    try:
+        item = Reminder.objects.get(pk=item_id)
+    except:
+        item = get_object_or_404(Item, pk=item_id)
+        item = Item.objects.convertTo(Reminder, item)
+
+    print item
+    if request.method == "POST":
+        form = ReminderForm(request.POST, instance=item)
+        if form.is_valid():
+            form.save()
+            return HttpResponseRedirect(reverse('gtdmanager:inbox'))
+    else:
+        form = ReminderForm(instance=item)
+        
+    return render_to_response("gtdmanager/editreminder.html",
+        {'itemform': form, 'editDivPrefix': "reminder",
+         'cancel_url': reverse('gtdmanager:inbox_reminder_to_item', args=(item_id,))},
+        RequestContext(request))
+
+def inbox_reminder_to_item(request, item_id):
+    the_next = get_object_or_404(Reminder, pk=item_id)
+    make_unresolved(the_next, Reminder)
+    return HttpResponseRedirect(reverse('gtdmanager:inbox'))
+
 def inbox_next_edit(request, item_id):
     try:
         item = Next.objects.get(pk=item_id)
@@ -102,13 +128,13 @@ def inbox_next_edit(request, item_id):
          'cancel_url': reverse('gtdmanager:inbox_next_to_item', args=(item_id,))},
         RequestContext(request))
 
-def next(request):
-    return render_to_response('gtdmanager/next.html', {'btnName': 'next'})
-
 def inbox_next_to_item(request, next_id):
     the_next = get_object_or_404(Next, pk=next_id)
     make_unresolved(the_next, Next)
     return HttpResponseRedirect(reverse('gtdmanager:inbox'))
+
+def next(request):
+    return render_to_response('gtdmanager/next.html', {'btnName': 'next'})
 
 def project_detail(request, project_id):
     p = get_object_or_404(Project, pk=project_id)

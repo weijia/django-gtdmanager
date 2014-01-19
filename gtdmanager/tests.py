@@ -1,6 +1,7 @@
 from django.test import TestCase
 from django.core.exceptions import ValidationError
-from gtdmanager.models import Item, Project, Context, Next, init_models
+from django.utils import timezone
+from gtdmanager.models import Item, Project, Context, Next, Reminder, init_models
 
 """
 Models Tests
@@ -180,3 +181,10 @@ class NextTest(GtdManagerTestCase):
         old_def.delete()
         self.assertEqual(Context.objects.count(), 2)
         self.assertItemsEqual(task.contexts.all(), (context,))
+
+class ReminderTest(GtdManagerTestCase):
+    
+    def test_init(self):
+        r = Reminder(name='doit')
+        self.assertGreater(r.remind_at, timezone.now())
+        self.assertItemsEqual(r.contexts.all(), (Context.objects.default_context(),))

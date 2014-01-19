@@ -18,6 +18,8 @@ urlpatterns = patterns('',
     url(r'^next/(?P<item_id>\d+)/edit$', views.inbox_next_edit, name='inbox_next_edit'),
     url(r'^next/(?P<next_id>\d+)/to_item$', views.inbox_next_to_item, name='inbox_next_to_item'),
     
+    url(r'^reminder/(?P<item_id>\d+)/edit$', views.inbox_reminder_edit, name='inbox_reminder_edit'),
+    url(r'^reminder/(?P<item_id>\d+)/to_item$', views.inbox_reminder_to_item, name='inbox_reminder_to_item'),
     
     url(r'^projects/(?P<project_id>\d+)$', views.project_detail, name='project_detail'),
 

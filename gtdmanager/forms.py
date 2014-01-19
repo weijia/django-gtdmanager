@@ -1,7 +1,8 @@
 from django import forms
 from crispy_forms.helper import FormHelper
-from crispy_forms.layout import Layout, Submit
-from gtdmanager.models import Item, Context, Next
+from crispy_forms.layout import Layout, Submit, Field
+from datetimewidget.widgets import DateTimeWidget
+from gtdmanager.models import Item, Context, Next, Reminder
 
 class ItemForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
@@ -35,4 +36,9 @@ class ContextForm(forms.ModelForm):
 class NextForm(ItemForm):
     class Meta:
         model = Next
+        exclude = ('status',)
+
+class ReminderForm(ItemForm):
+    class Meta:
+        model = Reminder
         exclude = ('status',)
