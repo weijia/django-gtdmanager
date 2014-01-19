@@ -152,3 +152,23 @@ class ContextsTest(GtdManagerTestCase):
     def test_edit(self):
         response = Client().get(reverse('gtdmanager:context_edit', args=(1,)))
         self.assertEqual(response.status_code, 200)
+
+class WaitingTest(GtdManagerTestCase):
+    def test_working(self):
+        item = Item(name='w8in4')
+        item.status = Item.WAITING_FOR
+        item.save()
+        response = Client().get(reverse('gtdmanager:waiting'))
+        self.assertEqual(response.status_code, 200)
+        self.assertItemsEqual((item,), response.context['waiting'])
+
+    def test_hide_finished(self):
+        item = Item(name='completed')
+        item.status = Item.COMPLETED
+        item.save()
+        item2 = Item(name='deleted')
+        item2.status = Item.DELETED
+        item2.save()
+        response = Client().get(reverse('gtdmanager:waiting'))
+        self.assertEqual(response.status_code, 200)
+        self.assertItemsEqual((), response.context['waiting'])

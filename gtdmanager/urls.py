@@ -22,6 +22,8 @@ urlpatterns = patterns('',
     url(r'^reminder/(?P<item_id>\d+)/to_item/(?P<redir_page>\w+)$', views.reminder_to_item, name='reminder_to_item'),
     
     url(r'^projects/(?P<project_id>\d+)$', views.project_detail, name='project_detail'),
+    
+    url(r'^waiting$', views.waiting, name='waiting'),
 
     url(r'^contexts$', views.contexts, name='contexts'),
     url(r'^contexts/(?P<ctx_id>\d+)/edit$', views.context_edit, name='context_edit'),

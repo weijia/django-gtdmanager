@@ -57,7 +57,8 @@ def item_edit(request, item_id, redir_page):
         form = ItemForm(instance=item)
         
     return render_to_response("gtdmanager/edititem.html",
-        {'itemform': form, 'editDivPrefix': "item"}, RequestContext(request))
+        {'itemform': form, 'editDivPrefix': "item", 'cancel_url': reverse('gtdmanager:'+redir_page)},
+        RequestContext(request))
 
 def item_delete(request, item_id, redir_page):
     change_item_status(item_id, Item.DELETED)
@@ -165,6 +166,11 @@ def contexts(request):
         form = ContextForm()
     return render_to_response('gtdmanager/contexts.html',
         {'btnName': 'manage', 'contexts': contexts, 'form': form}, RequestContext(request))
+
+def waiting(request):
+    waiting = Item.objects.filter(status=Item.WAITING_FOR)
+    return render_to_response('gtdmanager/waiting.html',
+        {'btnName': 'pending', 'waiting': waiting}, RequestContext(request))
 
 def context_edit(request, ctx_id):
     context = get_object_or_404(Context, pk=ctx_id)

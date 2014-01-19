@@ -1,0 +1,28 @@
+{% extends 'gtdmanager/base.html' %}
+
+{% block body %}
+<h1>Waiting</h1>
+<div class="col-xs-8">
+	<table class="table table-condensed table-striped">
+		<thead>
+			<tr>
+				<th class="col-xs-2">Project</th>
+				<th class="col-xs-6">Name</th>
+			</tr>
+		</thead>
+		{% for item in waiting %}
+		<tr>
+			<td>{% if item.parent != None %}
+				<a href="{% url 'gtdmanager:project_detail' item.parent.id %}">[ {{item.parent}} ]</a>
+				{% endif %}
+			</td>
+			<td>
+				<a href="{% url 'gtdmanager:item_edit' item.id 'waiting' %}">{{item.name}}</a>
+				<a href="{% url 'gtdmanager:item_delete' item.id 'waiting' %}" class="btn btn-danger pull-right btn-sm">X</a>
+				<a href="{% url 'gtdmanager:item_complete' item.id 'waiting' %}" class="btn btn-success pull-right btn-sm">Done</a>
+			</td>
+		</tr>
+		{% endfor %}
+	</table>
+</div>
+{% endblock %}
