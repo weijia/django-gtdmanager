@@ -1,7 +1,7 @@
 from django.db import models
 from django.core.exceptions import ValidationError
 from django.utils import timezone
-from datetime import timedelta
+from datetime import datetime, timedelta, date, time
 
 class ContextManager(models.Manager):
     
@@ -160,17 +160,26 @@ class Next(ContextsItem):
         kwargs['status'] = self.NEXT
         super(Next, self).__init__(*args, **kwargs)
 
+class ReminderManager(ItemManager):
+    def active(self):
+        tomorrow = datetime.combine(date.today(), time()) + timedelta(days=1)
+        tz = timezone.get_current_timezone()
+        return self.unfinished().filter(remind_at__lt=tomorrow.replace(tzinfo=tz))
+
 class Reminder(ContextsItem):
 
     remind_at = models.DateTimeField()
     
-    objects = ItemManager()
+    objects = ReminderManager()
 
     def __init__(self, *args, **kwargs):
         kwargs['status'] = self.REMINDER
         if 'remind_at' not in kwargs:
             kwargs['remind_at'] = timezone.now() + timedelta(minutes=10) 
         super(Reminder, self).__init__(*args, **kwargs)
+    
+    def active(self):
+        return self.remind_at.date() <= timezone.now().date()
 """
 Post init procedures, should be called in test setup
 Should be solved via signalS, but they aren't working well in Django 1.6

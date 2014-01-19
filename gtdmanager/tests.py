@@ -1,6 +1,7 @@
 from django.test import TestCase
 from django.core.exceptions import ValidationError
 from django.utils import timezone
+from datetime import timedelta
 from gtdmanager.models import Item, Project, Context, Next, Reminder, init_models
 
 """
@@ -232,3 +233,9 @@ class ReminderTest(GtdManagerTestCase):
 
     def test_unfinished(self):
         self.template_unfinished(Reminder, Item.REMINDER)
+
+    def test_active(self):
+        standard = Reminder(name='first')
+        self.assertTrue(standard.active())
+        standard.remind_at = timezone.now() + timedelta(days=1)
+        self.assertFalse(standard.active())
