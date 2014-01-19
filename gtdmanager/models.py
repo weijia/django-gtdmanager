@@ -23,7 +23,7 @@ class Context(models.Model):
              update_fields=None):
         if self.is_default:
             default = Context.objects.default_context()
-            if default is not None and default is not self:     # in model init
+            if default is not None and default is not self:  # in model init
                 default.is_default = False
                 default.save(update_fields=['is_default'])
         super(Context, self).save(force_insert, force_update, using, update_fields)
@@ -35,7 +35,7 @@ class Context(models.Model):
 
         # get nexts with no context and assign them the default one
         default = Context.objects.default_context()
-        for item in Next.objects.filter(contexts__isnull = True):
+        for item in Next.objects.filter(contexts__isnull=True):
             item.contexts.add(default)
 
 class ItemManager(models.Manager):
@@ -50,7 +50,7 @@ class ItemManager(models.Manager):
         
         attrs = item.__dict__
         attrs.pop('status')
-        converted = cls(item_ptr_id=item.id, instance=item)
+        converted = cls(item_ptr_id=item.id)
         converted.__dict__.update(attrs)
         return converted
 
@@ -86,8 +86,10 @@ class Item(models.Model):
     lastChanged = models.DateTimeField(auto_now=True)
             
     def __init__(self, *args, **kwargs):
-        kwargs.setdefault('status', self.UNRESOLVED)
+        set_status = kwargs.pop('status', self.UNRESOLVED)
         super(Item, self).__init__(*args, **kwargs)
+        if not self.status:
+            self.status = set_status
         
     def __unicode__(self):
         return self.name;  
@@ -95,7 +97,6 @@ class Item(models.Model):
 class Project(Item):
     def __init__(self, *args, **kwargs):
         kwargs['status'] = self.PROJECT
-        kwargs.pop('instance', None)
         super(Project, self).__init__(*args, **kwargs)
         
     def is_parent_of(self, child):
@@ -137,7 +138,7 @@ class ContextsItem(Item):
         
         if instance:
             self.__dict__.update(instance.__dict__)
-        self.createdAt = timezone.now() # next save would failed otherwise
+        self.createdAt = timezone.now()  # next save would failed otherwise
         self.save()
         if contextSet:
             self.contexts.add(*contextSet)

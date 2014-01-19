@@ -11,6 +11,14 @@ class GtdManagerTestCase(TestCase):
     def _pre_setup(self):
         super(GtdManagerTestCase, self)._pre_setup()
         init_models()
+    
+    def create_from_completed(self, cls):
+        item = cls(name='task') #autosaved
+        item.status = Item.COMPLETED
+        item.save()
+        self.assertEqual(item.status, Item.COMPLETED)
+        item_get = cls.objects.get(pk=item.id)
+        self.assertEqual(item_get.status, Item.COMPLETED)
 
 class ItemTest(GtdManagerTestCase):
     def test_item(self):
@@ -27,6 +35,9 @@ class ItemTest(GtdManagerTestCase):
         item = Item(name="item")
         item.save()
         self.assertTrue(item.id in (0,1))
+    
+    def test_create_from_completed(self):
+        self.create_from_completed(Item)
         
 class ProjectTest(GtdManagerTestCase):
     def test_init(self):
@@ -89,6 +100,9 @@ class ProjectTest(GtdManagerTestCase):
         item = Project('proj')
         with self.assertRaises(RuntimeError):
             Item.objects.convertTo(Next, item)
+
+    def test_create_from_completed(self):
+        self.create_from_completed(Project)
 
 class ContextTest(GtdManagerTestCase):
     def check_consistency(self):
@@ -181,6 +195,9 @@ class NextTest(GtdManagerTestCase):
         old_def.delete()
         self.assertEqual(Context.objects.count(), 2)
         self.assertItemsEqual(task.contexts.all(), (context,))
+    
+    def test_create_from_completed(self):
+        self.create_from_completed(Next)
 
 class ReminderTest(GtdManagerTestCase):
     
@@ -188,3 +205,6 @@ class ReminderTest(GtdManagerTestCase):
         r = Reminder(name='doit')
         self.assertGreater(r.remind_at, timezone.now())
         self.assertItemsEqual(r.contexts.all(), (Context.objects.default_context(),))
+    
+    def test_create_from_completed(self):
+        self.create_from_completed(Reminder)
