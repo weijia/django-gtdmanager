@@ -6,20 +6,20 @@ urlpatterns = patterns('',
     url(r'^home$', views.home, name='home'),
     
     url(r'^inbox$', views.inbox, name='inbox'),
-    url(r'^item/(?P<item_id>\d+)/edit$', views.inbox_item_edit, name='inbox_item_edit'),
-    url(r'^item/(?P<item_id>\d+)/delete$', views.item_delete, name='item_delete'),
-    url(r'^item/(?P<item_id>\d+)/complete$', views.item_complete, name='item_complete'),
+    url(r'^item/(?P<item_id>\d+)/edit/(?P<redir_page>\w+)$', views.item_edit, name='item_edit'),
+    url(r'^item/(?P<item_id>\d+)/delete/(?P<redir_page>\w+)$', views.item_delete, name='item_delete'),
+    url(r'^item/(?P<item_id>\d+)/complete/(?P<redir_page>\w+)$', views.item_complete, name='item_complete'),
     url(r'^item/(?P<item_id>\d+)/reference$', views.item_reference, name='item_reference'),
     url(r'^item/(?P<item_id>\d+)/someday$', views.item_someday, name='item_someday'),
     url(r'^item/(?P<item_id>\d+)/wait$', views.item_wait, name='item_wait'),
     url(r'^item/(?P<item_id>\d+)/to_project$', views.item_to_project, name='item_to_project'),
     
     url(r'^next$', views.next, name='next'),
-    url(r'^next/(?P<item_id>\d+)/edit$', views.inbox_next_edit, name='inbox_next_edit'),
-    url(r'^next/(?P<next_id>\d+)/to_item$', views.inbox_next_to_item, name='inbox_next_to_item'),
+    url(r'^next/(?P<item_id>\d+)/edit/(?P<redir_page>\w+)$', views.next_edit, name='next_edit'),
+    url(r'^next/(?P<next_id>\d+)/to_item/(?P<redir_page>\w+)$', views.next_to_item, name='next_to_item'),
     
-    url(r'^reminder/(?P<item_id>\d+)/edit$', views.inbox_reminder_edit, name='inbox_reminder_edit'),
-    url(r'^reminder/(?P<item_id>\d+)/to_item$', views.inbox_reminder_to_item, name='inbox_reminder_to_item'),
+    url(r'^reminder/(?P<item_id>\d+)/edit/(?P<redir_page>\w+)$', views.reminder_edit, name='reminder_edit'),
+    url(r'^reminder/(?P<item_id>\d+)/to_item/(?P<redir_page>\w+)$', views.reminder_to_item, name='reminder_to_item'),
     
     url(r'^projects/(?P<project_id>\d+)$', views.project_detail, name='project_detail'),
 
