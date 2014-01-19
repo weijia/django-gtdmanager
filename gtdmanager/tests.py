@@ -19,6 +19,18 @@ class GtdManagerTestCase(TestCase):
         self.assertEqual(item.status, Item.COMPLETED)
         item_get = cls.objects.get(pk=item.id)
         self.assertEqual(item_get.status, Item.COMPLETED)
+    
+    def template_unfinished(self, cls, ok_status):
+        items = []
+        data = {'1': ok_status, '2': Item.COMPLETED, '3': Item.DELETED, '4':ok_status}
+        for name, status in data.iteritems():
+            item = cls(name=name)
+            item.status = status
+            item.save()
+            items.append(item)
+        expected = (items[0], items[3],)
+        result = cls.objects.unfinished()
+        self.assertItemsEqual(expected, result)
 
 class ItemTest(GtdManagerTestCase):
     def test_item(self):
@@ -38,7 +50,10 @@ class ItemTest(GtdManagerTestCase):
     
     def test_create_from_completed(self):
         self.create_from_completed(Item)
-        
+
+    def test_unfinished(self):
+        self.template_unfinished(Item, Item.UNRESOLVED)
+
 class ProjectTest(GtdManagerTestCase):
     def test_init(self):
         expected_name = 'some name'
@@ -103,6 +118,9 @@ class ProjectTest(GtdManagerTestCase):
 
     def test_create_from_completed(self):
         self.create_from_completed(Project)
+
+    def test_unfinished(self):
+        self.template_unfinished(Project, Item.PROJECT)
 
 class ContextTest(GtdManagerTestCase):
     def check_consistency(self):
@@ -199,6 +217,9 @@ class NextTest(GtdManagerTestCase):
     def test_create_from_completed(self):
         self.create_from_completed(Next)
 
+    def test_unfinished(self):
+        self.template_unfinished(Next, Item.NEXT)
+
 class ReminderTest(GtdManagerTestCase):
     
     def test_init(self):
@@ -208,3 +229,6 @@ class ReminderTest(GtdManagerTestCase):
     
     def test_create_from_completed(self):
         self.create_from_completed(Reminder)
+
+    def test_unfinished(self):
+        self.template_unfinished(Reminder, Item.REMINDER)

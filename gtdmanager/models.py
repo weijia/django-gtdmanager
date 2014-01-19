@@ -54,6 +54,10 @@ class ItemManager(models.Manager):
         converted.__dict__.update(attrs)
         return converted
 
+    def unfinished(self):
+        excluded = (Item.COMPLETED, Item.DELETED)
+        return self.exclude(status__in=excluded) 
+
 class Item(models.Model):
     UNRESOLVED = 'U'
     DELETED = 'D'
@@ -95,6 +99,9 @@ class Item(models.Model):
         return self.name;  
 
 class Project(Item):
+
+    objects = ItemManager()
+
     def __init__(self, *args, **kwargs):
         kwargs['status'] = self.PROJECT
         super(Project, self).__init__(*args, **kwargs)
@@ -147,6 +154,8 @@ class ContextsItem(Item):
 
 class Next(ContextsItem):
 
+    objects = ItemManager()
+
     def __init__(self, *args, **kwargs):
         kwargs['status'] = self.NEXT
         super(Next, self).__init__(*args, **kwargs)
@@ -155,6 +164,8 @@ class Reminder(ContextsItem):
 
     remind_at = models.DateTimeField()
     
+    objects = ItemManager()
+
     def __init__(self, *args, **kwargs):
         kwargs['status'] = self.REMINDER
         if 'remind_at' not in kwargs:
