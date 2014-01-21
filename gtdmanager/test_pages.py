@@ -8,13 +8,14 @@ from gtdmanager.tests import GtdManagerTestCase
 """
 Test pages funcionality
 """
-def prepare_completed_finished():
+def prepare_completed_deleted():
     item = Item(name='completed')
     item.status = Item.COMPLETED
     item.save()
     item2 = Item(name='deleted')
     item2.status = Item.DELETED
     item2.save()
+    return (item, item2)
 
 class InboxTest(GtdManagerTestCase):
     def test_page_working(self):
@@ -100,13 +101,13 @@ class InboxTest(GtdManagerTestCase):
         item = Item(name='item')
         item.save()
         client = Client()
-        #convert to next
-        response = client.get(reverse('gtdmanager:'+class_url+'_edit', args=(item.id, 'inbox')))
+        # convert to next
+        response = client.get(reverse('gtdmanager:' + class_url + '_edit', args=(item.id, 'inbox')))
         self.assertEqual(response.status_code, 200)
         converted = cls.objects.get(pk=item.id)
         self.assertEqual(converted.name, item.name)
-        #cancel
-        response = client.get(reverse('gtdmanager:'+class_url+'_to_item', args=(converted.id, 'inbox')))
+        # cancel
+        response = client.get(reverse('gtdmanager:' + class_url + '_to_item', args=(converted.id, 'inbox')))
         self.assertRedirects(response, reverse('gtdmanager:inbox'))
         self.assertEqual(cls.objects.count(), 0)
         item = Item.objects.get(pk=item.id)
@@ -157,7 +158,7 @@ class ContextsTest(GtdManagerTestCase):
         self.assertIn('form', response.context)
     
     def test_edit(self):
-        prepare_completed_finished()
+        prepare_completed_deleted()
         response = Client().get(reverse('gtdmanager:context_edit', args=(1,)))
         self.assertEqual(response.status_code, 200)
 
@@ -171,7 +172,7 @@ class WaitingTest(GtdManagerTestCase):
         self.assertItemsEqual((item,), response.context['items'])
 
     def test_hide_finished(self):
-        prepare_completed_finished()
+        prepare_completed_deleted()
         response = Client().get(reverse('gtdmanager:waiting'))
         self.assertEqual(response.status_code, 200)
         self.assertItemsEqual((), response.context['items'])
@@ -187,12 +188,12 @@ class ReferencesTest(GtdManagerTestCase):
         self.assertItemsEqual((item,), response.context['items'])
 
     def test_hide_finished(self):
-        prepare_completed_finished()
+        prepare_completed_deleted()
         response = Client().get(reverse('gtdmanager:references'))
         self.assertEqual(response.status_code, 200)
         self.assertItemsEqual((), response.context['items'])
 
-class SomkedayTest(GtdManagerTestCase):
+class SomedayTest(GtdManagerTestCase):
     def test_working(self):
         item = Item(name='ref')
         item.status = Item.SOMEDAY
@@ -202,7 +203,24 @@ class SomkedayTest(GtdManagerTestCase):
         self.assertItemsEqual((item,), response.context['items'])
 
     def test_hide_finished(self):
-        prepare_completed_finished()
+        prepare_completed_deleted()
         response = Client().get(reverse('gtdmanager:someday'))
         self.assertEqual(response.status_code, 200)
         self.assertItemsEqual((), response.context['items'])
+
+class ArchiveTest(GtdManagerTestCase):
+    def test_working(self):
+        completed, deleted = prepare_completed_deleted()
+        response = Client().get(reverse('gtdmanager:archive'))
+        self.assertEqual(response.status_code, 200)
+        self.assertItemsEqual((completed,), response.context['completed'])
+        self.assertItemsEqual((deleted,), response.context['deleted'])
+
+    def test_clean(self):
+        prepare_completed_deleted()
+        response = Client().get(reverse('gtdmanager:archive_clean'))
+        self.assertRedirects(response, reverse('gtdmanager:archive'))
+        response = Client().get(reverse('gtdmanager:archive'))
+        self.assertEqual(response.status_code, 200)
+        self.assertItemsEqual((), response.context['completed'])
+        self.assertItemsEqual((), response.context['deleted'])

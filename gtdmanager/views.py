@@ -153,20 +153,6 @@ def project_detail(request, project_id):
     return render_to_response('gtdmanager/project_detail.html',
             {'p': p, 'nexts': nexts, 'btnName': 'projects',} )
 
-def contexts(request):
-    contexts = get_list_or_404(Context)
-    
-    if request.method == "POST":
-        form = ContextForm(request.POST)
-        if form.is_valid():
-            form.save()
-            form = ContextForm()
-            return HttpResponseRedirect(reverse('gtdmanager:contexts'))
-    else:
-        form = ContextForm()
-    return render_to_response('gtdmanager/contexts.html',
-        {'btnName': 'manage', 'contexts': contexts, 'form': form}, RequestContext(request))
-
 def waiting(request):
     waiting = Item.objects.filter(status=Item.WAITING_FOR)
     return render_to_response('gtdmanager/itemlist.html',
@@ -184,6 +170,20 @@ def references(request):
     return render_to_response('gtdmanager/itemlist.html',
         {'btnName': 'pending', 'header': 'References', 'redir_page': 'references', 'items': items},
         RequestContext(request))
+
+def contexts(request):
+    contexts = get_list_or_404(Context)
+    
+    if request.method == "POST":
+        form = ContextForm(request.POST)
+        if form.is_valid():
+            form.save()
+            form = ContextForm()
+            return HttpResponseRedirect(reverse('gtdmanager:contexts'))
+    else:
+        form = ContextForm()
+    return render_to_response('gtdmanager/contexts.html',
+        {'btnName': 'manage', 'contexts': contexts, 'form': form}, RequestContext(request))
 
 def context_edit(request, ctx_id):
     context = get_object_or_404(Context, pk=ctx_id)
@@ -208,3 +208,14 @@ def context_delete(request, ctx_id):
     context = get_object_or_404(Context, pk=ctx_id)
     context.delete()
     return HttpResponseRedirect(reverse('gtdmanager:contexts'))
+
+def archive(request):
+    completed = Item.objects.filter(status=Item.COMPLETED)
+    deleted = Item.objects.filter(status=Item.DELETED)
+    return render_to_response("gtdmanager/archive.html",
+        {'btnName': 'manage', 'completed': completed, 'deleted': deleted},
+        RequestContext(request))
+
+def archive_clean(request):
+    Item.objects.filter(status__in=(Item.COMPLETED, Item.DELETED)).delete()
+    return HttpResponseRedirect(reverse('gtdmanager:archive'))
