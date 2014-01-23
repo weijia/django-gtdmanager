@@ -3,6 +3,8 @@ from django.http import HttpResponseRedirect
 from django.core.urlresolvers import reverse
 from django.template import RequestContext
 from django.db import connection, transaction
+from django.utils import timezone
+from datetime import datetime, timedelta, date, time
 
 from gtdmanager.models import Item, Project, Context, Next, Reminder
 from gtdmanager.forms import ItemForm, ContextForm, NextForm, ReminderForm
@@ -157,6 +159,29 @@ def waiting(request):
     waiting = Item.objects.filter(status=Item.WAITING_FOR)
     return render_to_response('gtdmanager/itemlist.html',
        {'btnName': 'pending', 'header': 'Waiting', 'redir_page': 'waiting', 'items': waiting},
+        RequestContext(request))
+
+def tickler(request):
+    reminders = Reminder.objects.unfinished().order_by('remind_at')
+    pending = [r for r in reminders if not r.active()]
+    tomorrows = []
+    this_week = []
+    futures = []
+    
+    tz = timezone.get_current_timezone()
+    tomorrow = (datetime.combine(date.today(), time()) + timedelta(days=2)).replace(tzinfo=tz)
+    next_monday_dt = date.today() + timedelta(days=(7 - date.today().weekday()))
+    next_monday = datetime.combine(next_monday_dt, time()).replace(tzinfo=tz)
+    for rem in pending:
+        if rem.remind_at < tomorrow:
+            tomorrows.append(rem)
+        elif rem.remind_at < next_monday:
+            this_week.append(rem)
+        else:
+            futures.append(rem)
+
+    return render_to_response('gtdmanager/tickler.html',
+       {'btnName': 'pending', 'tomorrows': tomorrows, 'this_week': this_week, 'futures': futures},
         RequestContext(request))
     
 def someday(request):

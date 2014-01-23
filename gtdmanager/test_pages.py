@@ -224,3 +224,35 @@ class ArchiveTest(GtdManagerTestCase):
         self.assertEqual(response.status_code, 200)
         self.assertItemsEqual((), response.context['completed'])
         self.assertItemsEqual((), response.context['deleted'])
+
+class ArchiveTest(GtdManagerTestCase):
+    def test_working(self):
+        reminder = Reminder(name='rem', remind_at = timezone.now() + timedelta(days=1))
+        reminder.save()
+        reminder2 = Reminder(name='rem2', remind_at = timezone.now() + timedelta(days=2))
+        reminder2.save()
+        reminder3 = Reminder(name='rem3', remind_at = timezone.now() + timedelta(days=10))
+        reminder3.save()
+        response = Client().get(reverse('gtdmanager:tickler'))
+        self.assertEqual(response.status_code, 200)
+        tomorrows = [reminder,]
+        this_week = []
+        futures = [reminder3,]
+        if timezone.now().isoweekday() > 5: #Saturday or Sunday
+            futures.append(reminder2)
+        else:
+            this_week.append(reminder2)
+        self.assertItemsEqual(tomorrows, response.context['tomorrows'])
+        self.assertItemsEqual(this_week, response.context['this_week'])
+        self.assertItemsEqual(futures, response.context['futures'])
+
+    def test_completed_deleted(self):
+        completed = Reminder(name='compl', remind_at = timezone.now() + timedelta(days=7))
+        completed.status = Item.COMPLETED
+        completed.save()
+        deleted = Reminder(name='del', remind_at = timezone.now() + timedelta(days=7))
+        deleted.status = Item.COMPLETED
+        deleted.save()
+        response = Client().get(reverse('gtdmanager:tickler'))
+        self.assertEqual(response.status_code, 200)
+        self.assertItemsEqual((), response.context['futures'])
