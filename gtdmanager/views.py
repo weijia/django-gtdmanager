@@ -147,13 +147,18 @@ def next(request):
     return render_to_response('gtdmanager/next.html', {'btnName': 'next', 
         'nexts': nexts, 'reminders': reminders})
 
+def projects(request):
+    projects = Project.objects.all()
+    return render_to_response('gtdmanager/projects.html',
+            {'btnName': 'projects', 'projects': projects, }, RequestContext(request) )
+
 def project_detail(request, project_id):
     p = get_object_or_404(Project, pk=project_id)
     # get all and split - should be faster than multiple requests with .filter(status=)
     items = p.item_set.all()
     nexts = [item for item in items if item.status == Item.NEXT]
     return render_to_response('gtdmanager/project_detail.html',
-            {'p': p, 'nexts': nexts, 'btnName': 'projects',} )
+            {'p': p, 'nexts': nexts, 'btnName': 'projects', }, RequestContext(request) )
 
 def waiting(request):
     waiting = Item.objects.filter(status=Item.WAITING_FOR)

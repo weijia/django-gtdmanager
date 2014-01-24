@@ -15,7 +15,6 @@ class Context(models.Model):
     is_default = models.BooleanField(default=False)
     
     objects = ContextManager()
-    
     def __unicode__(self):
         return self.name
     
@@ -98,29 +97,6 @@ class Item(models.Model):
     def __unicode__(self):
         return self.name;  
 
-class Project(Item):
-
-    objects = ItemManager()
-
-    def __init__(self, *args, **kwargs):
-        kwargs['status'] = self.PROJECT
-        super(Project, self).__init__(*args, **kwargs)
-        
-    def is_parent_of(self, child):
-        if child.parent is None:
-            return False
-
-        if child.parent == self:
-            return True
-        
-        return self.is_parent_of(child.parent)
-    
-    def clean_fields(self, exclude=None):
-        super(Project, self).clean_fields(exclude)
-        if self.is_parent_of(self.parent):
-            raise ValidationError("%(parent)s parenting %(child)s creates circular project reference",
-                      params={ 'parent': self.parent, 'child': self }
-                  )
 
 class ContextsItem(Item):
     """
@@ -180,6 +156,50 @@ class Reminder(ContextsItem):
     
     def active(self):
         return self.remind_at.date() <= timezone.now().date()
+
+
+class Project(Item):
+
+    objects = ItemManager()
+
+    def __init__(self, *args, **kwargs):
+        kwargs['status'] = self.PROJECT
+        super(Project, self).__init__(*args, **kwargs)
+        
+    def is_parent_of(self, child):
+        if child.parent is None:
+            return False
+
+        if child.parent == self:
+            return True
+        
+        return self.is_parent_of(child.parent)
+    
+    def clean_fields(self, exclude=None):
+        super(Project, self).clean_fields(exclude)
+        if self.is_parent_of(self.parent):
+            raise ValidationError("%(parent)s parenting %(child)s creates circular project reference",
+                      params={ 'parent': self.parent, 'child': self }
+                  )
+
+    def context_items(self, cls, unfinished_only = False):
+        if (unfinished_only):
+            return cls.objects.unfinished().filter(parent=self)
+        else:
+            return cls.objects.filter(parent=self)
+
+    def nexts(self, cls, unfinished_only = False):
+        return self.context_items(Next, unfinished_only)
+
+    def reminders(self, cls, unfinished_only = False):
+        return self.context_items(Reminder, unfinished_only)
+
+    def active_childs(self):
+        childs = list(self.item_set.filter(status=Item.WAITING_FOR))
+        childs.extend(self.nexts(True))
+        childs.extend(self.reminders(True))
+        return childs
+
 """
 Post init procedures, should be called in test setup
 Should be solved via signalS, but they aren't working well in Django 1.6

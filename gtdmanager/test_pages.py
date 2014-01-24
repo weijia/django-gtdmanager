@@ -1,5 +1,5 @@
 from django.test import TestCase, Client
-from gtdmanager.models import Item, Next, Reminder
+from gtdmanager.models import Item, Next, Reminder, Project
 from django.core.urlresolvers import reverse
 from django.utils import timezone
 from datetime import timedelta
@@ -119,8 +119,9 @@ class InboxTest(GtdManagerTestCase):
     def test_cancel_reminder(self):
         self.template_cancel(Reminder, 'reminder')
 
+
 class NextTest(GtdManagerTestCase):
-    
+
     def test_simple(self):
         # both autosaved
         task = Next(name='some task')
@@ -129,7 +130,7 @@ class NextTest(GtdManagerTestCase):
         self.assertEquals(response.status_code, 200)
         self.assertItemsEqual((task,), response.context['nexts'])
         self.assertItemsEqual((rem,), response.context['reminders'])
-    
+
     def test_finished_filtered(self):
         task1 = Next(name='finished')
         task1.status = Item.COMPLETED
@@ -148,6 +149,17 @@ class NextTest(GtdManagerTestCase):
         response = Client().get(reverse('gtdmanager:next'))
         self.assertItemsEqual((), response.context['reminders'])
 
+
+class ProjectsTest(GtdManagerTestCase):
+    def test_working(self):
+        p = Project(name='Proj')
+        p.save()
+        response = Client().get(reverse('gtdmanager:projects'))
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.context['btnName'], 'projects')
+        self.assertItemsEqual((p,), response.context['projects'])
+
+
 class ContextsTest(GtdManagerTestCase):
 
     def test_working(self):
@@ -156,7 +168,7 @@ class ContextsTest(GtdManagerTestCase):
         self.assertEqual(response.context['btnName'], 'manage')
         self.assertTrue('contexts', response.context)
         self.assertIn('form', response.context)
-    
+
     def test_edit(self):
         prepare_completed_deleted()
         response = Client().get(reverse('gtdmanager:context_edit', args=(1,)))

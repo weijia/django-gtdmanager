@@ -21,6 +21,7 @@ urlpatterns = patterns('',
     url(r'^reminder/(?P<item_id>\d+)/edit/(?P<redir_page>\w+)$', views.reminder_edit, name='reminder_edit'),
     url(r'^reminder/(?P<item_id>\d+)/to_item/(?P<redir_page>\w+)$', views.reminder_to_item, name='reminder_to_item'),
     
+    url(r'^projects$', views.projects, name='projects'),
     url(r'^projects/(?P<project_id>\d+)$', views.project_detail, name='project_detail'),
     
     url(r'^waiting$', views.waiting, name='waiting'),

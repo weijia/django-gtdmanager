@@ -122,6 +122,23 @@ class ProjectTest(GtdManagerTestCase):
 
     def test_unfinished(self):
         self.template_unfinished(Project, Item.PROJECT)
+    
+    def test_active_childs_item(self):
+        p = Project(name='p')
+        p.save()
+        Item(name='compl', status=Item.COMPLETED, parent=p).save()
+        Item(name='del', status=Item.DELETED, parent=p).save()
+        Item(name='sm', status=Item.SOMEDAY, parent=p).save()
+        Item(name='ref', status=Item.REFERENCE, parent=p).save()
+        waiting = Item(name='wait', status=Item.WAITING_FOR, parent=p)
+        waiting.save()
+        reminder = Reminder(name='arem', parent=p)
+        reminder.save()
+        anext = Next(name='next', parent=p)
+        anext.save()
+        self.assertEqual(p.item_set.count(), 7)
+        self.assertItemsEqual((waiting, anext, reminder), p.active_childs())
+
 
 class ContextTest(GtdManagerTestCase):
     def check_consistency(self):
