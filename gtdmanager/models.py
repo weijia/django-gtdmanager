@@ -188,12 +188,15 @@ class Project(Item):
         else:
             return cls.objects.filter(parent=self)
 
-    def nexts(self, cls, unfinished_only = False):
+    def nexts(self, unfinished_only = False):
         return self.context_items(Next, unfinished_only)
 
-    def reminders(self, cls, unfinished_only = False):
+    def reminders(self, unfinished_only = False):
         return self.context_items(Reminder, unfinished_only)
 
+    def subprojects(self, unfinished_only = False):
+        return self.context_items(Project, unfinished_only)
+    
     def active_childs(self):
         childs = list(self.item_set.filter(status=Item.WAITING_FOR))
         childs.extend(self.nexts(True))

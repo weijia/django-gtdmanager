@@ -7,8 +7,11 @@ urlpatterns = patterns('',
     
     url(r'^inbox$', views.inbox, name='inbox'),
     url(r'^item/(?P<item_id>\d+)/edit/(?P<redir_page>\w+)$', views.item_edit, name='item_edit'),
+    url(r'^item/(?P<item_id>\d+)/edit/(?P<redir_page>\w+)/(?P<redir_id>\d+)$', views.item_edit_redir_id, name='item_edit_redir_id'),
     url(r'^item/(?P<item_id>\d+)/delete/(?P<redir_page>\w+)$', views.item_delete, name='item_delete'),
+    url(r'^item/(?P<item_id>\d+)/delete/(?P<redir_page>\w+)/(?P<redir_id>\d+)$', views.item_delete_redir_id, name='item_delete_redir_id'),
     url(r'^item/(?P<item_id>\d+)/complete/(?P<redir_page>\w+)$', views.item_complete, name='item_complete'),
+    url(r'^item/(?P<item_id>\d+)/complete/(?P<redir_page>\w+)/(?P<redir_id>\d+)$', views.item_complete_redir_id, name='item_complete_redir_id'),
     url(r'^item/(?P<item_id>\d+)/reference$', views.item_reference, name='item_reference'),
     url(r'^item/(?P<item_id>\d+)/someday$', views.item_someday, name='item_someday'),
     url(r'^item/(?P<item_id>\d+)/wait$', views.item_wait, name='item_wait'),
@@ -16,9 +19,11 @@ urlpatterns = patterns('',
     
     url(r'^next$', views.next, name='next'),
     url(r'^next/(?P<item_id>\d+)/edit/(?P<redir_page>\w+)$', views.next_edit, name='next_edit'),
+    url(r'^next/(?P<item_id>\d+)/edit/(?P<redir_page>\w+)/(?P<redir_id>\d+)$', views.next_edit_redir_id, name='next_edit_redir_id'),
     url(r'^next/(?P<next_id>\d+)/to_item/(?P<redir_page>\w+)$', views.next_to_item, name='next_to_item'),
     
     url(r'^reminder/(?P<item_id>\d+)/edit/(?P<redir_page>\w+)$', views.reminder_edit, name='reminder_edit'),
+    url(r'^reminder/(?P<item_id>\d+)/edit/(?P<redir_page>\w+)/(?P<redir_id>\d+)$', views.reminder_edit_redir_id, name='reminder_edit_redir_id'),
     url(r'^reminder/(?P<item_id>\d+)/to_item/(?P<redir_page>\w+)$', views.reminder_to_item, name='reminder_to_item'),
     
     url(r'^projects$', views.projects, name='projects'),

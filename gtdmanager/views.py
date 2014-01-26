@@ -48,27 +48,41 @@ def inbox(request):
     return render_to_response('gtdmanager/inbox.html', context_instance=RequestContext(request), 
         dictionary={ 'btnName': 'inbox', 'itemform': form, 'show_form' : show_form, 'items' : items })
 
-def item_edit(request, item_id, redir_page):
+def _item_edit(request, item_id, redir_page, args=()):
     item = get_object_or_404(Item, pk=item_id)
     if request.method == "POST":
         form = ItemForm(request.POST, instance=item)
         if form.is_valid():
             form.save()
-            return HttpResponseRedirect(reverse('gtdmanager:'+redir_page))
+            return HttpResponseRedirect(reverse('gtdmanager:'+redir_page, args=args))
     else:
         form = ItemForm(instance=item)
         
     return render_to_response("gtdmanager/edititem.html",
-        {'itemform': form, 'editDivPrefix': "item", 'cancel_url': reverse('gtdmanager:'+redir_page)},
+        {'itemform': form, 'editDivPrefix': "item", 'cancel_url': reverse('gtdmanager:'+redir_page, args=args)},
         RequestContext(request))
+
+def item_edit(request, item_id, redir_page):
+    return _item_edit(request, item_id, redir_page)
+
+def item_edit_redir_id(request, item_id, redir_page, redir_id):
+    return _item_edit(request, item_id, redir_page, (redir_id,))
 
 def item_delete(request, item_id, redir_page):
     change_item_status(item_id, Item.DELETED)
     return HttpResponseRedirect(reverse('gtdmanager:'+redir_page))
 
+def item_delete_redir_id(request, item_id, redir_page, redir_id):
+    change_item_status(item_id, Item.DELETED)
+    return HttpResponseRedirect(reverse('gtdmanager:'+redir_page, args=(redir_id,)))
+
 def item_complete(request, item_id, redir_page):
     change_item_status(item_id, Item.COMPLETED)
     return HttpResponseRedirect(reverse('gtdmanager:' + redir_page))
+
+def item_complete_redir_id(request, item_id, redir_page, redir_id):
+    change_item_status(item_id, Item.COMPLETED)
+    return HttpResponseRedirect(reverse('gtdmanager:'+redir_page, args=(redir_id,)))
 
 def item_reference(request, item_id):
     change_item_status(item_id, Item.REFERENCE)
@@ -88,8 +102,8 @@ def item_to_project(request, item_id):
     project.save()
     return HttpResponseRedirect(reverse('gtdmanager:project_detail', args=(item.id,)))
 
-def reminder_edit(request, item_id, redir_page):
-    cancel_url = reverse('gtdmanager:' + redir_page)
+def _reminder_edit(request, item_id, redir_page, args=()):
+    cancel_url = reverse('gtdmanager:' + redir_page, args=args())
     try:
         item = Reminder.objects.get(pk=item_id)
     except:
@@ -109,13 +123,19 @@ def reminder_edit(request, item_id, redir_page):
     return render_to_response("gtdmanager/editreminder.html",
         {'itemform': form, 'editDivPrefix': "reminder", 'cancel_url': cancel_url}, RequestContext(request))
 
+def reminder_edit(request, item_id, redir_page):
+    return _reminder_edit(request, item_id, redir_page)
+
+def reminder_edit_redir_id(request, item_id, redir_page, redir_id):
+    return _reminder_edit(request, item_id, redir_page, (redir_id,))
+
 def reminder_to_item(request, item_id, redir_page):
     rem = get_object_or_404(Reminder, pk=item_id)
     make_unresolved(rem, Reminder)
     return HttpResponseRedirect(reverse('gtdmanager:' + redir_page))
 
-def next_edit(request, item_id, redir_page):
-    cancel_url = reverse('gtdmanager:' + redir_page)
+def _next_edit(request, item_id, redir_page, args=()):
+    cancel_url = reverse('gtdmanager:' + redir_page, args=args)
     try:
         item = Next.objects.get(pk=item_id)
     except:
@@ -129,13 +149,19 @@ def next_edit(request, item_id, redir_page):
         if form.is_valid():
             print item, item.status
             form.save()
-            return HttpResponseRedirect(reverse('gtdmanager:'+redir_page))
+            return HttpResponseRedirect(reverse('gtdmanager:'+redir_page, args=args))
     else:
         form = NextForm(instance=item)
         
     return render_to_response("gtdmanager/editnext.html",
         {'itemform': form, 'editDivPrefix': "next", 'cancel_url': cancel_url}, RequestContext(request))
 
+def next_edit(request, item_id, redir_page):
+    return _next_edit(request, item_id, redir_page)
+
+def next_edit_redir_id(request, item_id, redir_page, redir_id):
+    return _next_edit(request, item_id, redir_page, args=(int(redir_id),))
+    
 def next_to_item(request, next_id, redir_page):
     the_next = get_object_or_404(Next, pk=next_id)
     make_unresolved(the_next, Next)
@@ -154,11 +180,18 @@ def projects(request):
 
 def project_detail(request, project_id):
     p = get_object_or_404(Project, pk=project_id)
-    # get all and split - should be faster than multiple requests with .filter(status=)
-    items = p.item_set.all()
-    nexts = [item for item in items if item.status == Item.NEXT]
+    nexts = p.nexts(True)
+    reminders = p.reminders(True)
+    subs = p.subprojects(True)
+    waiting = p.item_set.filter(status=Item.WAITING_FOR)
+    somedays = p.item_set.filter(status=Item.SOMEDAY)
+    refs = p.item_set.filter(status=Item.REFERENCE)
+    completed = p.item_set.filter(status=Item.COMPLETED)
+    deleted = p.item_set.filter(status=Item.DELETED)
     return render_to_response('gtdmanager/project_detail.html',
-            {'p': p, 'nexts': nexts, 'btnName': 'projects', }, RequestContext(request) )
+            {'p': p, 'btnName': 'projects', 'nexts': nexts, 'reminders': reminders, 'subprojects': subs, 
+             'waiting': waiting, 'somedays': somedays, 'references': refs, 'completed': completed,
+             'deleted': deleted}, RequestContext(request) )
 
 def waiting(request):
     waiting = Item.objects.filter(status=Item.WAITING_FOR)
