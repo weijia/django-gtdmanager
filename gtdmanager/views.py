@@ -173,7 +173,7 @@ def next(request):
         'nexts': nexts, 'reminders': reminders})
 
 def projects(request):
-    projects = Project.objects.all()
+    projects = Project.objects.unfinished()
     return render_to_response('gtdmanager/projects.html',
             {'btnName': 'projects', 'projects': projects, }, RequestContext(request) )
 
