@@ -159,6 +159,15 @@ class ProjectsTest(GtdManagerTestCase):
         self.assertEqual(response.context['btnName'], 'projects')
         self.assertItemsEqual((p,), response.context['projects'])
 
+    def test_edit(self):
+        p = Project(name='p')
+        p.save()
+        response = Client().get(reverse('gtdmanager:project_edit', args=(1,)))
+        self.assertEqual(response.status_code, 200)
+        self.assertIn('form', response.context)
+        self.assertEqual(response.context['title'], 'Edit project')
+        self.assertEqual(response.context['edit'], True)
+
 class ProjectDetailTest(GtdManagerTestCase):
     def test_working(self):
         p = Project(name='p')

@@ -3,6 +3,7 @@ from django.core.exceptions import ValidationError
 from django.utils import timezone
 from datetime import timedelta
 from gtdmanager.models import Item, Project, Context, Next, Reminder, init_models
+from gtdmanager.forms import ProjectForm
 
 """
 Models Tests
@@ -91,6 +92,10 @@ class ProjectTest(GtdManagerTestCase):
         self.assertFalse(child1.is_parent_of(subchild2))
         self.assertFalse(subchild2.is_parent_of(parent1))
         self.assertFalse(subchild2.is_parent_of(child1))
+
+    def test_is_parent_none(self):
+        p = Project(name='parent1')
+        self.assertFalse(p.is_parent_of(None))
         
     def test_circular_parents(self):
         p1 = Project.objects.create(name='parent1')
@@ -99,6 +104,15 @@ class ProjectTest(GtdManagerTestCase):
         with self.assertRaises(ValidationError):
             p1.parent = p3
             p1.clean_fields()
+
+    def test_parenting_self_form_validation(self):
+        p = Project(name='parent')
+        p.save()
+        postdata = {'name': 'test', 'parent': '27', 'description': ''}
+        form = ProjectForm(postdata, instance=p)
+        # foreign key is not updated, so form.instance.parent is still None,
+        # we make check in ProjectForm
+        self.assertFalse(form.is_valid())
 
     def test_convert(self):
         item = Item(name='Tst')

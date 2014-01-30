@@ -22,3 +22,5 @@ form {
 .centerText {
 	text-align: center;
 }
+
+div.inline > h2, a { display: inline; }

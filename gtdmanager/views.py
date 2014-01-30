@@ -7,7 +7,7 @@ from django.utils import timezone
 from datetime import datetime, timedelta, date, time
 
 from gtdmanager.models import Item, Project, Context, Next, Reminder
-from gtdmanager.forms import ItemForm, ContextForm, NextForm, ReminderForm
+from gtdmanager.forms import ItemForm, ContextForm, NextForm, ReminderForm, ProjectForm
 
 """
 Helpers
@@ -191,6 +191,27 @@ def project_detail(request, project_id):
             {'p': p, 'btnName': 'projects', 'nexts': nexts, 'reminders': reminders, 'subprojects': subs, 
              'waiting': waiting, 'somedays': somedays, 'references': refs, 'completed': completed,
              'deleted': deleted}, RequestContext(request) )
+
+def _project_edit(request, project_id, redir_page, args=()):
+    item = get_object_or_404(Project, pk=project_id)
+    if request.method == "POST":
+        print request.POST
+        form = ProjectForm(request.POST, instance=item)
+        if form.is_valid():
+            form.save()
+            return HttpResponseRedirect(reverse('gtdmanager:'+redir_page, args=args))
+    else:
+        form = ProjectForm(instance=item)
+        
+    return render_to_response("gtdmanager/edititem.html",
+        {'form': form, 'title': 'Edit project', 'edit': True, 'cancel_url': reverse('gtdmanager:'+redir_page, args=args)},
+        RequestContext(request))
+
+def project_edit(request, project_id):
+    return _project_edit(request, project_id, 'project_detail', (int(project_id),))
+
+def project_edit_redir_id(request, project_id, redir_page, redir_id):
+    return _project_edit(request, project_id, redir_page, (redir_id,))
 
 def waiting(request):
     waiting = Item.objects.filter(status=Item.WAITING_FOR)

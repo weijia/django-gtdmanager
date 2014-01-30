@@ -28,6 +28,8 @@ urlpatterns = patterns('',
     
     url(r'^projects$', views.projects, name='projects'),
     url(r'^projects/(?P<project_id>\d+)$', views.project_detail, name='project_detail'),
+    url(r'^projects/(?P<project_id>\d+)/edit$', views.project_edit, name='project_edit'),
+    url(r'^projects/(?P<project_id>\d+)/edit/(?P<redir_page>\w+)/(?P<redir_id>\d+)$', views.project_edit_redir_id, name='project_edit_redir_id'),
     
     url(r'^waiting$', views.waiting, name='waiting'),
     url(r'^tickler$', views.tickler, name='tickler'),

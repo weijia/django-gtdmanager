@@ -2,7 +2,11 @@
 
 {% block body %}
 
+<div class="inline">
 <h2>Project {{ p.name }}</h2>
+<a href="{% url 'gtdmanager:project_edit' p.id %}"> (edit)</a>
+</div>
+
 <div class="col-xs-8">
 {% if p.parent %}
 	Parent: <a href="{% url 'gtdmanager:project_detail' p.parent.id %}">{{p.parent.name}}</a><br>
