@@ -46,7 +46,7 @@ def inbox(request):
 
     items = Item.objects.filter(status=Item.UNRESOLVED)
     return render_to_response('gtdmanager/inbox.html', context_instance=RequestContext(request), 
-        dictionary={ 'btnName': 'inbox', 'itemform': form, 'show_form' : show_form, 'items' : items })
+        dictionary={ 'btnName': 'inbox', 'form': form, 'show_form' : show_form, 'items' : items })
 
 def _item_edit(request, item_id, redir_page, args=()):
     item = get_object_or_404(Item, pk=item_id)
@@ -59,7 +59,7 @@ def _item_edit(request, item_id, redir_page, args=()):
         form = ItemForm(instance=item)
         
     return render_to_response("gtdmanager/edititem.html",
-        {'itemform': form, 'editDivPrefix': "item", 'cancel_url': reverse('gtdmanager:'+redir_page, args=args)},
+        {'form': form, 'edit': True, 'cancel_url': reverse('gtdmanager:'+redir_page, args=args)},
         RequestContext(request))
 
 def item_edit(request, item_id, redir_page):
@@ -103,7 +103,7 @@ def item_to_project(request, item_id):
     return HttpResponseRedirect(reverse('gtdmanager:project_detail', args=(item.id,)))
 
 def _reminder_edit(request, item_id, redir_page, args=()):
-    cancel_url = reverse('gtdmanager:' + redir_page, args=args())
+    cancel_url = reverse('gtdmanager:' + redir_page, args=args)
     try:
         item = Reminder.objects.get(pk=item_id)
     except:
@@ -120,8 +120,8 @@ def _reminder_edit(request, item_id, redir_page, args=()):
     else:
         form = ReminderForm(instance=item)
         
-    return render_to_response("gtdmanager/editreminder.html",
-        {'itemform': form, 'editDivPrefix': "reminder", 'cancel_url': cancel_url}, RequestContext(request))
+    return render_to_response("gtdmanager/edititem.html",
+        {'form': form, 'title': 'Edit reminder', 'edit': True, 'cancel_url': cancel_url}, RequestContext(request))
 
 def reminder_edit(request, item_id, redir_page):
     return _reminder_edit(request, item_id, redir_page)
@@ -147,14 +147,13 @@ def _next_edit(request, item_id, redir_page, args=()):
     if request.method == "POST":
         form = NextForm(request.POST, instance=item)
         if form.is_valid():
-            print item, item.status
             form.save()
             return HttpResponseRedirect(reverse('gtdmanager:'+redir_page, args=args))
     else:
         form = NextForm(instance=item)
         
-    return render_to_response("gtdmanager/editnext.html",
-        {'itemform': form, 'editDivPrefix': "next", 'cancel_url': cancel_url}, RequestContext(request))
+    return render_to_response("gtdmanager/edititem.html",
+        {'form': form, 'editDivPrefix': "next", 'cancel_url': cancel_url, 'edit': True}, RequestContext(request))
 
 def next_edit(request, item_id, redir_page):
     return _next_edit(request, item_id, redir_page)
@@ -258,8 +257,8 @@ def context_edit(request, ctx_id):
     else:
         form = ContextForm(instance=context)
         
-    return render_to_response("gtdmanager/editcontext.html",
-        {'form': form, 'editDivPrefix': "context"}, RequestContext(request))
+    return render_to_response("gtdmanager/edititem.html",
+        {'form': form, 'title': "Edit context", 'edit': True, 'cancel_url': reverse('gtdmanager:contexts')}, RequestContext(request))
 
 def context_set_default(request, ctx_id):
     context = get_object_or_404(Context, pk=ctx_id)

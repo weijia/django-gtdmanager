@@ -205,6 +205,9 @@ class ContextsTest(GtdManagerTestCase):
         prepare_completed_deleted()
         response = Client().get(reverse('gtdmanager:context_edit', args=(1,)))
         self.assertEqual(response.status_code, 200)
+        self.assertIn('form', response.context)
+        self.assertEqual(response.context['title'], 'Edit context')
+        self.assertEqual(response.context['edit'], True)
 
 class WaitingTest(GtdManagerTestCase):
     def test_working(self):
