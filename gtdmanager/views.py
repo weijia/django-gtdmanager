@@ -12,10 +12,15 @@ from gtdmanager.forms import ItemForm, ContextForm, NextForm, ReminderForm, Proj
 """
 Helpers
 """
-def change_item_status(item_id, new_status):
-    item = get_object_or_404(Item, pk=item_id)
-    item.status = new_status
-    item.save()
+def change_item_status(item_id, new_status, cls = Item):
+    item = get_object_or_404(cls, pk=item_id)
+    if new_status == Item.COMPLETED:
+        item.complete()
+    elif new_status == Item.DELETED:
+        item.gtddelete()
+    else:
+        item.status = new_status
+        item.save()
 
 def make_unresolved(item, cls):
     item.status = Item.UNRESOLVED
@@ -212,6 +217,22 @@ def project_edit(request, project_id):
 
 def project_edit_redir_id(request, project_id, redir_page, redir_id):
     return _project_edit(request, project_id, redir_page, (redir_id,))
+
+def project_complete(request, project_id, redir_page):
+    change_item_status(project_id, Item.COMPLETED, Project)
+    return HttpResponseRedirect(reverse('gtdmanager:'+redir_page))
+
+def project_complete_redir_id(request, project_id, redir_page, redir_id):
+    change_item_status(project_id, Item.COMPLETED, Project)
+    return HttpResponseRedirect(reverse('gtdmanager:'+redir_page, args=(redir_id,)))
+
+def project_delete(request, project_id, redir_page):
+    change_item_status(project_id, Item.DELETED, Project)
+    return HttpResponseRedirect(reverse('gtdmanager:'+redir_page))
+
+def project_delete_redir_id(request, project_id, redir_page, redir_id):
+    change_item_status(project_id, Item.DELETED, Project)
+    return HttpResponseRedirect(reverse('gtdmanager:'+redir_page, args=(redir_id,)))
 
 def waiting(request):
     waiting = Item.objects.filter(status=Item.WAITING_FOR)

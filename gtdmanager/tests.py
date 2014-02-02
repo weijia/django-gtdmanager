@@ -55,6 +55,16 @@ class ItemTest(GtdManagerTestCase):
 
     def test_unfinished(self):
         self.template_unfinished(Item, Item.UNRESOLVED)
+    
+    def test_complete(self):
+        item = Item(name='compl')
+        item.complete()
+        self.assertEqual(Item.COMPLETED, item.status)
+
+    def test_gtddelete(self):
+        item = Item(name='del')
+        item.gtddelete()
+        self.assertEqual(Item.DELETED, item.status)
 
 class ProjectTest(GtdManagerTestCase):
     def test_init(self):
@@ -153,6 +163,51 @@ class ProjectTest(GtdManagerTestCase):
         self.assertEqual(p.item_set.count(), 7)
         self.assertItemsEqual((waiting, anext, reminder), p.active_childs())
 
+    def _prepare_with_child(self, cls):
+        p = Project(name='p')
+        p.save()
+        i = cls(name='child', parent=p)
+        i.save()
+        self.assertTrue(p.is_parent_of(i))
+        return (p, i)
+
+    def _prepare_with_active_subproject(self):
+        p, sub = self._prepare_with_child(Project)
+        i = Item(name='item', parent = sub)
+        i.save()
+        return (p, sub, i)
+
+    def test_complete_with_child(self):
+        p, i = self._prepare_with_child(Item)
+        p.complete()
+        i = Item.objects.get(pk=i.id)
+        self.assertEqual(p.status, Item.COMPLETED)
+        self.assertEqual(i.status, Item.COMPLETED)
+
+    def test_gtddelete_with_child(self):
+        p, i = self._prepare_with_child(Item)
+        p.gtddelete()
+        i = Item.objects.get(pk=i.id)
+        self.assertEqual(p.status, Item.DELETED)
+        self.assertEqual(i.status, Item.DELETED)
+    
+    def test_complete_with_subproject(self):
+        p, sub, i = self._prepare_with_active_subproject()
+        p.complete()
+        sub = Item.objects.get(pk=sub.id)
+        i = Item.objects.get(pk=i.id)
+        self.assertEqual(p.status, Item.COMPLETED)
+        self.assertEqual(sub.status, Item.COMPLETED)
+        self.assertEqual(i.status, Item.COMPLETED)
+
+    def test_gtddelete_with_subproject(self):
+        p, sub, i = self._prepare_with_active_subproject()
+        p.gtddelete()
+        sub = Item.objects.get(pk=sub.id)
+        i = Item.objects.get(pk=i.id)
+        self.assertEqual(p.status, Item.DELETED)
+        self.assertEqual(sub.status, Item.DELETED)
+        self.assertEqual(i.status, Item.DELETED)
 
 class ContextTest(GtdManagerTestCase):
     def check_consistency(self):

@@ -23,4 +23,4 @@ form {
 	text-align: center;
 }
 
-div.inline > h2, a { display: inline; }
+div.inline > h2, a, btn { display: inline; }

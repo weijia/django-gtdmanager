@@ -9,11 +9,9 @@ from gtdmanager.tests import GtdManagerTestCase
 Test pages funcionality
 """
 def prepare_completed_deleted():
-    item = Item(name='completed')
-    item.status = Item.COMPLETED
+    item = Item(name='completed', status = Item.COMPLETED)
     item.save()
-    item2 = Item(name='deleted')
-    item2.status = Item.DELETED
+    item2 = Item(name='deleted', status = Item.DELETED)
     item2.save()
     return (item, item2)
 
@@ -304,10 +302,10 @@ class ArchiveTest(GtdManagerTestCase):
 
     def test_completed_deleted(self):
         completed = Reminder(name='compl', remind_at = timezone.now() + timedelta(days=7))
-        completed.status = Item.COMPLETED
+        completed.complete()
         completed.save()
         deleted = Reminder(name='del', remind_at = timezone.now() + timedelta(days=7))
-        deleted.status = Item.COMPLETED
+        deleted.complete()
         deleted.save()
         response = Client().get(reverse('gtdmanager:tickler'))
         self.assertEqual(response.status_code, 200)

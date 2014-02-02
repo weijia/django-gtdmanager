@@ -95,7 +95,15 @@ class Item(models.Model):
             self.status = set_status
         
     def __unicode__(self):
-        return self.name;  
+        return self.name;
+
+    def complete(self):
+        self.status = Item.COMPLETED
+        self.save()
+    
+    def gtddelete(self):
+        self.status = Item.DELETED
+        self.save()
 
 class ContextsItem(Item):
     """
@@ -195,12 +203,28 @@ class Project(Item):
 
     def subprojects(self, unfinished_only = False):
         return self.context_items(Project, unfinished_only)
-    
+
     def active_childs(self):
         childs = list(self.item_set.filter(status=Item.WAITING_FOR))
         childs.extend(self.nexts(True))
         childs.extend(self.reminders(True))
         return childs
+
+    def complete(self):
+        for p in self.subprojects(True):
+            p.complete()
+
+        for item in self.item_set.unfinished():
+            item.complete()
+        super(Project, self).complete()
+
+    def gtddelete(self):
+        for p in self.subprojects(True):
+            p.gtddelete()
+
+        for item in self.item_set.unfinished():
+            item.gtddelete()
+        super(Project, self).gtddelete()
 
 """
 Post init procedures, should be called in test setup

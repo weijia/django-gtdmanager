@@ -1,39 +1,45 @@
 {% extends 'gtdmanager/base.html' %}
 
 {% block body %}
+<div class="col-xs-8">
 
 <div class="inline">
 <h2>Project {{ p.name }}</h2>
 <a href="{% url 'gtdmanager:project_edit' p.id %}"> (edit)</a>
+
+<a class="btn btn-button btn-success pull-right"
+		{% if p.parent %}
+			href="{% url 'gtdmanager:project_complete_redir_id' p.id 'project_detail' p.parent.id %}"
+		{% else %}
+			href="{% url 'gtdmanager:project_complete' p.id 'projects' %}"
+		{% endif %}
+>Complete</a>
+<a class="btn btn-button btn-danger pull-right"
+		{% if p.parent %}
+			href="{% url 'gtdmanager:project_complete_redir_id' p.id 'project_detail' p.parent.id %}"
+		{% else %}
+			href="{% url 'gtdmanager:project_complete' p.id 'projects' %}"
+		{% endif %}
+>Delete</a>
+
 </div>
 
-<div class="col-xs-8">
 {% if p.parent %}
 	Parent: <a href="{% url 'gtdmanager:project_detail' p.parent.id %}">{{p.parent.name}}</a><br>
 {% endif %}
 
-{% if not p.active_childs %}
-	<a class="btn btn-button btn-success"
-			{% if p.parent %}
-				href="{% url 'gtdmanager:item_complete_redir_id' p.id 'project_detail' p.parent.id %}"
-			{% else %}
-				href="{% url 'gtdmanager:item_complete' p.id 'projects' %}"
-			{% endif %}
-	>Complete</a>
-{% endif %}
-
 {% if subprojects %}
-	<h3>Projects</h3>
+	<h3>Subprojects</h3>
 	<table class="table table-condensed table-striped">
 	{% for project in subprojects %}
+	  <tr>
 		<td>
 			<a href="{% url 'gtdmanager:project_detail' project.id %}">{{project.name}}</a>
 			({{project.active_childs|length}} active, {{project.item_set.count}} total)
-			{%if not project.active_childs %}
-				<a href="{% url 'gtdmanager:item_delete_redir_id' project.id 'project_detail' p.id %}" class="btn btn-danger pull-right btn-sm">X</a>
-				<a href="{% url 'gtdmanager:item_complete_redir_id' project.id 'project_detail' p.id %}" class="btn btn-success pull-right btn-sm">Done</a>
-			{% endif %}
+			<a href="{% url 'gtdmanager:project_delete_redir_id' project.id 'project_detail' p.id %}" class="btn btn-danger pull-right btn-sm">X</a>
+			<a href="{% url 'gtdmanager:project_complete_redir_id' project.id 'project_detail' p.id %}" class="btn btn-success pull-right btn-sm">Done</a>
 		</td>
+	  </tr>
 	{% endfor %}
 	</table>
 	<div class="clearDiv"></div>
