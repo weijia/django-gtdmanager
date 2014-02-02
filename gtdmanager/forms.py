@@ -16,6 +16,9 @@ class ItemForm(forms.ModelForm):
     class Meta:
         model = Item
         exclude = ('status',)
+        widgets = {
+          'description': forms.Textarea(attrs={'rows':4, 'cols':15}),
+        }
 
 class ContextForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
@@ -38,6 +41,9 @@ class ProjectForm(ItemForm):
     class Meta:
         model = Project
         exclude = ('status',)
+        widgets = {
+          'description': forms.Textarea(attrs={'rows':4, 'cols':15}),
+        }
 
     def clean(self):
         cleaned_data = super(ProjectForm, self).clean()
@@ -50,8 +56,14 @@ class NextForm(ItemForm):
     class Meta:
         model = Next
         exclude = ('status',)
+        widgets = {
+          'description': forms.Textarea(attrs={'rows':4, 'cols':15}),
+        }
 
 class ReminderForm(ItemForm):
     class Meta:
         model = Reminder
         exclude = ('status',)
+        widgets = {
+          'description': forms.Textarea(attrs={'rows':4, 'cols':15}),
+        }
