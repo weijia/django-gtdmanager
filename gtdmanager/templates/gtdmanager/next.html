@@ -9,7 +9,9 @@
 		<thead>
 			<tr>
 				<th class="col-xs-2">Project</th>
-				<th class="col-xs-6">Name</th>
+				<th class="col-xs-3">Name</th>
+				<th class="col-xs-2">Context</th>
+				<th class="col-xs-1">Action</th>
 			</tr>
 		</thead>
 		{% for reminder in reminders %}
@@ -18,7 +20,15 @@
 				<a href="{% url 'gtdmanager:project_detail' reminder.parent.id %}">[ {{reminder.parent}} ]</a>
 				{% endif %}
 			</td>
-			<td><a href="{% url 'gtdmanager:reminder_edit' reminder.id 'next' %}">{{reminder.name}}</a>
+			<td>
+				<a href="{% url 'gtdmanager:reminder_edit' reminder.id 'next' %}">{{reminder.name}}</a>
+			</td>
+			<td>
+				{% for context in reminder.contexts.all %}
+					{{context}}
+				{% endfor %}
+			</td>
+			<td>
 				<a href="{% url 'gtdmanager:item_delete' reminder.id 'next' %}" class="btn btn-danger pull-right btn-sm">X</a>
 				<a href="{% url 'gtdmanager:item_complete' reminder.id 'next' %}" class="btn btn-success pull-right btn-sm">Done</a>
 			</td>
@@ -36,7 +46,9 @@
 		<thead>
 			<tr>
 				<th class="col-xs-2">Project</th>
-				<th class="col-xs-6">Name</th>
+				<th class="col-xs-3">Name</th>
+				<th class="col-xs-2">Context</th>
+				<th class="col-xs-1">Action</th>
 			</tr>
 		</thead>
 		{% for item in nexts %}
@@ -47,6 +59,13 @@
 			</td>
 			<td>
 				<a href="{% url 'gtdmanager:next_edit' item.id 'next' %}">{{item.name}}</a>
+			</td>
+			<td>
+				{% for context in item.contexts.all %}
+					{{context}}
+				{% endfor %}
+			</td>
+			<td>
 				<a href="{% url 'gtdmanager:item_delete' item.id 'next' %}" class="btn btn-danger pull-right btn-sm">X</a>
 				<a href="{% url 'gtdmanager:item_complete' item.id 'next' %}" class="btn btn-success pull-right btn-sm">Done</a>
 			</td>

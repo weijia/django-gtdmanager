@@ -172,8 +172,8 @@ def next_to_item(request, next_id, redir_page):
     return HttpResponseRedirect(reverse('gtdmanager:' + redir_page))
 
 def next(request):
-    nexts = Next.objects.unfinished()
-    reminders = Reminder.objects.active()
+    nexts = Next.objects.unfinished().order_by('contexts__name')
+    reminders = Reminder.objects.active().order_by('contexts__name')
     return render_to_response('gtdmanager/next.html', {'btnName': 'next', 
         'nexts': nexts, 'reminders': reminders})
 
