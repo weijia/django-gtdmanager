@@ -1,5 +1,5 @@
 from django.test import TestCase, Client
-from gtdmanager.models import Item, Next, Reminder, Project
+from gtdmanager.models import Item, Next, Reminder, Project, Context
 from django.core.urlresolvers import reverse
 from django.utils import timezone
 from datetime import timedelta
@@ -147,6 +147,24 @@ class NextTest(GtdManagerTestCase):
         response = Client().get(reverse('gtdmanager:next'))
         self.assertItemsEqual((), response.context['reminders'])
 
+    def create_nextItem_two_contexts(self, cls, name):
+        ctx = Context(name='other')
+        ctx.save()
+        item = cls(name=name)
+        item.contexts.add(ctx)
+        return item
+
+    def test_no_multiple_nexts_when_multiple_contexts(self):
+        n = self.create_nextItem_two_contexts(Next, 'next')
+        response = Client().get(reverse('gtdmanager:next'))
+        self.assertItemsEqual((n,), response.context['nexts'])
+
+    def test_no_multiple_reminders_when_multiple_contexts(self):
+        rem = self.create_nextItem_two_contexts(Reminder, 'reminder')
+        rem.remindAt = timezone.now()
+        rem.save()
+        response = Client().get(reverse('gtdmanager:next'))
+        self.assertItemsEqual((rem,), response.context['reminders'])
 
 class ProjectsTest(GtdManagerTestCase):
     def test_working(self):
