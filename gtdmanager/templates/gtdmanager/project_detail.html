@@ -49,11 +49,13 @@
 	<h3>Nexts</h3>
 	<table class="table table-condensed table-striped">
 		{% for next in nexts %}
+		    <tr>
 			<td>
 				<a href="{% url 'gtdmanager:next_edit_redir_id' next.id 'project_detail' p.id %}">{{next.name}}</a>
 				<a href="{% url 'gtdmanager:item_delete_redir_id' next.id 'project_detail' p.id %}" class="btn btn-danger pull-right btn-sm">X</a>
 				<a href="{% url 'gtdmanager:item_complete_redir_id' next.id 'project_detail' p.id %}" class="btn btn-success pull-right btn-sm">Done</a>
 			</td>
+		    </tr>
 		{% endfor %}
 	</table>
 	<div class="clearDiv"></div>
