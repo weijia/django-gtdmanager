@@ -1,18 +1,6 @@
 {% extends 'gtdmanager/base.html' %}
-{% load crispy_forms_tags %}
 
 {% block body %}
-<div class="col-xs-4">
-	<button type="button" class="btn btn-primary" data-toggle="collapse" data-target="#addFormDiv">
-		  Add new inbox item
-	</button>
-	<div id="addFormDiv" class="collapse {% if show_form %} in {% endif %}">
-		{% crispy form %}
-	</div>
-</div>
-<div class="clearDiv"></div>
-<br>
-
 <div class="col-xs-10">
 	<table class="table table-condensed table-striped">
 		<thead><tr>
@@ -26,7 +14,7 @@
 				<a href="{% url 'gtdmanager:project_detail' item.parent.id %}">[ {{item.parent}} ]</a>
 				{% endif %}
 			</td>
-			<td><a href="{% url 'gtdmanager:item_edit' item.id 'inbox'%}">{{item.name}}</a></td>
+			<td><a href="#" onclick="Dajaxice.gtdmanager.item_get(display_form, {'item_id':{{item.id}}})">{{item.name}}</a></td>
 			<td>
 				<a href="{% url 'gtdmanager:item_delete' item.id 'inbox'%}" class="btn btn-danger btn-sm">X</a>
 				<a href="{% url 'gtdmanager:item_reference' item.id %}" class="btn btn-primary btn-sm">Ref</a>
@@ -41,16 +29,4 @@
 		{% endfor %}
 	</table>
 </div>
-
-{% block edit_modal %}
-{% endblock %}
-
-{% endblock %} 
-
-{% block finish_scripts %}
-	{% if edit %}
-		item = $('#itemModal') 
-		item.modal('show')
-		item.on('hide.bs.modal', function (e) {window.location="{% if cancel_url %}{{cancel_url}}{% else %}{% url 'gtdmanager:inbox' %}{% endif %}"})
-	{% endif %}
 {% endblock %}

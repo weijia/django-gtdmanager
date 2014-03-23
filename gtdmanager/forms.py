@@ -3,15 +3,22 @@ from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Layout, Submit, Field
 from gtdmanager.models import Item, Context, Next, Reminder, Project
 from django.core.exceptions import ValidationError
+from django.core.urlresolvers import reverse
 
 class ItemForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
-        if 'instance' not in kwargs:
+        action = None
+        if 'instance' in kwargs:
+            action = reverse('gtdmanager:item_update', args=(kwargs['instance'].id,))
+        else:
             kwargs['instance'] = Item()
+            action = reverse('gtdmanager:item_create')
         super(ItemForm, self).__init__(*args, **kwargs)
         self.helper = FormHelper()
+        self.helper.form_action = action
         self.helper.add_input(Submit('submit', 'Submit'))
-        
+
+
     class Meta:
         model = Item
         exclude = ('status',)

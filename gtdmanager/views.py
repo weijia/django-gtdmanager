@@ -37,41 +37,9 @@ def home(request):
     return HttpResponseRedirect(reverse('gtdmanager:next'))
 
 def inbox(request):
-    show_form = False
-    if request.method == "POST":
-        form = ItemForm(request.POST)
-        if form.is_valid():
-            form.save()
-            form = ItemForm()
-            HttpResponseRedirect(reverse('gtdmanager:inbox'))
-        else:
-            show_form = True
-    else:
-        form = ItemForm()
-
     items = Item.objects.filter(status=Item.UNRESOLVED)
-    return render_to_response('gtdmanager/inbox.html', context_instance=RequestContext(request), 
-        dictionary={ 'btnName': 'inbox', 'form': form, 'show_form' : show_form, 'items' : items })
-
-def _item_edit(request, item_id, redir_page, args=()):
-    item = get_object_or_404(Item, pk=item_id)
-    if request.method == "POST":
-        form = ItemForm(request.POST, instance=item)
-        if form.is_valid():
-            form.save()
-            return HttpResponseRedirect(reverse('gtdmanager:'+redir_page, args=args))
-    else:
-        form = ItemForm(instance=item)
-        
-    return render_to_response("gtdmanager/edititem.html",
-        {'form': form, 'edit': True, 'cancel_url': reverse('gtdmanager:'+redir_page, args=args)},
-        RequestContext(request))
-
-def item_edit(request, item_id, redir_page):
-    return _item_edit(request, item_id, redir_page)
-
-def item_edit_redir_id(request, item_id, redir_page, redir_id):
-    return _item_edit(request, item_id, redir_page, (redir_id,))
+    return render_to_response('gtdmanager/inbox.html', { 'btnName': 'inbox', 'items' : items },
+                              RequestContext(request))
 
 def item_delete(request, item_id, redir_page):
     change_item_status(item_id, Item.DELETED)
