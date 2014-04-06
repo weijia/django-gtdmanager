@@ -8,7 +8,7 @@ from django.core.urlresolvers import reverse
 class ItemForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         action = None
-        if 'instance' in kwargs:
+        if 'instance' in kwargs and kwargs['instance'] is not None:
             action = reverse('gtdmanager:item_update', args=(kwargs['instance'].id,))
         else:
             kwargs['instance'] = Item()
@@ -17,7 +17,6 @@ class ItemForm(forms.ModelForm):
         self.helper = FormHelper()
         self.helper.form_action = action
         self.helper.add_input(Submit('submit', 'Submit'))
-
 
     class Meta:
         model = Item

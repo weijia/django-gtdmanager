@@ -18,10 +18,13 @@ def render_to_json(context):
 def get_form(request, item, formClass):
     form = formClass(instance=item)
     form_html = render_crispy_form(form, context=RequestContext(request))
-    return render_to_json({'success': True, 'form_html': form_html})
+    return render_to_json({'success': True, 'form_html': form_html, 'itemId': item.id})
 
 def handle_form(request, item, formClass, **kwargs):
-    form = formClass(kwargs or request.POST, instance=item)
+    data = kwargs or request.POST
+    if data.get("argv", None) == "undefined":
+        data = None
+    form = formClass(data, instance=item)
     if form.is_valid():
         form.save()
         return render_to_json({'success': True})

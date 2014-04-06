@@ -9,31 +9,37 @@ function uri2json(uri) {
     return uriParams;
 }
 
-function update_callback(data) {
+function update_callback(formCaption, data) {
     if (data.success) {
 		$('#itemModal').modal('hide');
 		window.location.reload();
 	} else {
-		data.success = true;
-		display_form(data);
+		display_form(formCaption, data);
 	}
 }
 
-function submit() {
+function submit(formCaption, itemId) {
     data = $('form').serialize(true);
-	data += '&item_id=' + 49;
-	Dajaxice.gtdmanager.item_update(update_callback, uri2json(data))
+	if (itemId) {
+		data += '&item_id=' + itemId;
+		Dajaxice.gtdmanager.item_update(update_callback.bind(this, formCaption), uri2json(data))
+	} else {
+		Dajaxice.gtdmanager.item_create(update_callback.bind(this, formCaption), uri2json(data))
+	}
 	return false;
 }
 
-function display_form(data) {
-    if (data.success) {
+function display_form(formCaption, data) {
+    if (data.form_html) {
+		var caption = $('#itemModalLabel')[0];
+		caption.innerText = formCaption;
 		var formDiv = $('#itemModalContent')[0];
 		formDiv.innerHTML = data.form_html;
 		var form = formDiv.firstChild.nextSibling
-		form.onsubmit = submit;
+		form.onsubmit = data.itemId ? submit.bind(this, formCaption, data.itemId)
+								    : submit.bind(this, formCaption, null);
 		$('#itemModal').modal('show');
 	} else {
-		console.log("AJAX request failed", data)
+		console.log("No HTML form data returned", data)
 	}
 }
