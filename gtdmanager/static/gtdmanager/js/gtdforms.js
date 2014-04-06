@@ -12,6 +12,7 @@ function uri2json(uri) {
 function update_callback(data) {
     if (data.success) {
 		$('#itemModal').modal('hide');
+		window.location.reload();
 	} else {
 		data.success = true;
 		display_form(data);
