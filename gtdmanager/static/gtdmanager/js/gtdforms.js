@@ -32,7 +32,7 @@ function submit(formCaption, itemId) {
 function display_form(formCaption, data) {
     if (data.form_html) {
 		var caption = $('#itemModalLabel')[0];
-		caption.innerText = formCaption;
+		caption.textContent = formCaption;
 		var formDiv = $('#itemModalContent')[0];
 		formDiv.innerHTML = data.form_html;
 		var form = formDiv.firstChild.nextSibling
