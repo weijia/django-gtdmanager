@@ -171,7 +171,6 @@ def project_detail(request, project_id):
 def _project_edit(request, project_id, redir_page, args=()):
     item = get_object_or_404(Project, pk=project_id)
     if request.method == "POST":
-        print request.POST
         form = ProjectForm(request.POST, instance=item)
         if form.is_valid():
             form.save()

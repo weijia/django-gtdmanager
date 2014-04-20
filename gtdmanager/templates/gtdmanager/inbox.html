@@ -21,7 +21,7 @@
 				<a href="{% url 'gtdmanager:project_detail' item.parent.id %}">[ {{item.parent}} ]</a>
 				{% endif %}
 			</td>
-			<td><a href="#" onclick="Dajaxice.gtdmanager.item_get(display_form.bind(this, 'Edit item'), {'item_id':{{item.id}}})">{{item.name}}</a></td>
+			<td><a href="#" onclick="Dajaxice.gtdmanager.item_get_form(display_form.bind(this, 'Edit item'), {'item_id':{{item.id}}})">{{item.name}}</a></td>
 			<td>
 				<a href="{% url 'gtdmanager:item_delete' item.id 'inbox'%}" class="btn btn-danger btn-sm">X</a>
 				<a href="{% url 'gtdmanager:item_reference' item.id %}" class="btn btn-primary btn-sm">Ref</a>

@@ -31,7 +31,7 @@ def handle_form(request, item, formClass, **kwargs):
     form_html = render_crispy_form(form, context=RequestContext(request))
     return render_to_json({'success': False, 'form_html': form_html})
 
-@dajaxice_register(method='GET', name='gtdmanager.item_get')
+@dajaxice_register(method='GET', name='gtdmanager.item_get_form')
 def item_form(request, item_id):
     item = get_object_or_404(Item, pk=item_id)
     return get_form(request, item, ItemForm)
