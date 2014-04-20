@@ -21,7 +21,8 @@
 				{% endif %}
 			</td>
 			<td>
-				<a href="{% url 'gtdmanager:reminder_edit' reminder.id 'next' %}">{{reminder.name}}</a>
+				<a href="#" onclick="Dajaxice.gtdmanager.reminder_get_form(display_form.bind(this, 'Edit reminder'), {'item_id':{{reminder.id}}})">
+					{{reminder.name}}</a>
 			</td>
 			<td>
 				{% for context in reminder.contexts.all %}

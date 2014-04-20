@@ -88,7 +88,7 @@
                     {% endif %}
                 </td>
                 <td>
-                    <a href="{% url 'gtdmanager:reminder_edit' item.id 'tickler' %}">{{item.name}}</a>
+                    <a href="#" onclick="Dajaxice.gtdmanager.reminder_get_form(display_form.bind(this, 'Edit reminder'), {'item_id':{{item.id}}})">{{item.name}}</a>
                     <a href="{% url 'gtdmanager:item_delete' item.id 'tickler' %}" class="btn btn-danger pull-right btn-sm">X</a>
                     <a href="{% url 'gtdmanager:item_complete' item.id 'tickler' %}" class="btn btn-success pull-right btn-sm">Done</a>
                 </td>

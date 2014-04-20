@@ -23,11 +23,11 @@ urlpatterns = patterns('',
     url(r'^next/(?P<item_id>\d+)/edit/(?P<redir_page>\w+)$', views.next_edit, name='next_edit'),
     url(r'^next/(?P<item_id>\d+)/edit/(?P<redir_page>\w+)/(?P<redir_id>\d+)$', views.next_edit_redir_id, name='next_edit_redir_id'),
     url(r'^next/(?P<next_id>\d+)/to_item/(?P<redir_page>\w+)$', views.next_to_item, name='next_to_item'),
-    
-    url(r'^reminder/(?P<item_id>\d+)/edit/(?P<redir_page>\w+)$', views.reminder_edit, name='reminder_edit'),
-    url(r'^reminder/(?P<item_id>\d+)/edit/(?P<redir_page>\w+)/(?P<redir_id>\d+)$', views.reminder_edit_redir_id, name='reminder_edit_redir_id'),
+
     url(r'^reminder/(?P<item_id>\d+)/to_item/(?P<redir_page>\w+)$', views.reminder_to_item, name='reminder_to_item'),
-    
+    url(r'^reminder/create$', ajax.reminder_create, name='reminder_create'),
+    url(r'^reminder/update/(?P<item_id>\d+)$', ajax.reminder_update, name='reminder_update'),
+
     url(r'^projects$', views.projects, name='projects'),
     url(r'^projects/(?P<project_id>\d+)$', views.project_detail, name='project_detail'),
     url(r'^projects/(?P<project_id>\d+)/edit$', views.project_edit, name='project_edit'),

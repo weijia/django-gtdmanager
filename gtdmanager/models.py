@@ -1,6 +1,7 @@
 from django.db import models
 from django.core.exceptions import ValidationError
 from django.utils import timezone
+from django.shortcuts import get_object_or_404
 from datetime import datetime, timedelta, date, time
 
 class ContextManager(models.Manager):
@@ -46,10 +47,10 @@ class ItemManager(models.Manager):
         """
         if not isinstance(item, Item) or item.status != Item.UNRESOLVED:
             raise RuntimeError("passed item is not unresolved Item")
-        
+
         attrs = item.__dict__
-        attrs.pop('status')
-        converted = cls(item_ptr_id=item.id)
+        attrs.pop("status")
+        converted = cls(item_ptr=item)
         converted.__dict__.update(attrs)
         return converted
 
@@ -87,13 +88,13 @@ class Item(models.Model):
     parent = models.ForeignKey('Project', blank=True, null=True)    
     createdAt = models.DateField(auto_now_add=True)
     lastChanged = models.DateTimeField(auto_now=True)
-            
+
     def __init__(self, *args, **kwargs):
         set_status = kwargs.pop('status', self.UNRESOLVED)
         super(Item, self).__init__(*args, **kwargs)
         if not self.status:
             self.status = set_status
-        
+
     def __unicode__(self):
         return self.name;
 
@@ -112,24 +113,25 @@ class ContextsItem(Item):
     """
 
     contexts = models.ManyToManyField(Context)
-    
+
     class Meta:
         abstract = True
-    
+
     def __init__(self, *args, **kwargs):
         contextSet = []
         if 'context' in kwargs:
             contextSet.append(kwargs.pop('context'))
         if 'contexts' in kwargs:
             contextSet.extend(kwargs.pop('contexts'))
+
         instance = kwargs.pop('instance', None)
+        if instance is None and 'item_ptr' in kwargs:
+            instance = kwargs['item_ptr']
 
         super(ContextsItem, self).__init__(*args, **kwargs)
-        
         if instance:
             self.__dict__.update(instance.__dict__)
-        self.createdAt = timezone.now()  # next save would failed otherwise
-        self.save()
+
         if contextSet:
             self.contexts.add(*contextSet)
         elif self.contexts.count() == 0:
@@ -140,8 +142,8 @@ class Next(ContextsItem):
     objects = ItemManager()
 
     def __init__(self, *args, **kwargs):
-        kwargs['status'] = self.NEXT
         super(Next, self).__init__(*args, **kwargs)
+        self.status = self.NEXT
 
 class ReminderManager(ItemManager):
     def active(self):
@@ -149,18 +151,26 @@ class ReminderManager(ItemManager):
         tz = timezone.get_current_timezone()
         return self.unfinished().filter(remind_at__lt=tomorrow.replace(tzinfo=tz))
 
+    def get_or_convert(self, item_id):
+        try:
+            item = self.get(pk=item_id)
+        except:
+            item = get_object_or_404(Item, pk=item_id)
+            item = Item.objects.convertTo(Reminder, item)
+        return item
+
 class Reminder(ContextsItem):
 
     remind_at = models.DateTimeField()
-    
+
     objects = ReminderManager()
 
     def __init__(self, *args, **kwargs):
-        kwargs['status'] = self.REMINDER
         if 'remind_at' not in kwargs:
-            kwargs['remind_at'] = timezone.now() + timedelta(minutes=10) 
+            kwargs['remind_at'] = timezone.now() + timedelta(minutes=10)
         super(Reminder, self).__init__(*args, **kwargs)
-    
+        self.status = self.REMINDER
+
     def active(self):
         return self.remind_at.date() <= timezone.now().date()
 
@@ -170,8 +180,8 @@ class Project(Item):
     objects = ItemManager()
 
     def __init__(self, *args, **kwargs):
-        kwargs['status'] = self.PROJECT
         super(Project, self).__init__(*args, **kwargs)
+        self.status = self.PROJECT
 
     def is_parent_of(self, child):
         if child is None or child.parent is None:

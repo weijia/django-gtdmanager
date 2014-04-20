@@ -75,33 +75,6 @@ def item_to_project(request, item_id):
     project.save()
     return HttpResponseRedirect(reverse('gtdmanager:project_detail', args=(item.id,)))
 
-def _reminder_edit(request, item_id, redir_page, args=()):
-    cancel_url = reverse('gtdmanager:' + redir_page, args=args)
-    try:
-        item = Reminder.objects.get(pk=item_id)
-    except:
-        item = get_object_or_404(Item, pk=item_id)
-        item = Item.objects.convertTo(Reminder, item)
-        item.save()
-        cancel_url = reverse('gtdmanager:reminder_to_item', args=(item_id, redir_page))
-
-    if request.method == "POST":
-        form = ReminderForm(request.POST, instance=item)
-        if form.is_valid():
-            form.save()
-            return HttpResponseRedirect(reverse('gtdmanager:'+redir_page))
-    else:
-        form = ReminderForm(instance=item)
-        
-    return render_to_response("gtdmanager/edititem.html",
-        {'form': form, 'title': 'Edit reminder', 'edit': True, 'cancel_url': cancel_url}, RequestContext(request))
-
-def reminder_edit(request, item_id, redir_page):
-    return _reminder_edit(request, item_id, redir_page)
-
-def reminder_edit_redir_id(request, item_id, redir_page, redir_id):
-    return _reminder_edit(request, item_id, redir_page, (redir_id,))
-
 def reminder_to_item(request, item_id, redir_page):
     rem = get_object_or_404(Reminder, pk=item_id)
     make_unresolved(rem, Reminder)

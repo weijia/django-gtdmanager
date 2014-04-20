@@ -4,8 +4,8 @@ from django.views.decorators.http import require_POST
 from dajaxice.decorators import dajaxice_register
 from crispy_forms.utils import render_crispy_form
 import json
-from models import Item
-from forms import ItemForm
+from models import Item, Reminder
+from forms import ItemForm, ReminderForm
 
 """
 Forms
@@ -46,3 +46,19 @@ def item_create(request, **kwargs):
 def item_update(request, item_id, **kwargs):
     item = get_object_or_404(Item, pk=item_id)
     return handle_form(request, item, ItemForm, **kwargs)
+
+@dajaxice_register(method='GET', name='gtdmanager.reminder_get_form')
+def reminder_form(request, item_id):
+    reminder = Reminder.objects.get_or_convert(item_id)
+    return get_form(request, reminder, ReminderForm)
+
+@require_POST
+@dajaxice_register(method='POST', name='gtdmanager.reminder_create')
+def reminder_create(request, **kwargs):
+    return handle_form(request, None, ReminderForm, **kwargs)
+
+@require_POST
+@dajaxice_register(method='POST', name='gtdmanager.reminder_update')
+def reminder_update(request, item_id, **kwargs):
+    item = Reminder.objects.get_or_convert(item_id)
+    return handle_form(request, item, ReminderForm, **kwargs)

@@ -9,10 +9,10 @@ class ItemForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         action = None
         if 'instance' in kwargs and kwargs['instance'] is not None:
-            action = reverse('gtdmanager:item_update', args=(kwargs['instance'].id,))
+            action = reverse(self.Meta.updateView, args=(kwargs['instance'].id,))
         else:
-            kwargs['instance'] = Item()
-            action = reverse('gtdmanager:item_create')
+            kwargs['instance'] = self.Meta.model()
+            action = reverse(self.Meta.createView)
         super(ItemForm, self).__init__(*args, **kwargs)
         self.helper = FormHelper()
         self.helper.form_action = action
@@ -24,6 +24,8 @@ class ItemForm(forms.ModelForm):
         widgets = {
           'description': forms.Textarea(attrs={'rows':4, 'cols':15}),
         }
+        createView = 'gtdmanager:item_create'
+        updateView = 'gtdmanager:item_update'
 
 class ContextForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
@@ -72,3 +74,5 @@ class ReminderForm(ItemForm):
         widgets = {
           'description': forms.Textarea(attrs={'rows':4, 'cols':15}),
         }
+        createView = 'gtdmanager:reminder_create'
+        updateView = 'gtdmanager:reminder_update'
