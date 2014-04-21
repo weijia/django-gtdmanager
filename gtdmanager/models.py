@@ -56,7 +56,15 @@ class ItemManager(models.Manager):
 
     def unfinished(self):
         excluded = (Item.COMPLETED, Item.DELETED)
-        return self.exclude(status__in=excluded) 
+        return self.exclude(status__in=excluded)
+
+    def get_or_convert(self, item_id, cls):
+        try:
+            item = self.get(pk=item_id)
+        except:
+            item = get_object_or_404(Item, pk=item_id)
+            item = self.convertTo(cls, item)
+        return item
 
 class Item(models.Model):
     UNRESOLVED = 'U'
@@ -150,14 +158,6 @@ class ReminderManager(ItemManager):
         tomorrow = datetime.combine(date.today(), time()) + timedelta(days=1)
         tz = timezone.get_current_timezone()
         return self.unfinished().filter(remind_at__lt=tomorrow.replace(tzinfo=tz))
-
-    def get_or_convert(self, item_id):
-        try:
-            item = self.get(pk=item_id)
-        except:
-            item = get_object_or_404(Item, pk=item_id)
-            item = Item.objects.convertTo(Reminder, item)
-        return item
 
 class Reminder(ContextsItem):
 

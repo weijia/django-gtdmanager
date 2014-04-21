@@ -66,6 +66,8 @@ class NextForm(ItemForm):
         widgets = {
           'description': forms.Textarea(attrs={'rows':4, 'cols':15}),
         }
+        createView = 'gtdmanager:next_create'
+        updateView = 'gtdmanager:next_update'
 
 class ReminderForm(ItemForm):
     class Meta:

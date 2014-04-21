@@ -20,9 +20,9 @@ urlpatterns = patterns('',
     url(r'^item/(?P<item_id>\d+)/to_project$', views.item_to_project, name='item_to_project'),
 
     url(r'^next$', views.next, name='next'),
-    url(r'^next/(?P<item_id>\d+)/edit/(?P<redir_page>\w+)$', views.next_edit, name='next_edit'),
-    url(r'^next/(?P<item_id>\d+)/edit/(?P<redir_page>\w+)/(?P<redir_id>\d+)$', views.next_edit_redir_id, name='next_edit_redir_id'),
     url(r'^next/(?P<next_id>\d+)/to_item/(?P<redir_page>\w+)$', views.next_to_item, name='next_to_item'),
+    url(r'^next/create$', ajax.next_create, name='next_create'),
+    url(r'^next/update/(?P<item_id>\d+)$', ajax.next_update, name='next_update'),
 
     url(r'^reminder/(?P<item_id>\d+)/to_item/(?P<redir_page>\w+)$', views.reminder_to_item, name='reminder_to_item'),
     url(r'^reminder/create$', ajax.reminder_create, name='reminder_create'),

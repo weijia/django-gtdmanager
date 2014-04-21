@@ -51,7 +51,8 @@
 		{% for next in nexts %}
 		    <tr>
 			<td>
-				<a href="{% url 'gtdmanager:next_edit_redir_id' next.id 'project_detail' p.id %}">{{next.name}}</a>
+				<a href="#" onclick="Dajaxice.gtdmanager.next_get_form(display_form.bind(this, 'Edit next'), {'item_id':{{next.id}}})">
+					{{next.name}}</a>
 				<a href="{% url 'gtdmanager:item_delete_redir_id' next.id 'project_detail' p.id %}" class="btn btn-danger pull-right btn-sm">X</a>
 				<a href="{% url 'gtdmanager:item_complete_redir_id' next.id 'project_detail' p.id %}" class="btn btn-success pull-right btn-sm">Done</a>
 			</td>
@@ -66,7 +67,8 @@
 	<table class="table table-condensed table-striped">
 		<tr>{% for item in waiting %}
 			<td>
-				<a href="{% url 'gtdmanager:item_edit_redir_id' item.id 'project_detail' p.id %}">{{item.name}}</a>
+				<a href="#" onclick="Dajaxice.gtdmanager.item_get_form(display_form.bind(this, 'Edit item'), {'item_id':{{item.id}}})">
+					{{item.name}}</a>
 				<a href="{% url 'gtdmanager:item_delete_redir_id' item.id 'project_detail' p.id  %}" class="btn btn-danger pull-right btn-sm">X</a>
 				<a href="{% url 'gtdmanager:item_complete_redir_id' item.id 'project_detail' p.id  %}" class="btn btn-success pull-right btn-sm">Done</a>
 			</td>
@@ -88,7 +90,8 @@
 	{% for item in reminders %}
 	<tr>
 		<td>
-			<a href="{% url 'gtdmanager:reminder_edit_redir_id' item.id 'project_detail' p.id %}">{{item.name}}</a>			
+			<a href="#" onclick="Dajaxice.gtdmanager.reminder_get_form(display_form.bind(this, 'Edit reminder'), {'item_id':{{item.id}}})">
+				{{item.name}}</a>
 		</td>
 		<td class="centerText">
 			{{item.remind_at|date:"d.m.Y"}}
@@ -108,7 +111,8 @@
 	<table class="table table-condensed table-striped">
 		<tr>{% for item in somedays %}
 			<td>
-				<a href="{% url 'gtdmanager:item_edit_redir_id' item.id 'project_detail' p.id %}">{{item.name}}</a>
+				<a href="#" onclick="Dajaxice.gtdmanager.item_get_form(display_form.bind(this, 'Edit item'), {'item_id':{{item.id}}})">
+					{{item.name}}</a>
 				<a href="{% url 'gtdmanager:item_delete_redir_id' item.id 'project_detail' p.id  %}" class="btn btn-danger pull-right btn-sm">X</a>
 				<a href="{% url 'gtdmanager:item_complete_redir_id' item.id 'project_detail' p.id  %}" class="btn btn-success pull-right btn-sm">Done</a>
 			</td>
@@ -122,7 +126,8 @@
 	<table class="table table-condensed table-striped">
 		<tr>{% for item in references %}
 			<td>
-				<a href="{% url 'gtdmanager:item_edit_redir_id' item.id 'project_detail' p.id %}">{{item.name}}</a>
+				<a href="#" onclick="Dajaxice.gtdmanager.item_get_form(display_form.bind(this, 'Edit item'), {'item_id':{{item.id}}})">
+					{{item.name}}</a>
 				<a href="{% url 'gtdmanager:item_delete_redir_id' item.id 'project_detail' p.id  %}" class="btn btn-danger pull-right btn-sm">X</a>
 				<a href="{% url 'gtdmanager:item_complete_redir_id' item.id 'project_detail' p.id  %}" class="btn btn-success pull-right btn-sm">Done</a>
 			</td>

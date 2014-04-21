@@ -4,8 +4,8 @@ from django.views.decorators.http import require_POST
 from dajaxice.decorators import dajaxice_register
 from crispy_forms.utils import render_crispy_form
 import json
-from models import Item, Reminder
-from forms import ItemForm, ReminderForm
+from models import Item, Reminder, Next
+from forms import ItemForm, ReminderForm, NextForm
 
 """
 Forms
@@ -49,7 +49,7 @@ def item_update(request, item_id, **kwargs):
 
 @dajaxice_register(method='GET', name='gtdmanager.reminder_get_form')
 def reminder_form(request, item_id):
-    reminder = Reminder.objects.get_or_convert(item_id)
+    reminder = Reminder.objects.get_or_convert(item_id, Reminder)
     return get_form(request, reminder, ReminderForm)
 
 @require_POST
@@ -60,5 +60,21 @@ def reminder_create(request, **kwargs):
 @require_POST
 @dajaxice_register(method='POST', name='gtdmanager.reminder_update')
 def reminder_update(request, item_id, **kwargs):
-    item = Reminder.objects.get_or_convert(item_id)
+    item = Reminder.objects.get_or_convert(item_id, Reminder)
     return handle_form(request, item, ReminderForm, **kwargs)
+
+@dajaxice_register(method='GET', name='gtdmanager.next_get_form')
+def next_form(request, item_id):
+    nxt = Next.objects.get_or_convert(item_id, Next)
+    return get_form(request, nxt, NextForm)
+
+@require_POST
+@dajaxice_register(method='POST', name='gtdmanager.next_create')
+def next_create(request, **kwargs):
+    return handle_form(request, None, NextForm, **kwargs)
+
+@require_POST
+@dajaxice_register(method='POST', name='gtdmanager.next_update')
+def next_update(request, item_id, **kwargs):
+    item = Next.objects.get_or_convert(item_id, Next)
+    return handle_form(request, item, NextForm, **kwargs)
