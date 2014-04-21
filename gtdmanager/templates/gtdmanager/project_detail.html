@@ -5,7 +5,8 @@
 
 <div class="inline">
 <h2>Project {{ p.name }}</h2>
-<a href="{% url 'gtdmanager:project_edit' p.id %}"> (edit)</a>
+<a href="#" onclick="Dajaxice.gtdmanager.project_get_form(display_form.bind(this, 'Edit project'), {'item_id':{{p.id}}})">
+	(edit)</a>
 
 <a class="btn btn-button btn-success pull-right"
 		{% if p.parent %}

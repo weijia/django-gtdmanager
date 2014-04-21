@@ -51,6 +51,8 @@ class ProjectForm(ItemForm):
         widgets = {
           'description': forms.Textarea(attrs={'rows':4, 'cols':15}),
         }
+        createView = 'gtdmanager:project_create'
+        updateView = 'gtdmanager:project_update'
 
     def clean(self):
         cleaned_data = super(ProjectForm, self).clean()

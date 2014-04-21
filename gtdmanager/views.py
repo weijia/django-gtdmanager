@@ -79,33 +79,6 @@ def reminder_to_item(request, item_id, redir_page):
     rem = get_object_or_404(Reminder, pk=item_id)
     make_unresolved(rem, Reminder)
     return HttpResponseRedirect(reverse('gtdmanager:' + redir_page))
-
-def _next_edit(request, item_id, redir_page, args=()):
-    cancel_url = reverse('gtdmanager:' + redir_page, args=args)
-    try:
-        item = Next.objects.get(pk=item_id)
-    except:
-        item = get_object_or_404(Item, pk=item_id)
-        item = Item.objects.convertTo(Next, item)
-        item.save()
-        cancel_url = reverse('gtdmanager:next_to_item', args=(item_id, redir_page))
-
-    if request.method == "POST":
-        form = NextForm(request.POST, instance=item)
-        if form.is_valid():
-            form.save()
-            return HttpResponseRedirect(reverse('gtdmanager:'+redir_page, args=args))
-    else:
-        form = NextForm(instance=item)
-        
-    return render_to_response("gtdmanager/edititem.html",
-        {'form': form, 'editDivPrefix': "next", 'cancel_url': cancel_url, 'edit': True}, RequestContext(request))
-
-def next_edit(request, item_id, redir_page):
-    return _next_edit(request, item_id, redir_page)
-
-def next_edit_redir_id(request, item_id, redir_page, redir_id):
-    return _next_edit(request, item_id, redir_page, args=(int(redir_id),))
     
 def next_to_item(request, next_id, redir_page):
     the_next = get_object_or_404(Next, pk=next_id)
@@ -140,26 +113,6 @@ def project_detail(request, project_id):
             {'p': p, 'btnName': 'projects', 'nexts': nexts, 'reminders': reminders, 'subprojects': subs, 
              'waiting': waiting, 'somedays': somedays, 'references': refs, 'completed': completed,
              'deleted': deleted}, RequestContext(request) )
-
-def _project_edit(request, project_id, redir_page, args=()):
-    item = get_object_or_404(Project, pk=project_id)
-    if request.method == "POST":
-        form = ProjectForm(request.POST, instance=item)
-        if form.is_valid():
-            form.save()
-            return HttpResponseRedirect(reverse('gtdmanager:'+redir_page, args=args))
-    else:
-        form = ProjectForm(instance=item)
-        
-    return render_to_response("gtdmanager/edititem.html",
-        {'form': form, 'title': 'Edit project', 'edit': True, 'cancel_url': reverse('gtdmanager:'+redir_page, args=args)},
-        RequestContext(request))
-
-def project_edit(request, project_id):
-    return _project_edit(request, project_id, 'project_detail', (int(project_id),))
-
-def project_edit_redir_id(request, project_id, redir_page, redir_id):
-    return _project_edit(request, project_id, redir_page, (redir_id,))
 
 def project_complete(request, project_id, redir_page):
     change_item_status(project_id, Item.COMPLETED, Project)

@@ -27,6 +27,8 @@ function get_method(create, action) {
 			return Dajaxice.gtdmanager.reminder_create;
 		} else if (action.indexOf("next/create") > -1) {
 			return Dajaxice.gtdmanager.next_create;
+		}  else if (action.indexOf("project/create") > -1) {
+			return Dajaxice.gtdmanager.project_create;
 		}
 	} else {
 		if (action.indexOf("item/update") > -1) {
@@ -35,6 +37,8 @@ function get_method(create, action) {
 			return Dajaxice.gtdmanager.reminder_update;
 		} else if (action.indexOf("next/update") > -1) {
 			return Dajaxice.gtdmanager.next_update;
+		} else if (action.indexOf("project/update") > -1) {
+			return Dajaxice.gtdmanager.project_update;
 		}
 	}
 }
