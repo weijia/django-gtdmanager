@@ -110,3 +110,33 @@ def context_create(request, **kwargs):
 def context_update(request, item_id, **kwargs):
     ctx = get_object_or_404(Context, pk=item_id)
     return handle_form(request, ctx, ContextForm, **kwargs)
+
+@dajaxice_register(method='GET', name='gtdmanager.item_delete')
+def item_delete(request, item_id):
+    item = get_object_or_404(Item, pk=item_id)
+    item.gtddelete()
+    return render_to_json({"success": True})
+
+@dajaxice_register(method='GET', name='gtdmanager.project_delete')
+def project_delete(request, item_id):
+    p = get_object_or_404(Project, pk=item_id)
+    p.gtddelete()
+    return render_to_json({"success": True})
+
+@dajaxice_register(method='GET', name='gtdmanager.context_delete')
+def context_delete(request, ctx_id):
+    context = get_object_or_404(Context, pk=ctx_id)
+    context.delete()
+    return render_to_json({"success": True})
+
+@dajaxice_register(method='GET', name='gtdmanager.item_complete')
+def item_complete(request, item_id):
+    item = get_object_or_404(Item, pk=item_id)
+    item.complete()
+    return render_to_json({"success": True})
+
+@dajaxice_register(method='GET', name='gtdmanager.project_complete')
+def project_complete(request, item_id):
+    p = get_object_or_404(Project, pk=item_id)
+    p.complete()
+    return render_to_json({"success": True})

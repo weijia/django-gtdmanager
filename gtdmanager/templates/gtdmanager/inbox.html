@@ -24,12 +24,14 @@
 			<td><a href="#" onclick="Dajaxice.gtdmanager.item_get_form(display_form.bind(this, 'Edit item'), {'item_id':{{item.id}}})">
 				{{item.name}}</a></td>
 			<td>
-				<a href="{% url 'gtdmanager:item_delete' item.id 'inbox'%}" class="btn btn-danger btn-sm">X</a>
+				<a href="#" onclick="Dajaxice.gtdmanager.item_delete(delete_callback, {'item_id':{{item.id}}})"
+				   class="btn btn-danger btn-sm">X</a>
 				<a href="{% url 'gtdmanager:item_reference' item.id %}" class="btn btn-primary btn-sm">Ref</a>
 				<a href="{% url 'gtdmanager:item_to_project' item.id %}" class="btn btn-primary btn-sm">Project</a>
 				<a href="{% url 'gtdmanager:item_someday' item.id %}" class="btn btn-primary btn-sm">Someday</a>
 				<a href="{% url 'gtdmanager:item_wait' item.id %}" class="btn btn-primary btn-sm">Wait</a>
-				<a href="{% url 'gtdmanager:item_complete' item.id 'inbox'%}" class="btn btn-success btn-sm">Done</a>
+				<a href="#" onclick="Dajaxice.gtdmanager.item_complete(complete_callback, {'item_id':{{item.id}}})"
+				   class="btn btn-success btn-sm">Done</a>
 				<a href="#" onclick="Dajaxice.gtdmanager.reminder_get_form(display_form.bind(this, 'Edit reminder'), {'item_id':{{item.id}}})"
 						class="btn btn-primary btn-sm">Remind</a>
 				<a href="#" onclick="Dajaxice.gtdmanager.next_get_form(display_form.bind(this, 'Edit next'), {'item_id':{{item.id}}})"

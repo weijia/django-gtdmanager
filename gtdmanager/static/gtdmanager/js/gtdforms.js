@@ -80,3 +80,19 @@ function display_form(formCaption, data) {
 		console.log("No HTML form data returned", data)
 	}
 }
+
+function delete_callback(data) {
+	if (data.success) {
+		window.location.reload();
+	} else {
+		alert("Delete failed");
+	}
+}
+
+function complete_callback(data) {
+	if (data.success) {
+		window.location.reload();
+	} else {
+		alert("Complete failed");
+	}
+}

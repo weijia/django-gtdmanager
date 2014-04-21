@@ -25,9 +25,12 @@
                     {% endif %}
                 </td>
                 <td>
-                    <a href="{% url 'gtdmanager:reminder_edit' item.id 'tickler' %}">{{item.name}}</a>
-                    <a href="{% url 'gtdmanager:item_delete' item.id 'tickler' %}" class="btn btn-danger pull-right btn-sm">X</a>
-                    <a href="{% url 'gtdmanager:item_complete' item.id 'tickler' %}" class="btn btn-success pull-right btn-sm">Done</a>
+                    <a href="#" onclick="Dajaxice.gtdmanager.reminder_get_form(display_form.bind(this, 'Edit reminder'), {'item_id':{{item.id}}})">
+                        {{item.name}}</a>
+                    <a href="#" onclick="Dajaxice.gtdmanager.item_delete(delete_callback, {'item_id':{{item.id}}})"
+                       class="btn btn-danger pull-right btn-sm">X</a>
+                    <a href="#" onclick="Dajaxice.gtdmanager.item_complete(complete_callback, {'item_id':{{item.id}}})"
+                       class="btn btn-success pull-right btn-sm">Done</a>
                 </td>
                 <td>
                 </td>
@@ -56,9 +59,11 @@
                     {% endif %}
                 </td>
                 <td>
-                    <a href="{% url 'gtdmanager:reminder_edit' item.id 'tickler' %}">{{item.name}}</a>
-                    <a href="{% url 'gtdmanager:item_delete' item.id 'tickler' %}" class="btn btn-danger pull-right btn-sm">X</a>
-                    <a href="{% url 'gtdmanager:item_complete' item.id 'tickler' %}" class="btn btn-success pull-right btn-sm">Done</a>
+                    <a href="#" onclick="Dajaxice.gtdmanager.reminder_get_form(display_form.bind(this, 'Edit reminder'), {'item_id':{{item.id}}})">{{item.name}}</a>
+                    <a href="#" onclick="Dajaxice.gtdmanager.item_delete(delete_callback, {'item_id':{{item.id}}})"
+                       class="btn btn-danger pull-right btn-sm">X</a>
+                    <a href="#" onclick="Dajaxice.gtdmanager.item_complete(complete_callback, {'item_id':{{item.id}}})"
+                       class="btn btn-success pull-right btn-sm">Done</a>
                 </td>
                 <td class="centerText">
                    {{item.remind_at|date:"l (d.m.)"}} 
@@ -89,8 +94,10 @@
                 </td>
                 <td>
                     <a href="#" onclick="Dajaxice.gtdmanager.reminder_get_form(display_form.bind(this, 'Edit reminder'), {'item_id':{{item.id}}})">{{item.name}}</a>
-                    <a href="{% url 'gtdmanager:item_delete' item.id 'tickler' %}" class="btn btn-danger pull-right btn-sm">X</a>
-                    <a href="{% url 'gtdmanager:item_complete' item.id 'tickler' %}" class="btn btn-success pull-right btn-sm">Done</a>
+                    <a href="#" onclick="Dajaxice.gtdmanager.item_delete(delete_callback, {'item_id':{{item.id}}})"
+                       class="btn btn-danger pull-right btn-sm">X</a>
+                    <a href="#" onclick="Dajaxice.gtdmanager.item_complete(complete_callback, {'item_id':{{item.id}}})"
+                       class="btn btn-success pull-right btn-sm">Done</a>
                 </td>
                 <td class="centerText">
                     {{item.remind_at|date:"d.m.Y"}} 

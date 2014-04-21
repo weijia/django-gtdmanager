@@ -18,8 +18,10 @@
 			</td>
 			<td>
 				<a href="#" onclick="Dajaxice.gtdmanager.item_get_form(display_form.bind(this, 'Edit item'), {'item_id':{{item.id}}})">{{item.name}}</a>
-				<a href="{% url 'gtdmanager:item_delete' item.id redir_page %}" class="btn btn-danger pull-right btn-sm">X</a>
-				<a href="{% url 'gtdmanager:item_complete' item.id redir_page %}" class="btn btn-success pull-right btn-sm">Done</a>
+				<a href="#" onclick="Dajaxice.gtdmanager.item_delete(delete_callback, {'item_id':{{item.id}}})"
+					class="btn btn-danger pull-right btn-sm">X</a>
+				<a href="#" onclick="Dajaxice.gtdmanager.item_complete(complete_callback, {'item_id':{{item.id}}})"
+					class="btn btn-success pull-right btn-sm">Done</a>
 			</td>
 		</tr>
 		{% endfor %}

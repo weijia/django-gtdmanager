@@ -31,7 +31,8 @@
 				<a href="#" onclick="Dajaxice.gtdmanager.context_get_form(display_form.bind(this, 'Edit context'), {'item_id':{{context.id}}})">
 				   {{context.name}}</a>
 				{% if not context.is_default %}
-				  <a class="btn btn-danger pull-right btn-sm" href="{% url 'gtdmanager:context_delete' context.id %}">X</a><br>
+				  <a href="#" onclick="Dajaxice.gtdmanager.context_delete(delete_callback, {'ctx_id':{{context.id}}})"
+				     class="btn btn-danger pull-right btn-sm">X</a><br>
 				{% endif %}
 			</td>
 		</tr>

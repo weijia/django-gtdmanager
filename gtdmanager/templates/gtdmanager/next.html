@@ -30,8 +30,10 @@
 				{% endfor %}
 			</td>
 			<td>
-				<a href="{% url 'gtdmanager:item_delete' reminder.id 'next' %}" class="btn btn-danger pull-right btn-sm">X</a>
-				<a href="{% url 'gtdmanager:item_complete' reminder.id 'next' %}" class="btn btn-success pull-right btn-sm">Done</a>
+				<a href="#" onclick="Dajaxice.gtdmanager.item_delete(delete_callback, {'item_id':{{reminder.id}}})"
+					class="btn btn-danger pull-right btn-sm">X</a>
+				<a href="#" onclick="Dajaxice.gtdmanager.item_complete(complete_callback, {'item_id':{{reminder.id}}})"
+				   class="btn btn-success pull-right btn-sm">Done</a>
 			</td>
 		</tr>
 		{% endfor %}
@@ -68,20 +70,14 @@
 				{% endfor %}
 			</td>
 			<td>
-				<a href="{% url 'gtdmanager:item_delete' item.id 'next' %}" class="btn btn-danger pull-right btn-sm">X</a>
-				<a href="{% url 'gtdmanager:item_complete' item.id 'next' %}" class="btn btn-success pull-right btn-sm">Done</a>
+				<a href="#" onclick="Dajaxice.gtdmanager.item_delete(delete_callback, {'item_id':{{item.id}}})"
+				   class="btn btn-danger pull-right btn-sm">X</a>
+				<a href="#" onclick="Dajaxice.gtdmanager.item_complete(complete_callback, {'item_id':{{item.id}}})"
+				   class="btn btn-success pull-right btn-sm">Done</a>
 			</td>
 		</tr>
 		{% endfor %}
 	</table>
 </div>
-{% endif %}
-{% endblock %}
-
-{% block finish_scripts %}
-{% if editDivPrefix != None %}
-item = $('#{{editDivPrefix}}Modal')
-item.modal('show')
-item.on('hide.bs.modal', function (e) {window.location="{% if cancel_url %}{{cancel_url}}{% else %}{% url 'gtdmanager:next' %}{% endif %}"})
 {% endif %}
 {% endblock %}
