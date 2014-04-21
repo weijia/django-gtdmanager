@@ -28,9 +28,10 @@
 				value="{{context.id}}"{% if context.is_default %} checked {% endif%}>
 			</td>
 			<td>
-				<a href="{% url 'gtdmanager:context_edit' context.id %}">{{context.name}}</a>
+				<a href="#" onclick="Dajaxice.gtdmanager.context_get_form(display_form.bind(this, 'Edit context'), {'item_id':{{context.id}}})">
+				   {{context.name}}</a>
 				{% if not context.is_default %}
-				<a class="btn btn-danger pull-right btn-sm" href="{% url 'gtdmanager:context_delete' context.id %}">X</a><br>
+				  <a class="btn btn-danger pull-right btn-sm" href="{% url 'gtdmanager:context_delete' context.id %}">X</a><br>
 				{% endif %}
 			</td>
 		</tr>
@@ -38,21 +39,8 @@
 	</table>
 </div>
 
-{% block edit_modal %}
-{% endblock %}
-
-{% endblock %}
-
-{% block finish_scripts %}
-	{% if editDivPrefix != None %}
-		item = $('#{{editDivPrefix}}Modal') 
-		item.modal('show')
-		item.on('hide.bs.modal', function (e) {window.location="{% url 'gtdmanager:contexts' %}"})
-	{% endif %}
-	
-	$("input[name='default']").change(function() {
-	    var selected_id = $("input[name='default']:checked").val();
-	    var redir_base = "{% url 'gtdmanager:context_set_default' 0 %}"
-	    window.location = redir_base.replace('/0/', '/'+selected_id+'/')
-	});
+<script>
+  var form = $('form')[0]
+  form.onsubmit = submit.bind(this, "Create context", null, form.action)
+</script>
 {% endblock %}

@@ -185,19 +185,6 @@ def contexts(request):
     return render_to_response('gtdmanager/contexts.html',
         {'btnName': 'manage', 'contexts': contexts, 'form': form}, RequestContext(request))
 
-def context_edit(request, ctx_id):
-    context = get_object_or_404(Context, pk=ctx_id)
-    if request.method == "POST":
-        form = ContextForm(request.POST, instance=context)
-        if form.is_valid():
-            form.save()
-            return HttpResponseRedirect(reverse('gtdmanager:contexts'))
-    else:
-        form = ContextForm(instance=context)
-        
-    return render_to_response("gtdmanager/edititem.html",
-        {'form': form, 'title': "Edit context", 'edit': True, 'cancel_url': reverse('gtdmanager:contexts')}, RequestContext(request))
-
 def context_set_default(request, ctx_id):
     context = get_object_or_404(Context, pk=ctx_id)
     context.is_default = True

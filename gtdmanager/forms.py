@@ -13,10 +13,14 @@ class ItemForm(forms.ModelForm):
         else:
             kwargs['instance'] = self.Meta.model()
             action = reverse(self.Meta.createView)
+
+        addSubmit = kwargs.pop('addSubmit', True)
+
         super(ItemForm, self).__init__(*args, **kwargs)
         self.helper = FormHelper()
         self.helper.form_action = action
-        self.helper.add_input(Submit('submit', 'Submit'))
+        if addSubmit:
+            self.helper.add_input(Submit('submit', 'Submit'))
 
     class Meta:
         model = Item
@@ -27,12 +31,10 @@ class ItemForm(forms.ModelForm):
         createView = 'gtdmanager:item_create'
         updateView = 'gtdmanager:item_update'
 
-class ContextForm(forms.ModelForm):
+class ContextForm(ItemForm):
     def __init__(self, *args, **kwargs):
-        if 'instance' not in kwargs:
-            kwargs['instance'] = Context()
+        kwargs["addSubmit"] = False
         super(ContextForm, self).__init__(*args, **kwargs)
-        self.helper = FormHelper()
         self.helper.form_class = 'form-inline'
         self.helper.field_template = 'bootstrap3/layout/inline_field.html'
         self.helper.layout = Layout(
@@ -43,6 +45,8 @@ class ContextForm(forms.ModelForm):
     class Meta:
         model = Context
         exclude = ('is_default',)
+        createView = 'gtdmanager:context_create'
+        updateView = 'gtdmanager:context_update'
 
 class ProjectForm(ItemForm):
     class Meta:

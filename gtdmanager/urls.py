@@ -45,7 +45,8 @@ urlpatterns = patterns('',
     url(r'^archive/clean$', views.archive_clean, name='archive_clean'),
 
     url(r'^contexts$', views.contexts, name='contexts'),
-    url(r'^contexts/(?P<ctx_id>\d+)/edit$', views.context_edit, name='context_edit'),
-    url(r'^contexts/(?P<ctx_id>\d+)/delete$', views.context_delete, name='context_delete'),
-    url(r'^contexts/(?P<ctx_id>\d+)/setdefault$', views.context_set_default, name='context_set_default'),
+    url(r'^context/create$', ajax.context_create, name='context_create'),
+    url(r'^context/update/(?P<item_id>\d+)$', ajax.context_update, name='context_update'),
+    url(r'^context/(?P<ctx_id>\d+)/delete$', views.context_delete, name='context_delete'),
+    url(r'^context/(?P<ctx_id>\d+)/setdefault$', views.context_set_default, name='context_set_default'),
 )

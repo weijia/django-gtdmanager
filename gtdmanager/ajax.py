@@ -4,8 +4,8 @@ from django.views.decorators.http import require_POST
 from dajaxice.decorators import dajaxice_register
 from crispy_forms.utils import render_crispy_form
 import json
-from models import Item, Reminder, Next, Project
-from forms import ItemForm, ReminderForm, NextForm, ProjectForm
+from models import Item, Reminder, Next, Project, Context
+from forms import ItemForm, ReminderForm, NextForm, ProjectForm, ContextForm
 
 """
 Forms
@@ -94,3 +94,19 @@ def project_create(request, **kwargs):
 def project_update(request, item_id, **kwargs):
     p = Project.objects.get_or_convert(item_id, Project)
     return handle_form(request, p, ProjectForm, **kwargs)
+
+@dajaxice_register(method='GET', name='gtdmanager.context_get_form')
+def context_form(request, item_id):
+    ctx = get_object_or_404(Context, pk=item_id)
+    return get_form(request, ctx, ContextForm)
+
+@require_POST
+@dajaxice_register(method='POST', name='gtdmanager.context_create')
+def context_create(request, **kwargs):
+    return handle_form(request, None, ContextForm, **kwargs)
+
+@require_POST
+@dajaxice_register(method='POST', name='gtdmanager.context_update')
+def context_update(request, item_id, **kwargs):
+    ctx = get_object_or_404(Context, pk=item_id)
+    return handle_form(request, ctx, ContextForm, **kwargs)
