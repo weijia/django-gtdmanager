@@ -76,6 +76,7 @@ function display_form(formCaption, data) {
 		form.onsubmit = data.itemId ? submit.bind(this, formCaption, data.itemId, form.action)
 								    : submit.bind(this, formCaption, null, form.action);
 		$('#itemModal').modal('show');
+		setTimeout(function() { $('#id_name').focus(); }, 500);
 	} else {
 		console.log("No HTML form data returned", data)
 	}
