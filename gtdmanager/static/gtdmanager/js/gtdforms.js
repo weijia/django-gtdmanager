@@ -21,27 +21,27 @@ function uri2json(uri) {
 
 function get_method(create, action) {
 	if (create) {
-		if (action.indexOf("item/create") > -1) {
+		if (action.indexOf("item") > -1) {
 			return Dajaxice.gtdmanager.item_create;
-		} else if (action.indexOf("reminder/create") > -1) {
+		} else if (action.indexOf("reminder") > -1) {
 			return Dajaxice.gtdmanager.reminder_create;
-		} else if (action.indexOf("next/create") > -1) {
+		} else if (action.indexOf("next") > -1) {
 			return Dajaxice.gtdmanager.next_create;
-		}  else if (action.indexOf("project/create") > -1) {
+		}  else if (action.indexOf("project") > -1) {
 			return Dajaxice.gtdmanager.project_create;
-		}  else if (action.indexOf("context/create") > -1) {
+		}  else if (action.indexOf("context") > -1) {
 			return Dajaxice.gtdmanager.context_create;
 		}
 	} else {
-		if (action.indexOf("item/update") > -1) {
+		if (action.indexOf("item") > -1) {
 			return Dajaxice.gtdmanager.item_update;
-		} else if (action.indexOf("reminder/update") > -1) {
+		} else if (action.indexOf("reminder") > -1) {
 			return Dajaxice.gtdmanager.reminder_update;
-		} else if (action.indexOf("next/update") > -1) {
+		} else if (action.indexOf("next") > -1) {
 			return Dajaxice.gtdmanager.next_update;
-		} else if (action.indexOf("project/update") > -1) {
+		} else if (action.indexOf("project") > -1) {
 			return Dajaxice.gtdmanager.project_update;
-		} else if (action.indexOf("context/update") > -1) {
+		} else if (action.indexOf("context") > -1) {
 			return Dajaxice.gtdmanager.context_update;
 		}
 	}

@@ -63,9 +63,9 @@ def reminder_to_item(request, item_id, redir_page):
     rem = get_object_or_404(Reminder, pk=item_id)
     make_unresolved(rem, Reminder)
     return HttpResponseRedirect(reverse('gtdmanager:' + redir_page))
-    
-def next_to_item(request, next_id, redir_page):
-    the_next = get_object_or_404(Next, pk=next_id)
+
+def next_to_item(request, item_id, redir_page):
+    the_next = get_object_or_404(Next, pk=item_id)
     make_unresolved(the_next, Next)
     return HttpResponseRedirect(reverse('gtdmanager:' + redir_page))
 
@@ -75,7 +75,7 @@ def next(request):
     nexts = sorted(fetch, sort_fn)
     fetch = Reminder.objects.active()
     reminders = sorted(fetch, sort_fn)
-    return render_to_response('gtdmanager/next.html', {'btnName': 'next', 
+    return render_to_response('gtdmanager/next.html', {'btnName': 'next',
         'nexts': nexts, 'reminders': reminders})
 
 def projects(request):
@@ -94,7 +94,7 @@ def project_detail(request, project_id):
     completed = p.item_set.filter(status=Item.COMPLETED)
     deleted = p.item_set.filter(status=Item.DELETED)
     return render_to_response('gtdmanager/project_detail.html',
-            {'p': p, 'btnName': 'projects', 'nexts': nexts, 'reminders': reminders, 'subprojects': subs, 
+            {'p': p, 'btnName': 'projects', 'nexts': nexts, 'reminders': reminders, 'subprojects': subs,
              'waiting': waiting, 'somedays': somedays, 'references': refs, 'completed': completed,
              'deleted': deleted}, RequestContext(request) )
 
@@ -110,7 +110,7 @@ def tickler(request):
     tomorrows = []
     this_week = []
     futures = []
-    
+
     tz = timezone.get_current_timezone()
     tomorrow = (datetime.combine(date.today(), time()) + timedelta(days=2)).replace(tzinfo=tz)
     next_monday_dt = date.today() + timedelta(days=(7 - date.today().weekday()))
@@ -126,7 +126,7 @@ def tickler(request):
     return render_to_response('gtdmanager/tickler.html',
        {'btnName': 'pending', 'tomorrows': tomorrows, 'this_week': this_week, 'futures': futures},
         RequestContext(request))
-    
+
 def someday(request):
     items = Item.objects.filter(status=Item.SOMEDAY)
     return render_to_response('gtdmanager/itemlist.html',
@@ -141,7 +141,7 @@ def references(request):
 
 def contexts(request):
     contexts = get_list_or_404(Context)
-    
+
     if request.method == "POST":
         form = ContextForm(request.POST)
         if form.is_valid():
@@ -153,8 +153,8 @@ def contexts(request):
     return render_to_response('gtdmanager/contexts.html',
         {'btnName': 'manage', 'contexts': contexts, 'form': form}, RequestContext(request))
 
-def context_set_default(request, ctx_id):
-    context = get_object_or_404(Context, pk=ctx_id)
+def context_set_default(request, item_id):
+    context = get_object_or_404(Context, pk=item_id)
     context.is_default = True
     context.save()
     return HttpResponseRedirect(reverse('gtdmanager:contexts'))

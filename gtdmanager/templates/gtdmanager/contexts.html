@@ -7,7 +7,7 @@
 <strong>Add new context</strong>
 {% if form.errors %}
   <div class="errorDiv">
-	{% for fieldname, error in form.errors.iteritems %} 
+	{% for fieldname, error in form.errors.iteritems %}
 		{{ error|striptags }}
 	{% endfor %}
   </div>
@@ -21,7 +21,7 @@
 			<th class="col-xs-1">Default</th>
 			<th>Name</th>
 		</thead>
-		{% for context in contexts %}	
+		{% for context in contexts %}
 		<tr>
 			<td>
 				<input type="radio" name="default" id="option_default_{{forloop.counter}}"
@@ -31,7 +31,7 @@
 				<a href="#" onclick="Dajaxice.gtdmanager.context_get_form(display_form.bind(this, 'Edit context'), {'item_id':{{context.id}}})">
 				   {{context.name}}</a>
 				{% if not context.is_default %}
-				  <a href="#" onclick="Dajaxice.gtdmanager.context_delete(delete_callback, {'ctx_id':{{context.id}}})"
+				  <a href="#" onclick="Dajaxice.gtdmanager.context_delete(delete_callback, {'item_id':{{context.id}}})"
 				     class="btn btn-danger pull-right btn-sm">X</a><br>
 				{% endif %}
 			</td>

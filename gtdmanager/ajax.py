@@ -97,8 +97,8 @@ def project_update(request, item_id, **kwargs):
     return handle_form(request, p, ProjectForm, **kwargs)
 
 @dajaxice_register(method='GET', name='gtdmanager.context_get_form')
-def context_form(request, ctx_id):
-    ctx = get_object_or_404(Context, pk=ctx_id)
+def context_form(request, item_id):
+    ctx = get_object_or_404(Context, pk=item_id)
     return get_form(request, ctx, ContextForm)
 
 @require_POST
@@ -125,8 +125,8 @@ def project_delete(request, item_id):
     return render_to_json({"success": True})
 
 @dajaxice_register(method='GET', name='gtdmanager.context_delete')
-def context_delete(request, ctx_id):
-    context = get_object_or_404(Context, pk=ctx_id)
+def context_delete(request, item_id):
+    context = get_object_or_404(Context, pk=item_id)
     context.delete()
     return render_to_json({"success": True})
 

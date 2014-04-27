@@ -240,7 +240,7 @@ class DeleteTest(DeleteCompleteBaseTest):
         ctx.save()
         self.assertEquals(2, Context.objects.count())
 
-        response = Client().get(reverse('gtdmanager:context_delete', kwargs={"ctx_id": ctx.id}))
+        response = Client().get(reverse('gtdmanager:context_delete', kwargs={"item_id": ctx.id}))
         self.assertEqual(200, response.status_code)
         self.assertEqual({"success": True}, json.loads(response.content))
         self.assertEquals(1, Context.objects.count())
@@ -325,10 +325,10 @@ class GetFormTest(AjaxTestBase):
 
     def test_getform_context(self):
         ctx = Context.objects.default_context()
-        response = Client().get(reverse('gtdmanager:context_form', kwargs={"ctx_id": ctx.id}))
+        response = Client().get(reverse('gtdmanager:context_form', kwargs={"item_id": ctx.id}))
         self.assertEqual(200, response.status_code)
 
         html = self.check_response(response)
-        actionURL = reverse('gtdmanager:context_update', kwargs={"ctx_id": ctx.id})
+        actionURL = reverse('gtdmanager:context_update', kwargs={"item_id": ctx.id})
         self.check_minimal_fields(html, actionURL)
         self.assertIn('value="'+ctx.name+'"', html)
