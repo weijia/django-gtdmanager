@@ -21,6 +21,7 @@ def get_form(request, item, formClass):
     return render_to_json({'success': True, 'form_html': form_html, 'itemId': item.id})
 
 def handle_form(request, item, formClass, **kwargs):
+    # kwargs is here for Dajaxice support
     data = kwargs or request.POST
     if data.get("argv", None) == "undefined":
         data = None
@@ -96,8 +97,8 @@ def project_update(request, item_id, **kwargs):
     return handle_form(request, p, ProjectForm, **kwargs)
 
 @dajaxice_register(method='GET', name='gtdmanager.context_get_form')
-def context_form(request, item_id):
-    ctx = get_object_or_404(Context, pk=item_id)
+def context_form(request, ctx_id):
+    ctx = get_object_or_404(Context, pk=ctx_id)
     return get_form(request, ctx, ContextForm)
 
 @require_POST

@@ -5,20 +5,20 @@ from django.shortcuts import get_object_or_404
 from datetime import datetime, timedelta, date, time
 
 class ContextManager(models.Manager):
-    
+
     def default_context(self):
         return self.filter(is_default=True).first()
 
-class Context(models.Model):    
+class Context(models.Model):
     default_name = 'Everywhere'
-    
+
     name = models.CharField(max_length=64, unique=True)
     is_default = models.BooleanField(default=False)
-    
+
     objects = ContextManager()
     def __unicode__(self):
         return self.name
-    
+
     def save(self, force_insert=False, force_update=False, using=None,
              update_fields=None):
         if self.is_default:
@@ -76,7 +76,7 @@ class Item(models.Model):
     REMINDER = 'R'
     NEXT = 'N'
     PROJECT = 'P'
-    
+
     STATUSES = (
         (UNRESOLVED, 'Unresolved'),
         (DELETED, 'Deleted'),
@@ -88,12 +88,12 @@ class Item(models.Model):
         (NEXT, 'Next'),
         (PROJECT, 'Project'),
     )
-    
+
     objects = ItemManager()
     name = models.CharField(max_length=64, unique=True)
     description = models.TextField(blank=True)
     status = models.CharField(max_length=1, choices=STATUSES, db_index=True)
-    parent = models.ForeignKey('Project', blank=True, null=True)    
+    parent = models.ForeignKey('Project', blank=True, null=True)
     createdAt = models.DateField(auto_now_add=True)
     lastChanged = models.DateTimeField(auto_now=True)
 
@@ -109,7 +109,7 @@ class Item(models.Model):
     def complete(self):
         self.status = Item.COMPLETED
         self.save()
-    
+
     def gtddelete(self):
         self.status = Item.DELETED
         self.save()
@@ -139,6 +139,8 @@ class ContextsItem(Item):
         super(ContextsItem, self).__init__(*args, **kwargs)
         if instance:
             self.__dict__.update(instance.__dict__)
+        else:
+            self.save()
 
         if contextSet:
             self.contexts.add(*contextSet)
@@ -151,7 +153,8 @@ class Next(ContextsItem):
 
     def __init__(self, *args, **kwargs):
         super(Next, self).__init__(*args, **kwargs)
-        self.status = self.NEXT
+        if self.status not in (self.COMPLETED, self.DELETED):
+            self.status = self.NEXT
 
 class ReminderManager(ItemManager):
     def active(self):
@@ -166,10 +169,11 @@ class Reminder(ContextsItem):
     objects = ReminderManager()
 
     def __init__(self, *args, **kwargs):
-        if 'remind_at' not in kwargs:
+        if not args and 'remind_at' not in kwargs:
             kwargs['remind_at'] = timezone.now() + timedelta(minutes=10)
         super(Reminder, self).__init__(*args, **kwargs)
-        self.status = self.REMINDER
+        if self.status not in (self.COMPLETED, self.DELETED):
+            self.status = self.REMINDER
 
     def active(self):
         return self.remind_at.date() <= timezone.now().date()
@@ -181,18 +185,21 @@ class Project(Item):
 
     def __init__(self, *args, **kwargs):
         super(Project, self).__init__(*args, **kwargs)
-        self.status = self.PROJECT
+        if self.status not in (self.COMPLETED, self.DELETED):
+            self.status = self.PROJECT
 
     def is_parent_of(self, child):
         if child is None or child.parent is None:
             return False
 
-        if child.parent == self:
-            return True
+        if child.parent.id == self.id:
+            if self.id is not None or child.parent.name == self.name:
+                # saved project or same names
+                return True
 
         return self.is_parent_of(child.parent)
 
-    def clean_fields(self, exclude=None):        
+    def clean_fields(self, exclude=None):
         super(Project, self).clean_fields(exclude)
         if self.is_parent_of(self.parent):
             raise ValidationError("%(parent)s parenting %(child)s creates circular project reference",

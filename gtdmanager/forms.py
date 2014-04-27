@@ -44,7 +44,6 @@ class ContextForm(ItemForm):
 
     class Meta:
         model = Context
-        exclude = ('is_default',)
         createView = 'gtdmanager:context_create'
         updateView = 'gtdmanager:context_update'
 
