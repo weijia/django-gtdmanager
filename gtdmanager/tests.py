@@ -65,6 +65,28 @@ class ItemTest(GtdManagerTestCase):
         item.gtddelete()
         self.assertEqual(Item.DELETED, item.status)
 
+    def test_json_noparent(self):
+        start = timezone.now()
+        item = Item(name='it', description='desc', status=Item.REFERENCE)
+        item.save()
+        data = item.to_json()
+        self.assertEqual(7, len(data))
+        self.assertIn('id', data)
+        self.assertEqual('it', data['name'])
+        self.assertEqual('desc', data['description'])
+        self.assertEqual('Reference', data['status'])
+        self.assertIsNone(data['parent_id'])
+        self.assertLessEqual(start.date(), data['createdAt'])
+        self.assertLessEqual(start, data['lastChanged'])
+
+    def test_json_parent(self):
+        p = Project(name='parent')
+        p.save()
+        item = Item(name='it', parent=p)
+        item.save()
+        data = item.to_json()
+        self.assertEqual(p.id, data['parent_id'])
+
 class ProjectTest(GtdManagerTestCase):
     def test_init(self):
         expected_name = 'some name'
@@ -208,6 +230,12 @@ class ProjectTest(GtdManagerTestCase):
         self.assertEqual(sub.status, Item.DELETED)
         self.assertEqual(i.status, Item.DELETED)
 
+    def test_json(self):
+        p = Project(name='parent')
+        p.save()
+        data = p.to_json()
+        self.assertNotIn('item_ptr_id', data)
+
 class ContextTest(GtdManagerTestCase):
     def check_consistency(self):
         self.assertEqual(len(Context.objects.filter(is_default=True)), 1)
@@ -227,6 +255,15 @@ class ContextTest(GtdManagerTestCase):
         context = Context.objects.default_context()
         with self.assertRaises(RuntimeError):
             context.delete()
+
+    def test_json(self):
+        ctx = Context(name='wapa')
+        ctx.save()
+        data = ctx.to_json()
+        self.assertEquals(3, len(data))
+        self.assertFalse(data['is_default'])
+        self.assertEqual('wapa', data['name'])
+        self.assertIn('id', data)
 
 class NextTest(GtdManagerTestCase):
     def test_status(self):
@@ -300,6 +337,12 @@ class NextTest(GtdManagerTestCase):
     def test_unfinished(self):
         self.template_unfinished(Next, Item.NEXT)
 
+    def test_json(self):
+        nxt = Next(name='me')
+        nxt.save()
+        data = nxt.to_json()
+        self.assertNotIn('item_ptr_id', data)
+
 class ReminderTest(GtdManagerTestCase):
 
     def test_init(self):
@@ -318,3 +361,9 @@ class ReminderTest(GtdManagerTestCase):
         self.assertTrue(standard.active())
         standard.remind_at = timezone.now() + timedelta(days=1)
         self.assertFalse(standard.active())
+
+    def test_json(self):
+        rem = Next(name='rem')
+        rem.save()
+        data = rem.to_json()
+        self.assertNotIn('item_ptr_id', data)

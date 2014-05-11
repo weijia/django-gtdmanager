@@ -4,12 +4,21 @@ from django.utils import timezone
 from django.shortcuts import get_object_or_404
 from datetime import datetime, timedelta, date, time
 
+class GTDModelBase(models.Model):
+
+    class Meta:
+        abstract = True
+
+    def to_json(self):
+        """ Returns JSON object (not string) representation """
+        return {k: v for k, v in self.__dict__.items() if not k.startswith('_')}
+
 class ContextManager(models.Manager):
 
     def default_context(self):
         return self.filter(is_default=True).first()
 
-class Context(models.Model):
+class Context(GTDModelBase):
     default_name = 'Everywhere'
 
     name = models.CharField(max_length=64, unique=True)
@@ -66,7 +75,7 @@ class ItemManager(models.Manager):
             item = self.convertTo(cls, item)
         return item
 
-class Item(models.Model):
+class Item(GTDModelBase):
     UNRESOLVED = 'U'
     DELETED = 'D'
     COMPLETED = 'C'
@@ -114,6 +123,11 @@ class Item(models.Model):
         self.status = Item.DELETED
         self.save()
 
+    def to_json(self):
+        base = super(Item, self).to_json()
+        base['status'] = dict(self.STATUSES)[self.status]
+        return base
+
 class ContextsItem(Item):
     """
     Warning: due to containing ManyToManyField forcing at least one association,
@@ -146,6 +160,11 @@ class ContextsItem(Item):
             self.contexts.add(*contextSet)
         elif self.contexts.count() == 0:
             self.contexts.add(Context.objects.default_context())
+
+    def to_json(self):
+        ret = super(ContextsItem, self).to_json()
+        ret.pop('item_ptr_id')
+        return ret
 
 class Next(ContextsItem):
 
@@ -242,6 +261,11 @@ class Project(Item):
         for item in self.item_set.unfinished():
             item.gtddelete()
         super(Project, self).gtddelete()
+
+    def to_json(self):
+        ret = super(Project, self).to_json()
+        ret.pop('item_ptr_id')
+        return ret
 
 """
 Post init procedures, should be called in test setup
