@@ -6,6 +6,7 @@ import json
 from django.utils import timezone
 from datetime import datetime, timedelta
 from dajaxice.core import dajaxice_config
+from django.utils.dateparse import parse_date
 
 def createParent(name):
     p = Project(name=name)
@@ -252,12 +253,26 @@ class CompleteTest(DeleteCompleteBaseTest):
         self.base_template(cls, name, prefix, 'complete', Item.COMPLETED)
 
 
-class GetFormTest(AjaxTestBase):
+class GetTestBase(AjaxTestBase):
 
-    def check_response(self, response):
+    def setup_model(self, cls, name, view, postSaveCallback = None):
+        item = cls(name=name)
+        item.save()
+        if postSaveCallback:
+            postSaveCallback(item)
+
+        #url = '/%sgtdmanager.[view]/?argv={"item_id":%d}' % (dajaxice_config.dajaxice_url[1:], item.id)
+        response = Client().get(reverse(view, kwargs={"item_id": item.id}))
+        self.assertEqual(200, response.status_code)
+
         data = json.loads(response.content)
         self.assertTrue(data['success'])
-        return data['form_html']
+        return (item, data[self.Meta.data_field])
+
+class GetFormTest(GetTestBase):
+
+    class Meta:
+        data_field = 'form_html'
 
     def check_minimal_fields(self, html, actionURL):
         self.assertIn('csrfmiddlewaretoken', html)
@@ -272,63 +287,92 @@ class GetFormTest(AjaxTestBase):
 
     def test_getform_item(self):
         name = 'test_get'
-        item = Item(name=name)
-        item.save()
-
-        #url = '/%sgtdmanager.item_get_form/?argv={"item_id":%d}' % (dajaxice_config.dajaxice_url[1:], item.id)
-        response = Client().get(reverse('gtdmanager:item_form', kwargs={"item_id": item.id}))
-        self.assertEqual(200, response.status_code)
-
-        html = self.check_response(response)
+        item, html = self.setup_model(Item, name, 'gtdmanager:item_form')
         actionURL = reverse('gtdmanager:item_update', kwargs={"item_id": item.id})
         self.check_base_fields(html, actionURL)
         self.assertIn('value="'+name+'"', html)
 
     def test_getform_project(self):
         name = 'test_name'
-        p = Project(name=name)
-        p.save()
-
-        response = Client().get(reverse('gtdmanager:project_form', kwargs={"item_id": p.id}))
-        self.assertEqual(200, response.status_code)
-
-        html = self.check_response(response)
+        p, html = self.setup_model(Project, name, 'gtdmanager:project_form')
         actionURL = reverse('gtdmanager:project_update', kwargs={"item_id": p.id})
         self.check_base_fields(html, actionURL)
         self.assertIn('value="'+name+'"', html)
 
     def test_getform_next(self):
         name = 'nxt_NaMe'
-        nxt = Next(name=name)
-        nxt.save()
-
-        response = Client().get(reverse('gtdmanager:next_form', kwargs={"item_id": nxt.id}))
-        self.assertEqual(200, response.status_code)
-
-        html = self.check_response(response)
+        nxt, html = self.setup_model(Next, name, 'gtdmanager:next_form')
         actionURL = reverse('gtdmanager:next_update', kwargs={"item_id": nxt.id})
         self.check_base_fields(html, actionURL)
         self.assertIn('value="'+name+'"', html)
 
     def test_getform_reminder(self):
         name = 'rmd'
-        r = Reminder(name=name)
-        r.save()
-
-        response = Client().get(reverse('gtdmanager:reminder_form', kwargs={"item_id": r.id}))
-        self.assertEqual(200, response.status_code)
-
-        html = self.check_response(response)
+        r, html = self.setup_model(Reminder, name, 'gtdmanager:reminder_form')
         actionURL = reverse('gtdmanager:reminder_update', kwargs={"item_id": r.id})
         self.check_base_fields(html, actionURL)
         self.assertIn('value="'+name+'"', html)
 
     def test_getform_context(self):
-        ctx = Context.objects.default_context()
-        response = Client().get(reverse('gtdmanager:context_form', kwargs={"item_id": ctx.id}))
-        self.assertEqual(200, response.status_code)
-
-        html = self.check_response(response)
+        name = 'newCtx'
+        ctx, html = self.setup_model(Context, name, 'gtdmanager:context_form')
         actionURL = reverse('gtdmanager:context_update', kwargs={"item_id": ctx.id})
         self.check_minimal_fields(html, actionURL)
         self.assertIn('value="'+ctx.name+'"', html)
+
+class GetTest(GetTestBase):
+
+    class Meta():
+        data_field = 'data'
+
+    def formatDjangoDatetime(self, o):
+        """
+        Returns same format for date-aware datetime as DjangoJsonSerializer
+        """
+        r = o.isoformat()
+        if o.microsecond:
+            r = r[:23] + r[26:]
+        if r.endswith('+00:00'):
+            r = r[:-6] + 'Z'
+        return r
+
+    def check_model(self, instance, data):
+        dct = json.loads(data)
+        self.assertEqual(dct['name'], instance.name)
+        self.assertEqual(dct['description'], instance.description)
+        aware = timezone.localtime(instance.lastChanged)
+        self.assertEqual(dct['lastChanged'], self.formatDjangoDatetime(aware))
+        self.assertEqual(dct['parent_id'], instance.parent_id)
+        self.assertEqual(parse_date(dct['createdAt']), instance.createdAt)
+        return dct
+
+    def test_get_item(self):
+        item, html = self.setup_model(Item, 'test_get', 'gtdmanager:item_get')
+        self.check_model(item, html)
+        self.assertIn('"status": "Unresolved"', html)
+
+    def test_get_reminder(self):
+        r, html = self.setup_model(Reminder, 'rmd', 'gtdmanager:reminder_get')
+        dct = self.check_model(r, html)
+        aware = timezone.localtime(r.remind_at)
+        self.assertEqual(dct['remind_at'], self.formatDjangoDatetime(aware))
+        def_ctx = Context.objects.default_context()
+        self.assertEqual([def_ctx.id], dct['contexts']);
+
+    def test_get_next(self):
+        r, html = self.setup_model(Next, 'nxt', 'gtdmanager:next_get')
+        dct = self.check_model(r, html)
+        def_ctx = Context.objects.default_context()
+        self.assertEqual([def_ctx.id], dct['contexts']);
+
+    def test_get_context(self):
+        ctx, html = self.setup_model(Context, 'newCtx', 'gtdmanager:context_get')
+        data = json.loads(html)
+        self.assertEqual(False, data['is_default'])
+        self.assertEqual(ctx.name, data['name'])
+        self.assertEqual(ctx.id, data['id'])
+
+    def test_get_project(self):
+        p, html = self.setup_model(Project, 'parent', 'gtdmanager:project_get', self.setupProject)
+        dct = self.check_model(p, html)
+        self.check_project_json(dct['items'])

@@ -11,7 +11,9 @@ class GTDModelBase(models.Model):
 
     def to_json(self):
         """ Returns JSON object (not string) representation """
-        return {k: v for k, v in self.__dict__.items() if not k.startswith('_')}
+        return {k: timezone.localtime(v) if isinstance(v, datetime) else v
+                for k, v in self.__dict__.items()
+                if not k.startswith('_') and k != 'item_ptr_id'}
 
 class ContextManager(models.Manager):
 
@@ -165,7 +167,7 @@ class ContextsItem(Item):
 
     def to_json(self):
         ret = super(ContextsItem, self).to_json()
-        ret.pop('item_ptr_id')
+        ret['contexts'] = [ctx.id for ctx in self.contexts.all()]
         return ret
 
 class Next(ContextsItem):
@@ -264,9 +266,25 @@ class Project(Item):
             item.gtddelete()
         super(Project, self).gtddelete()
 
-    def to_json(self):
+    def to_json(self, recursive = True):
         ret = super(Project, self).to_json()
-        ret.pop('item_ptr_id')
+        if recursive:
+            ret['items'] = {
+                'subprojects': [s.to_json(False) for s in self.subprojects()],
+                'nexts': [n.to_json() for n in self.nexts(True)],
+                'reminders': [r.to_json() for r in self.reminders(True)]
+            }
+
+            status_map = {Item.WAITING_FOR: 'waiting', Item.SOMEDAY: 'somedays',
+                          Item.REFERENCE: 'references', Item.COMPLETED: 'completed',
+                          Item.DELETED: 'deleted'}
+            for k,v in status_map.iteritems():
+                ret['items'][v] = []
+
+            for item in self.item_set.filter(status__in=status_map.keys()):
+                ret['items'][status_map[item.status]].append(item.to_json())
+        #endif recursive
+
         return ret
 
 """

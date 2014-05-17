@@ -33,6 +33,32 @@ class GtdManagerTestCase(TestCase):
         result = cls.objects.unfinished()
         self.assertItemsEqual(expected, result)
 
+    def setupProject(self, p):
+        Project(name='sub', parent=p).save()
+        Next(name='nxt', parent=p).save()
+        Reminder(name='r', parent=p).save()
+        Item(name='wait', status=Item.WAITING_FOR, parent=p).save()
+        Item(name='sm', status=Item.SOMEDAY, parent=p).save()
+        Item(name='ref', status=Item.REFERENCE, parent=p).save()
+        Item(name='compl', parent=p).complete()
+        Item(name='dele', parent=p).gtddelete()
+
+    def check_items_group(self, items, groupName, itemName, itemType):
+        self.assertEqual(1, len(items[groupName]))
+        self.assertEqual(itemName, items[groupName][0]['name'])
+        self.assertEqual(dict(Item.STATUSES)[itemType], items[groupName][0]['status'])
+
+    def check_project_json(self, items):
+        self.check_items_group(items, 'subprojects', 'sub', Item.PROJECT)
+        self.assertNotIn('items', items['subprojects'][0])
+        self.check_items_group(items, 'nexts', 'nxt', Item.NEXT)
+        self.check_items_group(items, 'reminders', 'r', Item.REMINDER)
+        self.check_items_group(items, 'waiting', 'wait', Item.WAITING_FOR)
+        self.check_items_group(items, 'somedays', 'sm', Item.SOMEDAY)
+        self.check_items_group(items, 'references', 'ref', Item.REFERENCE)
+        self.check_items_group(items, 'completed', 'compl', Item.COMPLETED)
+        self.check_items_group(items, 'deleted', 'dele', Item.DELETED)
+
 class ItemTest(GtdManagerTestCase):
     def test_item(self):
         expected_name = 'some name'
@@ -233,8 +259,10 @@ class ProjectTest(GtdManagerTestCase):
     def test_json(self):
         p = Project(name='parent')
         p.save()
+        self.setupProject(p)
         data = p.to_json()
         self.assertNotIn('item_ptr_id', data)
+        self.check_project_json(data['items'])
 
 class ContextTest(GtdManagerTestCase):
     def check_consistency(self):
@@ -342,6 +370,8 @@ class NextTest(GtdManagerTestCase):
         nxt.save()
         data = nxt.to_json()
         self.assertNotIn('item_ptr_id', data)
+        def_ctx = Context.objects.default_context()
+        self.assertEqual([def_ctx.id], data['contexts']);
 
 class ReminderTest(GtdManagerTestCase):
 
@@ -367,3 +397,5 @@ class ReminderTest(GtdManagerTestCase):
         rem.save()
         data = rem.to_json()
         self.assertNotIn('item_ptr_id', data)
+        def_ctx = Context.objects.default_context()
+        self.assertEqual([def_ctx.id], data['contexts']);

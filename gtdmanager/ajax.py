@@ -6,6 +6,7 @@ from crispy_forms.utils import render_crispy_form
 import json
 from models import Item, Reminder, Next, Project, Context
 from forms import ItemForm, ReminderForm, NextForm, ProjectForm, ContextForm
+from django.core.serializers.json import DjangoJSONEncoder
 
 """
 Forms
@@ -20,6 +21,10 @@ def get_form(request, item, formClass):
     form_html = render_crispy_form(form, context=RequestContext(request))
     return render_to_json({'success': True, 'form_html': form_html, 'itemId': item.id})
 
+def get_model(request, instance):
+    data = json.dumps(instance.to_json(), cls = DjangoJSONEncoder)
+    return render_to_json({'success': True, 'data': data})
+
 def handle_form(request, item, formClass, **kwargs):
     # kwargs is here for Dajaxice support
     data = kwargs or request.POST
@@ -31,6 +36,12 @@ def handle_form(request, item, formClass, **kwargs):
         return render_to_json({'success': True})
     form_html = render_crispy_form(form, context=RequestContext(request))
     return render_to_json({'success': False, 'form_html': form_html})
+
+
+@dajaxice_register(method='GET', name='gtdmanager.item_get')
+def item_get(request, item_id):
+    item = get_object_or_404(Item, pk=item_id)
+    return get_model(request, item)
 
 @dajaxice_register(method='GET', name='gtdmanager.item_get_form')
 def item_form(request, item_id):
@@ -48,6 +59,11 @@ def item_update(request, item_id, **kwargs):
     item = get_object_or_404(Item, pk=item_id)
     return handle_form(request, item, ItemForm, **kwargs)
 
+@dajaxice_register(method='GET', name='gtdmanager.reminder_get')
+def reminder_get(request, item_id):
+    item = get_object_or_404(Reminder, pk=item_id)
+    return get_model(request, item)
+
 @dajaxice_register(method='GET', name='gtdmanager.reminder_get_form')
 def reminder_form(request, item_id):
     reminder = Reminder.objects.get_or_convert(item_id, Reminder)
@@ -63,6 +79,11 @@ def reminder_create(request, **kwargs):
 def reminder_update(request, item_id, **kwargs):
     item = Reminder.objects.get_or_convert(item_id, Reminder)
     return handle_form(request, item, ReminderForm, **kwargs)
+
+@dajaxice_register(method='GET', name='gtdmanager.next_get')
+def next_get(request, item_id):
+    nxt = get_object_or_404(Next, pk=item_id)
+    return get_model(request, nxt)
 
 @dajaxice_register(method='GET', name='gtdmanager.next_get_form')
 def next_form(request, item_id):
@@ -80,6 +101,11 @@ def next_update(request, item_id, **kwargs):
     item = Next.objects.get_or_convert(item_id, Next)
     return handle_form(request, item, NextForm, **kwargs)
 
+@dajaxice_register(method='GET', name='gtdmanager.project_get')
+def project_get(request, item_id):
+    p = get_object_or_404(Project, pk=item_id)
+    return get_model(request, p)
+
 @dajaxice_register(method='GET', name='gtdmanager.project_get_form')
 def project_form(request, item_id):
     p = Project.objects.get_or_convert(item_id, Project)
@@ -95,6 +121,11 @@ def project_create(request, **kwargs):
 def project_update(request, item_id, **kwargs):
     p = Project.objects.get_or_convert(item_id, Project)
     return handle_form(request, p, ProjectForm, **kwargs)
+
+@dajaxice_register(method='GET', name='gtdmanager.context_get')
+def context_get(request, item_id):
+    ctx = get_object_or_404(Context, pk=item_id)
+    return get_model(request, ctx)
 
 @dajaxice_register(method='GET', name='gtdmanager.context_get_form')
 def context_form(request, item_id):
