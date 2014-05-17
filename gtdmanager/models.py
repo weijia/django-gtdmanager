@@ -153,12 +153,14 @@ class ContextsItem(Item):
         super(ContextsItem, self).__init__(*args, **kwargs)
         if instance:
             self.__dict__.update(instance.__dict__)
-        else:
+        elif self.createdAt is None:
             self.save()
 
         if contextSet:
             self.contexts.add(*contextSet)
         elif self.contexts.count() == 0:
+            if self._state.db is None:
+                self.save()
             self.contexts.add(Context.objects.default_context())
 
     def to_json(self):
