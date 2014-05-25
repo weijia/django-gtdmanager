@@ -208,6 +208,7 @@ class Project(Item):
         childs = list(self.item_set.filter(status=Item.WAITING_FOR))
         childs.extend(self.nexts(True))
         childs.extend(self.reminders(True))
+        childs.extend([sub for sub in self.subprojects(True) if len(sub.active_childs()) > 0 ])
         return childs
 
     def complete(self):

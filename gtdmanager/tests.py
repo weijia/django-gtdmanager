@@ -173,7 +173,7 @@ class ProjectTest(GtdManagerTestCase):
 
     def _prepare_with_active_subproject(self):
         p, sub = self._prepare_with_child(Project)
-        i = Item(name='item', parent = sub)
+        i = Item(name='item', parent = sub, status = Item.WAITING_FOR)
         i.save()
         return (p, sub, i)
 
@@ -208,6 +208,23 @@ class ProjectTest(GtdManagerTestCase):
         self.assertEqual(p.status, Item.DELETED)
         self.assertEqual(sub.status, Item.DELETED)
         self.assertEqual(i.status, Item.DELETED)
+
+    def test_active_child_active_subproject(self):
+        p, sub, _ = self._prepare_with_active_subproject()
+        active = p.active_childs()
+        self.assertEqual(1, len(active))
+        self.assertEqual(sub, active[0])
+
+    def test_active_child_empty_subproject(self):
+        p, sub = self._prepare_with_child(Project)
+        self.assertEqual([], p.active_childs())
+
+    def test_active_child_inactive_subproject(self):
+        p, sub = self._prepare_with_child(Project)
+        ref = Item(name='ref', status = Item.REFERENCE, parent=sub)
+        ref.save()
+        self.assertItemsEqual([ref], sub.item_set.all())
+        self.assertEqual([], p.active_childs())
 
 class ContextTest(GtdManagerTestCase):
     def check_consistency(self):
