@@ -28,10 +28,10 @@
 				value="{{context.id}}"{% if context.is_default %} checked {% endif%}>
 			</td>
 			<td>
-				<a href="#" onclick="Dajaxice.gtdmanager.context_get_form(display_form.bind(this, 'Edit context'), {'item_id':{{context.id}}})">
+				<a href="javascript:void(0);" onclick="Dajaxice.gtdmanager.context_get_form(display_form.bind(this, 'Edit context'), {'item_id':{{context.id}}})">
 				   {{context.name}}</a>
 				{% if not context.is_default %}
-				  <a href="#" onclick="Dajaxice.gtdmanager.context_delete(delete_callback, {'item_id':{{context.id}}})"
+				  <a href="javascript:void(0);" onclick="Dajaxice.gtdmanager.context_delete(delete_callback, {'item_id':{{context.id}}})"
 				     class="btn btn-danger pull-right btn-sm">X</a><br>
 				{% endif %}
 			</td>

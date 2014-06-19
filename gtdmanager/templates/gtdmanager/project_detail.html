@@ -5,13 +5,13 @@
 
 <div class="inline">
 <h2>Project {{ p.name }}</h2>
-<a href="#" onclick="Dajaxice.gtdmanager.project_get_form(display_form.bind(this, 'Edit project'), {'item_id':{{p.id}}})">
+<a href="javascript:void(0);" onclick="Dajaxice.gtdmanager.project_get_form(display_form.bind(this, 'Edit project'), {'item_id':{{p.id}}})">
 	(edit)</a>
 
-<a href="#" onclick="Dajaxice.gtdmanager.project_complete(complete_callback, {'item_id':{{p.id}}})"
+<a href="javascript:void(0);" onclick="Dajaxice.gtdmanager.project_complete(complete_callback, {'item_id':{{p.id}}})"
 	class="btn btn-button btn-success pull-right">Complete</a>
 
-<a href="#" onclick="Dajaxice.gtdmanager.project_delete(delete_callback, {'item_id':{{p.id}}})"
+<a href="javascript:void(0);" onclick="Dajaxice.gtdmanager.project_delete(delete_callback, {'item_id':{{p.id}}})"
 	class="btn btn-button btn-danger pull-right">Delete</a>
 </div>
 
@@ -27,9 +27,9 @@
 		<td>
 			<a href="{% url 'gtdmanager:project_detail' project.id %}">{{project.name}}</a>
 			({{project.active_childs|length}} active, {{project.item_set.count}} total)
-			<a href="#" onclick="Dajaxice.gtdmanager.project_delete(delete_callback, {'item_id':{{project.id}}})"
+			<a href="javascript:void(0);" onclick="Dajaxice.gtdmanager.project_delete(delete_callback, {'item_id':{{project.id}}})"
 			   class="btn btn-danger pull-right btn-sm">X</a>
-			<a href="#" onclick="Dajaxice.gtdmanager.project_complete(complete_callback, {'item_id':{{project.id}}})"
+			<a href="javascript:void(0);" onclick="Dajaxice.gtdmanager.project_complete(complete_callback, {'item_id':{{project.id}}})"
 			   class="btn btn-success pull-right btn-sm">Done</a>
 		</td>
 	  </tr>
@@ -44,11 +44,11 @@
 		{% for next in nexts %}
 		    <tr>
 			<td>
-				<a href="#" onclick="Dajaxice.gtdmanager.next_get_form(display_form.bind(this, 'Edit next'), {'item_id':{{next.id}}})">
+				<a href="javascript:void(0);" onclick="Dajaxice.gtdmanager.next_get_form(display_form.bind(this, 'Edit next'), {'item_id':{{next.id}}})">
 					{{next.name}}</a>
-				<a href="#" onclick="Dajaxice.gtdmanager.item_delete(delete_callback, {'item_id':{{next.id}}})"
+				<a href="javascript:void(0);" onclick="Dajaxice.gtdmanager.item_delete(delete_callback, {'item_id':{{next.id}}})"
 				   class="btn btn-danger pull-right btn-sm">X</a>
-				<a href="#" onclick="Dajaxice.gtdmanager.item_complete(complete_callback, {'item_id':{{next.id}}})"
+				<a href="javascript:void(0);" onclick="Dajaxice.gtdmanager.item_complete(complete_callback, {'item_id':{{next.id}}})"
 				   class="btn btn-success pull-right btn-sm">Done</a>
 			</td>
 		    </tr>
@@ -62,11 +62,11 @@
 	<table class="table table-condensed table-striped">
 		<tr>{% for item in waiting %}
 			<td>
-				<a href="#" onclick="Dajaxice.gtdmanager.item_get_form(display_form.bind(this, 'Edit item'), {'item_id':{{item.id}}})">
+				<a href="javascript:void(0);" onclick="Dajaxice.gtdmanager.item_get_form(display_form.bind(this, 'Edit item'), {'item_id':{{item.id}}})">
 					{{item.name}}</a>
-				<a href="#" onclick="Dajaxice.gtdmanager.item_delete(delete_callback, {'item_id':{{item.id}}})"
+				<a href="javascript:void(0);" onclick="Dajaxice.gtdmanager.item_delete(delete_callback, {'item_id':{{item.id}}})"
 				   class="btn btn-danger pull-right btn-sm">X</a>
-				<a href="#" onclick="Dajaxice.gtdmanager.item_complete(complete_callback, {'item_id':{{item.id}}})"
+				<a href="javascript:void(0);" onclick="Dajaxice.gtdmanager.item_complete(complete_callback, {'item_id':{{item.id}}})"
 				   class="btn btn-success pull-right btn-sm">Done</a>
 			</td>
 		</tr>{% endfor %}
@@ -87,16 +87,16 @@
 	{% for item in reminders %}
 	<tr>
 		<td>
-			<a href="#" onclick="Dajaxice.gtdmanager.reminder_get_form(display_form.bind(this, 'Edit reminder'), {'item_id':{{item.id}}})">
+			<a href="javascript:void(0);" onclick="Dajaxice.gtdmanager.reminder_get_form(display_form.bind(this, 'Edit reminder'), {'item_id':{{item.id}}})">
 				{{item.name}}</a>
 		</td>
 		<td class="centerText">
 			{{item.remind_at|date:"d.m.Y"}}
 		</td>
 		<td>
-			<a href="#" onclick="Dajaxice.gtdmanager.item_delete(delete_callback, {'item_id':{{item.id}}})"
+			<a href="javascript:void(0);" onclick="Dajaxice.gtdmanager.item_delete(delete_callback, {'item_id':{{item.id}}})"
 			   class="btn btn-danger pull-right btn-sm">X</a>
-			<a href="#" onclick="Dajaxice.gtdmanager.item_complete(complete_callback, {'item_id':{{item.id}}})"
+			<a href="javascript:void(0);" onclick="Dajaxice.gtdmanager.item_complete(complete_callback, {'item_id':{{item.id}}})"
 			   class="btn btn-success pull-right btn-sm">Done</a>
 		</td>
 	</tr>
@@ -110,11 +110,11 @@
 	<table class="table table-condensed table-striped">
 		<tr>{% for item in somedays %}
 			<td>
-				<a href="#" onclick="Dajaxice.gtdmanager.item_get_form(display_form.bind(this, 'Edit item'), {'item_id':{{item.id}}})">
+				<a href="javascript:void(0);" onclick="Dajaxice.gtdmanager.item_get_form(display_form.bind(this, 'Edit item'), {'item_id':{{item.id}}})">
 					{{item.name}}</a>
-				<a href="#" onclick="Dajaxice.gtdmanager.item_delete(delete_callback, {'item_id':{{item.id}}})"
+				<a href="javascript:void(0);" onclick="Dajaxice.gtdmanager.item_delete(delete_callback, {'item_id':{{item.id}}})"
 				   class="btn btn-danger pull-right btn-sm">X</a>
-				<a href="#" onclick="Dajaxice.gtdmanager.item_complete(complete_callback, {'item_id':{{item.id}}})"
+				<a href="javascript:void(0);" onclick="Dajaxice.gtdmanager.item_complete(complete_callback, {'item_id':{{item.id}}})"
 					class="btn btn-success pull-right btn-sm">Done</a>
 			</td>
 		</tr>{% endfor %}
@@ -127,11 +127,11 @@
 	<table class="table table-condensed table-striped">
 		<tr>{% for item in references %}
 			<td>
-				<a href="#" onclick="Dajaxice.gtdmanager.item_get_form(display_form.bind(this, 'Edit item'), {'item_id':{{item.id}}})">
+				<a href="javascript:void(0);" onclick="Dajaxice.gtdmanager.item_get_form(display_form.bind(this, 'Edit item'), {'item_id':{{item.id}}})">
 					{{item.name}}</a>
-				<a href="#" onclick="Dajaxice.gtdmanager.item_delete(delete_callback, {'item_id':{{item.id}}})"
+				<a href="javascript:void(0);" onclick="Dajaxice.gtdmanager.item_delete(delete_callback, {'item_id':{{item.id}}})"
 					class="btn btn-danger pull-right btn-sm">X</a>
-				<a href="#" onclick="Dajaxice.gtdmanager.item_complete(complete_callback, {'item_id':{{item.id}}})"
+				<a href="javascript:void(0);" onclick="Dajaxice.gtdmanager.item_complete(complete_callback, {'item_id':{{item.id}}})"
 				   class="btn btn-success pull-right btn-sm">Done</a>
 			</td>
 		</tr>{% endfor %}

@@ -21,7 +21,7 @@
 				{% endif %}
 			</td>
 			<td>
-				<a href="#" onclick="Dajaxice.gtdmanager.reminder_get_form(display_form.bind(this, 'Edit reminder'), {'item_id':{{reminder.id}}})">
+				<a href="javascript:void(0);" onclick="Dajaxice.gtdmanager.reminder_get_form(display_form.bind(this, 'Edit reminder'), {'item_id':{{reminder.id}}})">
 					{{reminder.name}}</a>
 			</td>
 			<td>
@@ -30,9 +30,9 @@
 				{% endfor %}
 			</td>
 			<td>
-				<a href="#" onclick="Dajaxice.gtdmanager.item_delete(delete_callback, {'item_id':{{reminder.id}}})"
+				<a href="javascript:void(0);" onclick="Dajaxice.gtdmanager.item_delete(delete_callback, {'item_id':{{reminder.id}}})"
 					class="btn btn-danger pull-right btn-sm">X</a>
-				<a href="#" onclick="Dajaxice.gtdmanager.item_complete(complete_callback, {'item_id':{{reminder.id}}})"
+				<a href="javascript:void(0);" onclick="Dajaxice.gtdmanager.item_complete(complete_callback, {'item_id':{{reminder.id}}})"
 				   class="btn btn-success pull-right btn-sm">Done</a>
 			</td>
 		</tr>
@@ -61,7 +61,7 @@
 				{% endif %}
 			</td>
 			<td>
-				<a href="#" onclick="Dajaxice.gtdmanager.next_get_form(display_form.bind(this, 'Edit next'), {'item_id':{{item.id}}})">
+				<a href="javascript:void(0);" onclick="Dajaxice.gtdmanager.next_get_form(display_form.bind(this, 'Edit next'), {'item_id':{{item.id}}})">
 					{{item.name}}</a>
 			</td>
 			<td>
@@ -70,9 +70,9 @@
 				{% endfor %}
 			</td>
 			<td>
-				<a href="#" onclick="Dajaxice.gtdmanager.item_delete(delete_callback, {'item_id':{{item.id}}})"
+				<a href="javascript:void(0);" onclick="Dajaxice.gtdmanager.item_delete(delete_callback, {'item_id':{{item.id}}})"
 				   class="btn btn-danger pull-right btn-sm">X</a>
-				<a href="#" onclick="Dajaxice.gtdmanager.item_complete(complete_callback, {'item_id':{{item.id}}})"
+				<a href="javascript:void(0);" onclick="Dajaxice.gtdmanager.item_complete(complete_callback, {'item_id':{{item.id}}})"
 				   class="btn btn-success pull-right btn-sm">Done</a>
 			</td>
 		</tr>
