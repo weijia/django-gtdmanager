@@ -42,6 +42,12 @@ class ContextForm(ItemForm):
             Submit('submit', 'Submit'),
         )
 
+    def clean(self):
+        cleaned_data = super(ContextForm, self).clean()
+        if 'is_default' not in self.data:
+            cleaned_data['is_default'] = self.initial['is_default']
+        return cleaned_data
+
     class Meta:
         model = Context
         createView = 'gtdmanager:context_create'

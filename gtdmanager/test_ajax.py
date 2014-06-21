@@ -175,9 +175,29 @@ class UpdateTest(AjaxTestBase):
         self.assertEqual(s, timeDB)
         self.assertItemsEqual([new_ctx], rem.contexts.all())
 
-    def test_update_context(self):
+    def test_update_context_no_default(self):
         old = Context.objects.default_context()
         data = {"name": 'newname'}
+        data = self.checkResponse(
+            Client().post(reverse('gtdmanager:context_update', kwargs={"item_id": old.id}), data)
+        )
+        new = Context.objects.get(name=data['name'])
+        self.checkContext(new, data, True)
+
+    def test_update_context_default_unchanged(self):
+        old = Context.objects.default_context()
+        data = {"name": 'newname', 'is_default': True}
+        data = self.checkResponse(
+            Client().post(reverse('gtdmanager:context_update', kwargs={"item_id": old.id}), data)
+        )
+        new = Context.objects.get(name=data['name'])
+        self.checkContext(new, data, True)
+
+    def test_update_context_default_changed(self):
+        old = Context(name='@test')
+        old.save()
+        self.assertFalse(old.is_default)
+        data = {"name": 'newname', 'is_default': True}
         data = self.checkResponse(
             Client().post(reverse('gtdmanager:context_update', kwargs={"item_id": old.id}), data)
         )
