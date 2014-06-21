@@ -18,10 +18,23 @@ class AjaxTestBase(GtdManagerTestCase):
         item = cls.objects.get(name=data['name'])
         self.assertEqual(data['name'], item.name)
         self.assertEqual(data['description'], item.description)
-        self.assertEqual(data.get('status', Item.UNRESOLVED), item.status)
+        self.assertEqual(data['status'], dict(Item.STATUSES)[item.status])
         if parent:
             self.assertEqual(parent, item.parent)
         return item
+
+    def checkContext(self, ctx, data, shouldBeDefault):
+        self.assertEqual(ctx.id, data['id'])
+        self.assertEqual(ctx.name, data['name'])
+        self.assertEqual(ctx.is_default, data['is_default'])
+        self.assertEqual(shouldBeDefault, ctx.is_default)
+
+    def checkResponse(self, response, data_field = 'data'):
+        self.assertEqual(200, response.status_code)
+        ret = json.loads(response.content)
+        self.assertTrue(ret["success"])
+        self.assertIn(data_field, ret)
+        return ret[data_field]
 
 class CreateTest(AjaxTestBase):
 
@@ -30,9 +43,7 @@ class CreateTest(AjaxTestBase):
         data = {"name": 'item25', "description": "test desc"}
         if parent:
             data["parent"] = parent.id
-        response = Client().post(reverse('gtdmanager:item_create'), data)
-        self.assertEqual(200, response.status_code)
-        self.assertEqual({"success": True}, json.loads(response.content))
+        data = self.checkResponse(Client().post(reverse('gtdmanager:item_create'), data))
         self.checkModel(Item, data, parent)
 
     def test_create_item(self):
@@ -49,11 +60,7 @@ class CreateTest(AjaxTestBase):
         data = {"name": 'rem', "description": "default", "contexts": [ctx.id], "remind_at": s}
         if parent:
             data["parent"] = parent.id
-        response = Client().post(reverse('gtdmanager:reminder_create'), data)
-        self.assertEqual(200, response.status_code)
-        self.assertEqual({"success": True}, json.loads(response.content))
-
-        data["status"] = Item.REMINDER;
+        data = self.checkResponse(Client().post(reverse('gtdmanager:reminder_create'), data))
         rem = self.checkModel(Reminder, data, parent)
         timeDB = timezone.localtime(rem.remind_at).strftime("%Y-%m-%d %H:%M:%S")
         self.assertEqual(s, timeDB)
@@ -71,11 +78,7 @@ class CreateTest(AjaxTestBase):
         data = {"name": 'nxt', "description": "some","contexts": [ctx.id]}
         if parent:
             data["parent"] = parent.id
-        response = Client().post(reverse('gtdmanager:next_create'), data)
-        self.assertEqual(200, response.status_code)
-        self.assertEqual({"success": True}, json.loads(response.content))
-
-        data["status"] = Item.NEXT;
+        data = self.checkResponse(Client().post(reverse('gtdmanager:next_create'), data))
         nxt = self.checkModel(Next, data, parent)
         self.assertItemsEqual([ctx], nxt.contexts.all())
 
@@ -90,11 +93,7 @@ class CreateTest(AjaxTestBase):
         data = {"name": 'proj', "description": "best ever"}
         if parent:
             data["parent"] = parent.id
-        response = Client().post(reverse('gtdmanager:project_create'), data)
-        self.assertEqual(200, response.status_code)
-        self.assertEqual({"success": True}, json.loads(response.content))
-
-        data["status"] = Item.PROJECT;
+        data = self.checkResponse(Client().post(reverse('gtdmanager:project_create'), data))
         p = self.checkModel(Project, data, parent)
 
     def test_create_project(self):
@@ -105,24 +104,16 @@ class CreateTest(AjaxTestBase):
 
     def test_create_context(self):
         c_name = '@test'
-        response = Client().post(reverse('gtdmanager:context_create'), {"name": c_name})
-        self.assertEqual(200, response.status_code)
-        self.assertEqual({"success": True}, json.loads(response.content))
-
-        ctx = Context.objects.get(name=c_name)
-        self.assertEqual(c_name, ctx.name)
-        self.assertFalse(ctx.is_default)
+        data = self.checkResponse(Client().post(reverse('gtdmanager:context_create'), {"name": c_name}))
+        ctx = Context.objects.get(name=data['name'])
+        self.checkContext(ctx, data, False)
 
     def test_create_default_context(self):
         c_name = 'default'
-        response = Client().post(
-            reverse('gtdmanager:context_create'), {"name": c_name, "is_default": True})
-        self.assertEqual(200, response.status_code)
-        self.assertEqual({"success": True}, json.loads(response.content))
-
-        ctx = Context.objects.get(name=c_name)
-        self.assertEqual(c_name, ctx.name)
-        self.assertTrue(ctx.is_default)
+        data = self.checkResponse(Client().post(
+            reverse('gtdmanager:context_create'), {"name": c_name, "is_default": True}))
+        ctx = Context.objects.get(name=data['name'])
+        self.checkContext(ctx, data, True)
 
 class UpdateTest(AjaxTestBase):
 
@@ -135,10 +126,9 @@ class UpdateTest(AjaxTestBase):
         data = {"name": 'item25', "description": "test desc", #"status": Item.SOMEDAY,
                 "parent": p2.id}
 
-        response = Client().post(reverse('gtdmanager:item_update', kwargs={"item_id": old.id}), data)
-        self.assertEqual(200, response.status_code)
-        self.assertEqual({"success": True}, json.loads(response.content))
-
+        data = self.checkResponse(
+            Client().post(reverse('gtdmanager:item_update', kwargs={"item_id": old.id}), data)
+        )
         self.checkModel(Item, data, p2)
 
     def test_update_project(self):
@@ -147,11 +137,9 @@ class UpdateTest(AjaxTestBase):
         p2 = createParent('par2')
         data = {"name": 'betterProj', "description": "", "parent": p2.id}
 
-        response = Client().post(reverse('gtdmanager:project_update', kwargs={"item_id": old.id}), data)
-        self.assertEqual(200, response.status_code)
-        self.assertEqual({"success": True}, json.loads(response.content))
-
-        data["status"] = Item.PROJECT
+        data = self.checkResponse(
+            Client().post(reverse('gtdmanager:project_update', kwargs={"item_id": old.id}), data)
+        )
         self.checkModel(Project, data, p2)
 
     def test_update_next(self):
@@ -162,11 +150,9 @@ class UpdateTest(AjaxTestBase):
         new_ctx.save()
         data = {"name": 'Do me now', "description": "TODO", "parent": p2.id, "contexts": [new_ctx.id]}
 
-        response = Client().post(reverse('gtdmanager:next_update', kwargs={"item_id": old.id}), data)
-        self.assertEqual(200, response.status_code)
-        self.assertEqual({"success": True}, json.loads(response.content))
-
-        data["status"] = Item.NEXT
+        data = self.checkResponse(
+            Client().post(reverse('gtdmanager:next_update', kwargs={"item_id": old.id}), data)
+        )
         nxt = self.checkModel(Next, data, p2)
         self.assertItemsEqual([new_ctx], nxt.contexts.all())
 
@@ -181,11 +167,9 @@ class UpdateTest(AjaxTestBase):
         data = {"name": 'rem', "description": "default", "remind_at": s,
                 "contexts": [new_ctx.id], "parent": new_parent.id}
 
-        response = Client().post(reverse('gtdmanager:reminder_update', kwargs={"item_id": old.id}), data)
-        self.assertEqual(200, response.status_code)
-        self.assertEqual({"success": True}, json.loads(response.content))
-
-        data["status"] = Item.REMINDER;
+        data = self.checkResponse(
+            Client().post(reverse('gtdmanager:reminder_update', kwargs={"item_id": old.id}), data)
+        )
         rem = self.checkModel(Reminder, data, new_parent)
         timeDB = timezone.localtime(rem.remind_at).strftime("%Y-%m-%d %H:%M:%S")
         self.assertEqual(s, timeDB)
@@ -194,12 +178,11 @@ class UpdateTest(AjaxTestBase):
     def test_update_context(self):
         old = Context.objects.default_context()
         data = {"name": 'newname'}
-        response = Client().post(reverse('gtdmanager:context_update', kwargs={"item_id": old.id}), data)
-        self.assertEqual(200, response.status_code)
-        self.assertEqual({"success": True}, json.loads(response.content))
-
+        data = self.checkResponse(
+            Client().post(reverse('gtdmanager:context_update', kwargs={"item_id": old.id}), data)
+        )
         new = Context.objects.get(name=data['name'])
-        self.assertEqual(data['name'], new.name)
+        self.checkContext(new, data, True)
 
 class DeleteCompleteBaseTest(AjaxTestBase):
     def base_template(self, cls, name, prefix, postfix, finalStatus):
@@ -262,12 +245,11 @@ class GetTestBase(AjaxTestBase):
             postSaveCallback(item)
 
         #url = '/%sgtdmanager.[view]/?argv={"item_id":%d}' % (dajaxice_config.dajaxice_url[1:], item.id)
-        response = Client().get(reverse(view, kwargs={"item_id": item.id}))
-        self.assertEqual(200, response.status_code)
-
-        data = json.loads(response.content)
-        self.assertTrue(data['success'])
-        return (item, data[self.Meta.data_field])
+        data = self.checkResponse(
+            Client().get(reverse(view, kwargs={"item_id": item.id})),
+            self.Meta.data_field
+        )
+        return (item, data)
 
 class GetFormTest(GetTestBase):
 
@@ -337,42 +319,39 @@ class GetTest(GetTestBase):
         return r
 
     def check_model(self, instance, data):
-        dct = json.loads(data)
-        self.assertEqual(dct['name'], instance.name)
-        self.assertEqual(dct['description'], instance.description)
+        self.assertEqual(data['name'], instance.name)
+        self.assertEqual(data['description'], instance.description)
         aware = timezone.localtime(instance.lastChanged)
-        self.assertEqual(dct['lastChanged'], self.formatDjangoDatetime(aware))
-        self.assertEqual(dct['parent_id'], instance.parent_id)
-        self.assertEqual(parse_date(dct['createdAt']), instance.createdAt)
-        return dct
+        self.assertEqual(data['lastChanged'], self.formatDjangoDatetime(aware))
+        self.assertEqual(data['parent_id'], instance.parent_id)
+        self.assertEqual(parse_date(data['createdAt']), instance.createdAt)
 
     def test_get_item(self):
-        item, html = self.setup_model(Item, 'test_get', 'gtdmanager:item_get')
-        self.check_model(item, html)
-        self.assertIn('"status": "Unresolved"', html)
+        item, dct = self.setup_model(Item, 'test_get', 'gtdmanager:item_get')
+        self.check_model(item, dct)
+        self.assertDictContainsSubset({'status' : 'Unresolved'}, dct)
 
     def test_get_reminder(self):
-        r, html = self.setup_model(Reminder, 'rmd', 'gtdmanager:reminder_get')
-        dct = self.check_model(r, html)
+        r, dct = self.setup_model(Reminder, 'rmd', 'gtdmanager:reminder_get')
+        self.check_model(r, dct)
         aware = timezone.localtime(r.remind_at)
         self.assertEqual(dct['remind_at'], self.formatDjangoDatetime(aware))
         def_ctx = Context.objects.default_context()
         self.assertEqual([def_ctx.id], dct['contexts']);
 
     def test_get_next(self):
-        r, html = self.setup_model(Next, 'nxt', 'gtdmanager:next_get')
-        dct = self.check_model(r, html)
+        r, dct = self.setup_model(Next, 'nxt', 'gtdmanager:next_get')
+        self.check_model(r, dct)
         def_ctx = Context.objects.default_context()
         self.assertEqual([def_ctx.id], dct['contexts']);
 
     def test_get_context(self):
-        ctx, html = self.setup_model(Context, 'newCtx', 'gtdmanager:context_get')
-        data = json.loads(html)
-        self.assertEqual(False, data['is_default'])
-        self.assertEqual(ctx.name, data['name'])
-        self.assertEqual(ctx.id, data['id'])
+        ctx, dct = self.setup_model(Context, 'newCtx', 'gtdmanager:context_get')
+        self.assertEqual(False, dct['is_default'])
+        self.assertEqual(ctx.name, dct['name'])
+        self.assertEqual(ctx.id, dct['id'])
 
     def test_get_project(self):
-        p, html = self.setup_model(Project, 'parent', 'gtdmanager:project_get', self.setupProject)
-        dct = self.check_model(p, html)
+        p, dct = self.setup_model(Project, 'parent', 'gtdmanager:project_get', self.setupProject)
+        self.check_model(p, dct)
         self.check_project_json(dct['items'])

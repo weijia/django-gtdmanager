@@ -13,7 +13,7 @@ Forms
 """
 
 def render_to_json(context):
-    data = json.dumps(context)
+    data = json.dumps(context, cls = DjangoJSONEncoder)
     return HttpResponse(data, {'content_type': 'application/json'})
 
 def get_form(request, item, formClass):
@@ -22,8 +22,7 @@ def get_form(request, item, formClass):
     return render_to_json({'success': True, 'form_html': form_html, 'itemId': item.id})
 
 def get_model(request, instance):
-    data = json.dumps(instance.to_json(), cls = DjangoJSONEncoder)
-    return render_to_json({'success': True, 'data': data})
+    return render_to_json({'success': True, 'data': instance.to_json()})
 
 def handle_form(request, item, formClass, **kwargs):
     # kwargs is here for Dajaxice support
@@ -33,10 +32,9 @@ def handle_form(request, item, formClass, **kwargs):
     form = formClass(data, instance=item)
     if form.is_valid():
         form.save()
-        return render_to_json({'success': True})
+        return get_model(request, form.instance)
     form_html = render_crispy_form(form, context=RequestContext(request))
     return render_to_json({'success': False, 'form_html': form_html})
-
 
 @dajaxice_register(method='GET', name='gtdmanager.item_get')
 def item_get(request, item_id):
