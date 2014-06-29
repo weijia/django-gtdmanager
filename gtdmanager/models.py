@@ -9,7 +9,7 @@ class GTDModelBase(models.Model):
     class Meta:
         abstract = True
 
-    def to_json(self):
+    def to_json(self, parent_name = False):
         """ Returns JSON object (not string) representation """
         return {k: timezone.localtime(v) if isinstance(v, datetime) else v
                 for k, v in self.__dict__.items()
@@ -125,9 +125,11 @@ class Item(GTDModelBase):
         self.status = Item.DELETED
         self.save()
 
-    def to_json(self):
-        base = super(Item, self).to_json()
+    def to_json(self, parent_name = False):
+        base = super(Item, self).to_json(parent_name)
         base['status'] = dict(self.STATUSES)[self.status]
+        if parent_name:
+            base['parent_name'] = self.parent.name if self.parent else ''
         return base
 
 class ContextsItem(Item):
@@ -165,8 +167,8 @@ class ContextsItem(Item):
                 self.save()
             self.contexts.add(Context.objects.default_context())
 
-    def to_json(self):
-        ret = super(ContextsItem, self).to_json()
+    def to_json(self, parent_name = False):
+        ret = super(ContextsItem, self).to_json(parent_name)
         ret['contexts'] = [ctx.id for ctx in self.contexts.all()]
         return ret
 
@@ -266,8 +268,8 @@ class Project(Item):
             item.gtddelete()
         super(Project, self).gtddelete()
 
-    def to_json(self, recursive = True):
-        ret = super(Project, self).to_json()
+    def to_json(self, recursive = True, parent_name = False):
+        ret = super(Project, self).to_json(parent_name)
         if recursive:
             ret['items'] = {
                 'subprojects': [s.to_json(False) for s in self.subprojects()],

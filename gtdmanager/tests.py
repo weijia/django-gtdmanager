@@ -105,13 +105,23 @@ class ItemTest(GtdManagerTestCase):
         self.assertLessEqual(start.date(), data['createdAt'])
         self.assertLessEqual(start, data['lastChanged'])
 
-    def test_json_parent(self):
+    def _item_parent(self):
         p = Project(name='parent')
         p.save()
         item = Item(name='it', parent=p)
         item.save()
+        return (p, item)
+
+    def test_json_parent(self):
+        p, item = self._item_parent()
         data = item.to_json()
         self.assertEqual(p.id, data['parent_id'])
+
+    def test_json_parent2(self):
+        p, item = self._item_parent()
+        data = item.to_json(True)
+        self.assertEqual(p.id, data['parent_id'])
+        self.assertEqual(p.name, data['parent_name'])
 
 class ProjectTest(GtdManagerTestCase):
     def test_init(self):
