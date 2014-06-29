@@ -3,21 +3,25 @@
 {% load static %}
 {% csrf_token %}
 {% load dajaxice_templatetags %}
+{% load js %}
+
 <head>
 	<title>GTD Manager</title>
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<link href="{% static 'gtdmanager/bootstrap/css/bootstrap.min.css'%}" rel="stylesheet">
-	<link href="{% static 'gtdmanager/css/main.css'%}" rel="stylesheet">
-	<script src="{% static 'gtdmanager/js/gtdforms.js'%}"></script>
-	<script src="{% static 'gtdmanager/jquery/jquery-2.0.3.min.js'%}"></script>
-	<script src="{% static 'gtdmanager/bootstrap/js/bootstrap.min.js'%}"></script>
-	<script src="{% static 'gtdmanager/bootstrap/js/bootstrap-hover-dropdown.min.js'%}"></script>
+	{% css 'gtdmanager/bootstrap/css/bootstrap.min.css' %}
+	{% css 'gtdmanager/css/main.css' %}
+	{% javascript "gtdmanager/js/gtdlist.js" %}
+	{% javascript "gtdmanager/js/gtdforms.js" %}
+	{% javascript "gtdmanager/jquery/jquery-2.0.3.min.js" %}
+	{% javascript "gtdmanager/bootstrap/js/bootstrap.min.js" %}
+	{% javascript "gtdmanager/bootstrap/js/bootstrap-hover-dropdown.min.js" %}
 	{% dajaxice_js_import %}
+	{% django_js jquery=false i18n=false %}
 </head>
-	
+
 <body>
-	
+
 	<div class="container">
 		<nav class="navbar navbar-default" role="navigation">
 			<ul class="nav nav-pills">
@@ -27,7 +31,7 @@
 			  <li id="navbtn-pending" class="dropdown">
 			  	<a class="dropdown-toggle" data-toggle="dropdown" data-hover="dropdown" href="#">
 			  		Pending<span class="caret"></span>
-			  	</a>			    
+			  	</a>
 			    <ul class="dropdown-menu">
 			      <li><a href="{% url 'gtdmanager:waiting' %}">Waiting for</a></li>
 			      <li><a href="{% url 'gtdmanager:tickler' %}">Tickler</a></li>
@@ -35,7 +39,7 @@
 			      <li><a href="{% url 'gtdmanager:references' %}">References</a></li>
 			    </ul>
 			  </li>
-			  
+
 			  <li id="navbtn-manage" class="dropdown">
 			  	<a class="dropdown-toggle" data-toggle="dropdown" data-hover="dropdown" href="#">
 			  		Manage<span class="caret"></span>
@@ -47,11 +51,11 @@
 			  </li>
 			</ul>
 		</nav>
-		
+
 		{% block body %}
 		{% endblock %}
 	</div>
-	
+
 	<div id="itemModal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="itemModalLabel" aria-hidden="true">
 	<div class="modal-dialog">
       <div class="modal-content">

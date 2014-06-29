@@ -33,6 +33,7 @@ INSTALLED_APPS = (
     'django.contrib.staticfiles',
     'crispy_forms',
     'dajaxice',     # PyPi django-dajaxice-ng
+    'djangojs',     # PyPi django.js
     'gtdmanager',
 )
 
