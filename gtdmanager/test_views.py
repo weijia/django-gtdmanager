@@ -4,6 +4,7 @@ from django.core.urlresolvers import reverse
 from django.utils import timezone
 from datetime import timedelta
 from gtdmanager.tests import GtdManagerTestCase
+import json
 
 """
 Test pages funcionality
@@ -14,6 +15,13 @@ def prepare_completed_deleted():
     item2 = Item(name='deleted', status = Item.DELETED)
     item2.save()
     return (item, item2)
+
+class GtdViewTest(GtdManagerTestCase):
+
+    def _getListData(self, page):
+        response = Client().get(reverse(page))
+        self.assertEqual(response.status_code, 200)
+        return json.loads(response.context['listData'])
 
 class InboxTest(GtdManagerTestCase):
     def test_page_working(self):
@@ -194,51 +202,45 @@ class ContextsTest(GtdManagerTestCase):
         self.assertTrue('contexts', response.context)
         self.assertIn('form', response.context)
 
-class WaitingTest(GtdManagerTestCase):
+class WaitingTest(GtdViewTest):
     def test_working(self):
         item = Item(name='w8in4')
         item.status = Item.WAITING_FOR
         item.save()
-        response = Client().get(reverse('gtdmanager:waiting'))
-        self.assertEqual(response.status_code, 200)
-        self.assertItemsEqual((item,), response.context['items'])
+        data = self._getListData('gtdmanager:waiting')
+        self.assertDictContainsSubset({"name": item.name}, data[0])
 
     def test_hide_finished(self):
         prepare_completed_deleted()
-        response = Client().get(reverse('gtdmanager:waiting'))
-        self.assertEqual(response.status_code, 200)
-        self.assertItemsEqual((), response.context['items'])
+        data = self._getListData('gtdmanager:waiting')
+        self.assertEqual([], data)
 
+class ReferencesTest(GtdViewTest):
 
-class ReferencesTest(GtdManagerTestCase):
     def test_working(self):
         item = Item(name='ref')
         item.status = Item.REFERENCE
         item.save()
-        response = Client().get(reverse('gtdmanager:references'))
-        self.assertEqual(response.status_code, 200)
-        self.assertItemsEqual((item,), response.context['items'])
+        data = self._getListData('gtdmanager:references')
+        self.assertDictContainsSubset({"name": item.name}, data[0])
 
     def test_hide_finished(self):
         prepare_completed_deleted()
-        response = Client().get(reverse('gtdmanager:references'))
-        self.assertEqual(response.status_code, 200)
-        self.assertItemsEqual((), response.context['items'])
+        data = self._getListData('gtdmanager:references')
+        self.assertEqual([], data)
 
-class SomedayTest(GtdManagerTestCase):
+class SomedayTest(GtdViewTest):
     def test_working(self):
         item = Item(name='ref')
         item.status = Item.SOMEDAY
         item.save()
-        response = Client().get(reverse('gtdmanager:someday'))
-        self.assertEqual(response.status_code, 200)
-        self.assertItemsEqual((item,), response.context['items'])
+        data = self._getListData('gtdmanager:someday')
+        self.assertDictContainsSubset({"name": item.name}, data[0])
 
     def test_hide_finished(self):
         prepare_completed_deleted()
-        response = Client().get(reverse('gtdmanager:someday'))
-        self.assertEqual(response.status_code, 200)
-        self.assertItemsEqual((), response.context['items'])
+        data = self._getListData('gtdmanager:someday')
+        self.assertEqual([], data)
 
 class ArchiveTest(GtdManagerTestCase):
     def test_working(self):

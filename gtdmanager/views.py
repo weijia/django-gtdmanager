@@ -5,6 +5,8 @@ from django.template import RequestContext
 from django.db import connection, transaction
 from django.utils import timezone
 from datetime import datetime, timedelta, date, time
+import json
+from django.core.serializers.json import DjangoJSONEncoder
 
 from gtdmanager.models import Item, Project, Context, Next, Reminder
 from gtdmanager.forms import ItemForm, ContextForm, NextForm, ReminderForm, ProjectForm
@@ -98,11 +100,19 @@ def project_detail(request, project_id):
              'waiting': waiting, 'somedays': somedays, 'references': refs, 'completed': completed,
              'deleted': deleted}, RequestContext(request) )
 
+def _itemlist(request, status, contextBase):
+    items = [i.to_json(True) for i in Item.objects.filter(status=status)]
+    contextBase['listData'] = json.dumps(items, cls = DjangoJSONEncoder)
+    return render_to_response('gtdmanager/itemlist.html', contextBase, RequestContext(request))
+
 def waiting(request):
-    waiting = Item.objects.filter(status=Item.WAITING_FOR)
-    return render_to_response('gtdmanager/itemlist.html',
-       {'btnName': 'pending', 'header': 'Waiting', 'redir_page': 'waiting', 'items': waiting},
-        RequestContext(request))
+    return _itemlist(request, Item.WAITING_FOR, {'btnName': 'pending', 'header': 'Waiting'})
+
+def someday(request):
+    return _itemlist(request, Item.SOMEDAY, {'btnName': 'pending', 'header': 'Someday / Maybe'})
+
+def references(request):
+    return _itemlist(request, Item.REFERENCE, {'btnName': 'pending', 'header': 'References'})
 
 def tickler(request):
     reminders = Reminder.objects.unfinished().order_by('remind_at')
@@ -125,18 +135,6 @@ def tickler(request):
 
     return render_to_response('gtdmanager/tickler.html',
        {'btnName': 'pending', 'tomorrows': tomorrows, 'this_week': this_week, 'futures': futures},
-        RequestContext(request))
-
-def someday(request):
-    items = Item.objects.filter(status=Item.SOMEDAY)
-    return render_to_response('gtdmanager/itemlist.html',
-       {'btnName': 'pending', 'header': 'Someday / Maybe', 'redir_page': 'someday', 'items': items},
-        RequestContext(request))
-
-def references(request):
-    items = Item.objects.filter(status=Item.REFERENCE)
-    return render_to_response('gtdmanager/itemlist.html',
-        {'btnName': 'pending', 'header': 'References', 'redir_page': 'references', 'items': items},
         RequestContext(request))
 
 def contexts(request):

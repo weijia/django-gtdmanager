@@ -2,29 +2,12 @@
 
 {% block body %}
 <h1>{{header}}</h1>
-<div class="col-xs-8">
-	<table class="table table-condensed table-striped">
-		<thead>
-			<tr>
-				<th class="col-xs-2">Project</th>
-				<th class="col-xs-6">Name</th>
-			</tr>
-		</thead>
-		{% for item in items %}
-		<tr>
-			<td>{% if item.parent != None %}
-				<a href="{% url 'gtdmanager:project_detail' item.parent.id %}">[ {{item.parent}} ]</a>
-				{% endif %}
-			</td>
-			<td>
-				<a href="javascript:void(0);" onclick="Dajaxice.gtdmanager.item_get_form(display_form.bind(this, 'Edit item'), {'item_id':{{item.id}}})">{{item.name}}</a>
-				<a href="javascript:void(0);" onclick="Dajaxice.gtdmanager.item_delete(delete_callback, {'item_id':{{item.id}}})"
-					class="btn btn-danger pull-right btn-sm">X</a>
-				<a href="javascript:void(0);" onclick="Dajaxice.gtdmanager.item_complete(complete_callback, {'item_id':{{item.id}}})"
-					class="btn btn-success pull-right btn-sm">Done</a>
-			</td>
-		</tr>
-		{% endfor %}
-	</table>
+<div id='list-items' class="col-xs-8">
 </div>
+{% endblock %}
+
+{% block finish_scripts %}
+	var data = {{ listData | safe }};
+	var list = new GtdList('list-items');
+	list.buildItems(data);
 {% endblock %}
