@@ -1,47 +1,9 @@
 {% extends 'gtdmanager/base.html' %}
-{% load crispy_forms_tags %}
 
 {% block body %}
-<h3>Contexts</h3>
+{% endblock %}
 
-<strong>Add new context</strong>
-{% if form.errors %}
-  <div class="errorDiv">
-	{% for fieldname, error in form.errors.iteritems %}
-		{{ error|striptags }}
-	{% endfor %}
-  </div>
-{% endif %}
-{% crispy form %}
-<hr>
-
-<div class="col-xs-4">
-	<table class="table table-condensed table-striped">
-		<thead>
-			<th class="col-xs-1">Default</th>
-			<th>Name</th>
-		</thead>
-		{% for context in contexts %}
-		<tr>
-			<td>
-				<input type="radio" name="default" id="option_default_{{forloop.counter}}"
-				value="{{context.id}}"{% if context.is_default %} checked {% endif%}>
-			</td>
-			<td>
-				<a href="javascript:void(0);" onclick="Dajaxice.gtdmanager.context_get_form(display_form.bind(this, 'Edit context'), {'item_id':{{context.id}}})">
-				   {{context.name}}</a>
-				{% if not context.is_default %}
-				  <a href="javascript:void(0);" onclick="Dajaxice.gtdmanager.context_delete(delete_callback, {'item_id':{{context.id}}})"
-				     class="btn btn-danger pull-right btn-sm">X</a><br>
-				{% endif %}
-			</td>
-		</tr>
-		{% endfor %}
-	</table>
-</div>
-
-<script>
-  var form = $('form')[0]
-  form.onsubmit = submit.bind(this, "Create context", null, form.action)
-</script>
+{% block finish_scripts %}
+	var pages = new GtdPages();
+	pages.buildContexts({{ listData | safe }});
 {% endblock %}

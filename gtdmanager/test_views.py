@@ -187,14 +187,12 @@ class ProjectDetailTest(GtdManagerTestCase):
         self.assertItemsEqual(response.context['completed'], (completed,))
         self.assertItemsEqual(response.context['deleted'], (deleted,))
 
-class ContextsTest(GtdManagerTestCase):
+class ContextsTest(GtdViewTest):
 
     def test_working(self):
-        response = Client().get(reverse('gtdmanager:contexts'))
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.context['btnName'], 'manage')
-        self.assertTrue('contexts', response.context)
-        self.assertIn('form', response.context)
+        defCtx = Context.objects.default_context()
+        data = self._getListData('gtdmanager:contexts')
+        self.assertDictContainsSubset({"name": defCtx.name}, data[0])
 
 class WaitingTest(GtdViewTest):
     def test_working(self):

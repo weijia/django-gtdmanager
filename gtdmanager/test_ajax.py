@@ -246,10 +246,16 @@ class DeleteTest(DeleteCompleteBaseTest):
         self.assertEquals(2, Context.objects.count())
 
         response = Client().get(reverse('gtdmanager:context_delete', kwargs={"item_id": ctx.id}))
+        self.checkResponse(response, None)
+
+    def test_delete_context_default(self):
+        defCtx = Context.objects.default_context()
+        response = Client().get(reverse('gtdmanager:context_delete', kwargs={"item_id": defCtx.id}))
         self.assertEqual(200, response.status_code)
-        self.assertEqual({"success": True}, json.loads(response.content))
+        data = json.loads(response.content)
+        self.assertDictContainsSubset({"success": False}, data)
+        self.assertIn("message", data)
         self.assertEquals(1, Context.objects.count())
-        self.assertEquals(def_ctx, Context.objects.first())
 
 class CompleteTest(DeleteCompleteBaseTest):
 
@@ -384,3 +390,20 @@ class ConvertTest(AjaxTestBase):
         self.assertEqual(2, Item.objects.count())
         self.checkResponse(Client().post(reverse('gtdmanager:archive_clean')), None)
         self.assertEqual(0, Item.objects.count())
+
+    def test_context_setdefault_new(self):
+        ctx = Context(name='newCtx')
+        ctx.save()
+        url = reverse('gtdmanager:context_setdefault', kwargs={"item_id": ctx.id})
+        self.checkResponse(Client().post(url), None)
+        self.assertEqual(ctx.id, Context.objects.default_context().id)
+
+    def test_context_setdefault_old(self):
+        ctx = Context.objects.default_context()
+        url = reverse('gtdmanager:context_setdefault', kwargs={"item_id": ctx.id})
+        self.checkResponse(Client().post(url), None)
+        self.assertEqual(ctx.id, Context.objects.default_context().id)
+
+    def test_context_setdefault_nonexisting(self):
+        url = reverse('gtdmanager:context_setdefault', kwargs={"item_id": 142})
+        self.assertEqual(404, Client().post(url).status_code)

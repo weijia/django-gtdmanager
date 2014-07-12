@@ -10,8 +10,24 @@ function GtdPages(divName) {
     }
 }
 
-GtdPages.prototype.displayError = function(msg) {
-    alert(msg);
+GtdPages.prototype._appendList = function (divName, rows) {
+    this._contentDiv.append($('<div id="'+ divName + '" class="col-xs-' + rows + '"></div>'));
+    return new GtdList(divName);
+}
+
+GtdPages.prototype.displayError = function(msg, data) {
+    text = msg;
+    if (data.message) {
+        text += ': ' + data.message;
+    }
+    alert(text);
+}
+
+GtdPages.prototype.context_setdefault_callback = function(data) {
+    if (!data.success) {
+        this.displayError('Setting default context failed', data);
+        // TODO - select radio at original default context
+    }
 }
 
 GtdPages.prototype.confirm_clean = function() {
@@ -30,8 +46,7 @@ GtdPages.prototype.confirm_clean = function() {
 
 GtdPages.prototype._archiveTable = function (title, divName, listData) {
     this._contentDiv.append($('<h2>' + title + '</h2>'));
-    this._contentDiv.append($('<div id="'+ divName + '" class="col-xs-8"></div>'));
-    var list = new GtdList(divName);
+    var list = this._appendList(divName, 8)
     list.buildItems(listData, [2, 3], false);
 }
 
@@ -54,4 +69,17 @@ GtdPages.prototype.buildArchive = function(completed, deleted) {
     if (deleted.length) {
         this._archiveTable('Deleted', 'list-items-deleted', deleted);
     }
+}
+
+GtdPages.prototype.buildContexts = function(data) {
+    this._contentDiv.empty();
+    this._contentDiv.append($('<h1>Contexts</h1>'));
+    this._contentDiv.append($('<p>\
+        <button type="button" class="btn btn-primary"\
+            onclick="Dajaxice.gtdmanager.context_create(display_form.bind(this, \'Create context\'))">\
+		Add new context\
+        </button>\
+    </p>'));
+    list = this._appendList('list-contexts', 4);
+    list.buildContexts(data, this.context_setdefault_callback.bind(this));
 }

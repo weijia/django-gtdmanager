@@ -53,6 +53,6 @@ urlpatterns = patterns('',
     url(r'^context/(?P<item_id>\d+)$', ajax.context_get, name='context_get'),
     url(r'^context/(?P<item_id>\d+)/update$', ajax.context_update, name='context_update'),
     url(r'^context/(?P<item_id>\d+)/delete$', ajax.context_delete, name='context_delete'),
-    url(r'^context/(?P<item_id>\d+)/setdefault$', views.context_set_default, name='context_set_default'),
+    url(r'^context/(?P<item_id>\d+)/setdefault$', ajax.context_setdefault, name='context_setdefault'),
     url(r'^context/(?P<item_id>\d+)/form$', ajax.context_form, name='context_form'),
 )

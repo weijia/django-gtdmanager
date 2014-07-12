@@ -139,23 +139,10 @@ def tickler(request):
 
 def contexts(request):
     contexts = get_list_or_404(Context)
-
-    if request.method == "POST":
-        form = ContextForm(request.POST)
-        if form.is_valid():
-            form.save()
-            form = ContextForm()
-            return HttpResponseRedirect(reverse('gtdmanager:contexts'))
-    else:
-        form = ContextForm()
-    return render_to_response('gtdmanager/contexts.html',
-        {'btnName': 'manage', 'contexts': contexts, 'form': form}, RequestContext(request))
-
-def context_set_default(request, item_id):
-    context = get_object_or_404(Context, pk=item_id)
-    context.is_default = True
-    context.save()
-    return HttpResponseRedirect(reverse('gtdmanager:contexts'))
+    items = [ctx.to_json() for ctx in contexts]
+    listData = json.dumps(items, cls = DjangoJSONEncoder)
+    return render_to_response('gtdmanager/contexts.html', {'btnName': 'manage', 'listData': listData},
+                              RequestContext(request))
 
 def archive(request):
     completed = [i.to_json(True) for i in Item.objects.filter(status=Item.COMPLETED)]

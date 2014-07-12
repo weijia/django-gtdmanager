@@ -156,7 +156,19 @@ def project_delete(request, item_id):
 @dajaxice_register(method='GET', name='gtdmanager.context_delete')
 def context_delete(request, item_id):
     context = get_object_or_404(Context, pk=item_id)
-    context.delete()
+    result = {"success": True}
+    try:
+        context.delete()
+    except RuntimeError as e:
+        result["success"] = False
+        result["message"] = str(e)
+    return render_to_json(result)
+
+@dajaxice_register(method='POST', name='gtdmanager.context_setdefault')
+def context_setdefault(request, item_id):
+    context = get_object_or_404(Context, pk=item_id)
+    context.is_default = True
+    context.save()
     return render_to_json({"success": True})
 
 @dajaxice_register(method='GET', name='gtdmanager.item_complete')
