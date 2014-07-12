@@ -46,7 +46,7 @@ urlpatterns = patterns('',
     url(r'^someday$', views.someday, name='someday'),
     url(r'^references$', views.references, name='references'),
     url(r'^archive$', views.archive, name='archive'),
-    url(r'^archive/clean$', views.archive_clean, name='archive_clean'),
+    url(r'^archive/clean$', ajax.archive_clean, name='archive_clean'),
 
     url(r'^contexts$', views.contexts, name='contexts'),
     url(r'^context/create$', ajax.context_create, name='context_create'),

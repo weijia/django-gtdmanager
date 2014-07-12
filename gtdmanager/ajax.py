@@ -170,3 +170,8 @@ def project_complete(request, item_id):
     p = get_object_or_404(Project, pk=item_id)
     p.complete()
     return render_to_json({"success": True})
+
+@dajaxice_register(method='POST', name='gtdmanager.archive_clean')
+def archive_clean(request):
+    Item.objects.filter(status__in=(Item.COMPLETED, Item.DELETED)).delete()
+    return render_to_json({"success": True})

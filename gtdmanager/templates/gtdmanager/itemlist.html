@@ -9,5 +9,5 @@
 {% block finish_scripts %}
 	var data = {{ listData | safe }};
 	var list = new GtdList('list-items');
-	list.buildItems(data);
+	list.buildItems(data, [2, 6], true);
 {% endblock %}

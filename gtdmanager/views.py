@@ -158,12 +158,8 @@ def context_set_default(request, item_id):
     return HttpResponseRedirect(reverse('gtdmanager:contexts'))
 
 def archive(request):
-    completed = Item.objects.filter(status=Item.COMPLETED)
-    deleted = Item.objects.filter(status=Item.DELETED)
+    completed = [i.to_json(True) for i in Item.objects.filter(status=Item.COMPLETED)]
+    deleted = [i.to_json(True) for i in Item.objects.filter(status=Item.DELETED)]
     return render_to_response("gtdmanager/archive.html",
-        {'btnName': 'manage', 'completed': completed, 'deleted': deleted},
-        RequestContext(request))
-
-def archive_clean(request):
-    Item.objects.filter(status__in=(Item.COMPLETED, Item.DELETED)).delete()
-    return HttpResponseRedirect(reverse('gtdmanager:archive'))
+        {'btnName': 'manage', 'completed': json.dumps(completed, cls = DjangoJSONEncoder),
+         'deleted': json.dumps(deleted, cls = DjangoJSONEncoder)}, RequestContext(request))

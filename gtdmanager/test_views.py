@@ -9,19 +9,13 @@ import json
 """
 Test pages funcionality
 """
-def prepare_completed_deleted():
-    item = Item(name='completed', status = Item.COMPLETED)
-    item.save()
-    item2 = Item(name='deleted', status = Item.DELETED)
-    item2.save()
-    return (item, item2)
 
 class GtdViewTest(GtdManagerTestCase):
 
-    def _getListData(self, page):
+    def _getListData(self, page, entryName = 'listData'):
         response = Client().get(reverse(page))
         self.assertEqual(response.status_code, 200)
-        return json.loads(response.context['listData'])
+        return json.loads(response.context[entryName])
 
 class InboxTest(GtdManagerTestCase):
     def test_page_working(self):
@@ -211,7 +205,7 @@ class WaitingTest(GtdViewTest):
         self.assertDictContainsSubset({"name": item.name}, data[0])
 
     def test_hide_finished(self):
-        prepare_completed_deleted()
+        self.prepare_completed_deleted()
         data = self._getListData('gtdmanager:waiting')
         self.assertEqual([], data)
 
@@ -225,7 +219,7 @@ class ReferencesTest(GtdViewTest):
         self.assertDictContainsSubset({"name": item.name}, data[0])
 
     def test_hide_finished(self):
-        prepare_completed_deleted()
+        self.prepare_completed_deleted()
         data = self._getListData('gtdmanager:references')
         self.assertEqual([], data)
 
@@ -238,28 +232,19 @@ class SomedayTest(GtdViewTest):
         self.assertDictContainsSubset({"name": item.name}, data[0])
 
     def test_hide_finished(self):
-        prepare_completed_deleted()
+        self.prepare_completed_deleted()
         data = self._getListData('gtdmanager:someday')
         self.assertEqual([], data)
 
-class ArchiveTest(GtdManagerTestCase):
+class ArchiveTest(GtdViewTest):
     def test_working(self):
-        completed, deleted = prepare_completed_deleted()
-        response = Client().get(reverse('gtdmanager:archive'))
-        self.assertEqual(response.status_code, 200)
-        self.assertItemsEqual((completed,), response.context['completed'])
-        self.assertItemsEqual((deleted,), response.context['deleted'])
+        completed, deleted = self.prepare_completed_deleted()
+        data = self._getListData('gtdmanager:archive', 'completed')
+        self.assertDictContainsSubset({"name": completed.name}, data[0])
+        data = self._getListData('gtdmanager:archive', 'deleted')
+        self.assertDictContainsSubset({"name": deleted.name}, data[0])
 
-    def test_clean(self):
-        prepare_completed_deleted()
-        response = Client().get(reverse('gtdmanager:archive_clean'))
-        self.assertRedirects(response, reverse('gtdmanager:archive'))
-        response = Client().get(reverse('gtdmanager:archive'))
-        self.assertEqual(response.status_code, 200)
-        self.assertItemsEqual((), response.context['completed'])
-        self.assertItemsEqual((), response.context['deleted'])
-
-class ArchiveTest(GtdManagerTestCase):
+class TicklerTest(GtdViewTest):
     def test_working(self):
         reminder = Reminder(name='rem', remind_at = timezone.now() + timedelta(days=1))
         reminder.save()

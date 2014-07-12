@@ -33,8 +33,9 @@ class AjaxTestBase(GtdManagerTestCase):
         self.assertEqual(200, response.status_code)
         ret = json.loads(response.content)
         self.assertTrue(ret["success"])
-        self.assertIn(data_field, ret)
-        return ret[data_field]
+        if data_field is not None:
+            self.assertIn(data_field, ret)
+            return ret[data_field]
 
 class CreateTest(AjaxTestBase):
 
@@ -375,3 +376,11 @@ class GetTest(GetTestBase):
         p, dct = self.setup_model(Project, 'parent', 'gtdmanager:project_get', self.setupProject)
         self.check_model(p, dct)
         self.check_project_json(dct['items'])
+
+class ConvertTest(AjaxTestBase):
+
+    def test_archive_clean(self):
+        self.prepare_completed_deleted()
+        self.assertEqual(2, Item.objects.count())
+        self.checkResponse(Client().post(reverse('gtdmanager:archive_clean')), None)
+        self.assertEqual(0, Item.objects.count())

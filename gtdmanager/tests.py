@@ -59,6 +59,13 @@ class GtdManagerTestCase(TestCase):
         self.check_items_group(items, 'completed', 'compl', Item.COMPLETED)
         self.check_items_group(items, 'deleted', 'dele', Item.DELETED)
 
+    def prepare_completed_deleted(self):
+        item = Item(name='completed', status = Item.COMPLETED)
+        item.save()
+        item2 = Item(name='deleted', status = Item.DELETED)
+        item2.save()
+        return (item, item2)
+
 class ItemTest(GtdManagerTestCase):
     def test_item(self):
         expected_name = 'some name'

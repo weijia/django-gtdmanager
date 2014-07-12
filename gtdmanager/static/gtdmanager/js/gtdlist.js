@@ -11,13 +11,13 @@ function GtdList(divName) {
     }
 }
 
-GtdList.prototype.buildItems = function(data) {
+GtdList.prototype.buildItems = function(data, widths, buttons) {
     this.div.empty();
     var table = $('<table></table>').addClass("table table-condensed table-striped");
     var head = $('<thead>\
                     <tr>\
-                        <th class="col-xs-2">Project</th>\
-                        <th class="col-xs-6">Name</th>\
+                        <th class="col-xs-' + widths[0] + '">Project</th>\
+                        <th class="col-xs-' + widths[1] + '">Name</th>\
                     </tr>\
                   </thead>');
     table.append(head);
@@ -34,9 +34,10 @@ GtdList.prototype.buildItems = function(data) {
         }
         var main = $('<td></td>');
         main.append(this.getFormEditItem(item));
-        main.append(this.getBtnDeleteItem(item).addClass('pull-right'));
-        main.append(this.getBtnCompleteItem(item).addClass('pull-right'));
-
+        if (buttons) {
+            main.append(this.getBtnDeleteItem(item).addClass('pull-right'));
+            main.append(this.getBtnCompleteItem(item).addClass('pull-right'));
+        }
         row.append(parent);
         row.append(main);
         table.append(row);

@@ -13,6 +13,7 @@
 	{% css 'gtdmanager/css/main.css' %}
 	{% javascript "gtdmanager/js/gtdlist.js" %}
 	{% javascript "gtdmanager/js/gtdforms.js" %}
+	{% javascript "gtdmanager/js/gtdpages.js" %}
 	{% javascript "gtdmanager/jquery/jquery-2.0.3.min.js" %}
 	{% javascript "gtdmanager/bootstrap/js/bootstrap.min.js" %}
 	{% javascript "gtdmanager/bootstrap/js/bootstrap-hover-dropdown.min.js" %}
@@ -52,8 +53,10 @@
 			</ul>
 		</nav>
 
+		<div id="content">
 		{% block body %}
 		{% endblock %}
+		</div>
 	</div>
 
 	<div id="itemModal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="itemModalLabel" aria-hidden="true">
