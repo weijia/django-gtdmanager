@@ -41,7 +41,7 @@ def item_get(request, item_id):
     item = get_object_or_404(Item, pk=item_id)
     return get_model(request, item)
 
-@dajaxice_register(method='GET', name='gtdmanager.item_get_form')
+@dajaxice_register(method='GET', name='gtdmanager.item_form')
 def item_form(request, item_id):
     item = get_object_or_404(Item, pk=item_id)
     return get_form(request, item, ItemForm)
@@ -62,7 +62,7 @@ def reminder_get(request, item_id):
     item = get_object_or_404(Reminder, pk=item_id)
     return get_model(request, item)
 
-@dajaxice_register(method='GET', name='gtdmanager.reminder_get_form')
+@dajaxice_register(method='GET', name='gtdmanager.reminder_form')
 def reminder_form(request, item_id):
     reminder = Reminder.objects.get_or_convert(item_id, Reminder)
     return get_form(request, reminder, ReminderForm)
@@ -83,7 +83,7 @@ def next_get(request, item_id):
     nxt = get_object_or_404(Next, pk=item_id)
     return get_model(request, nxt)
 
-@dajaxice_register(method='GET', name='gtdmanager.next_get_form')
+@dajaxice_register(method='GET', name='gtdmanager.next_form')
 def next_form(request, item_id):
     nxt = Next.objects.get_or_convert(item_id, Next)
     return get_form(request, nxt, NextForm)
@@ -104,7 +104,7 @@ def project_get(request, item_id):
     p = get_object_or_404(Project, pk=item_id)
     return get_model(request, p)
 
-@dajaxice_register(method='GET', name='gtdmanager.project_get_form')
+@dajaxice_register(method='GET', name='gtdmanager.project_form')
 def project_form(request, item_id):
     p = Project.objects.get_or_convert(item_id, Project)
     return get_form(request, p, ProjectForm)
@@ -125,7 +125,7 @@ def context_get(request, item_id):
     ctx = get_object_or_404(Context, pk=item_id)
     return get_model(request, ctx)
 
-@dajaxice_register(method='GET', name='gtdmanager.context_get_form')
+@dajaxice_register(method='GET', name='gtdmanager.context_form')
 def context_form(request, item_id):
     ctx = get_object_or_404(Context, pk=item_id)
     return get_form(request, ctx, ContextForm)

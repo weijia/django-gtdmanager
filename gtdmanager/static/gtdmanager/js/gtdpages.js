@@ -8,6 +8,7 @@ function GtdPages(divName) {
         console.log("Cannot find content div");
         this.div = null;
     }
+    this._factory = new GtdControlFactory()
 }
 
 GtdPages.prototype._appendList = function (divName, rows) {
@@ -55,7 +56,7 @@ GtdPages.prototype.buildArchive = function(completed, deleted) {
     this._contentDiv.append($('<h1>Archive</h1>'));
 
     if (completed.length || deleted.length) {
-        btn = $('<button>Remove archived items</button>').addClass('btn btn-danger').click(this.confirm_clean.bind(this));
+        btn = this._factory.getBtnCleanArchive(this.confirm_clean.bind(this));
         this._contentDiv.append(btn);
     } else {
         this._contentDiv.append($('<span>No archived item found</span>'));
@@ -74,12 +75,7 @@ GtdPages.prototype.buildArchive = function(completed, deleted) {
 GtdPages.prototype.buildContexts = function(data) {
     this._contentDiv.empty();
     this._contentDiv.append($('<h1>Contexts</h1>'));
-    this._contentDiv.append($('<p>\
-        <button type="button" class="btn btn-primary"\
-            onclick="Dajaxice.gtdmanager.context_create(display_form.bind(this, \'Create context\'))">\
-		Add new context\
-        </button>\
-    </p>'));
+    this._contentDiv.append($('<p></p>').append(this._factory.getBtnCreateContext()));
     list = this._appendList('list-contexts', 4);
     list.buildContexts(data, this.context_setdefault_callback.bind(this));
 }

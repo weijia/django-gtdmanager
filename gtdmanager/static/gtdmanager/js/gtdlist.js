@@ -9,6 +9,7 @@ function GtdList(divName) {
         console.log("Cannot find div " + id);
         this.div = null;
     }
+    this._factory = new GtdControlFactory();
 }
 
 GtdList.prototype._buildTable = function(headerData) {
@@ -46,9 +47,9 @@ GtdList.prototype.buildContexts = function(data, setdefaultClbk) {
         row.append(defaultSelector);
 
         var main = $('<td></td>');
-        main.append(this.getFormEditContext(ctx));
+        main.append(this._factory.getLinkEditContext(ctx));
         row.append(main);
-        main.append(this.getBtnDeleteContext(ctx, 'context').addClass('pull-right'));
+        main.append(this._factory.getBtnDeleteContext(ctx, 'context').addClass('pull-right'));
 
         table.append(row);
     }
@@ -71,56 +72,14 @@ GtdList.prototype.buildItems = function(data, widths, buttons) {
             parent.append(parentData);
         }
         var main = $('<td></td>');
-        main.append(this.getFormEditItem(item));
+        main.append(this._factory.getLinkEditItem(item));
         if (buttons) {
-            main.append(this.getBtnDeleteItem(item).addClass('pull-right'));
-            main.append(this.getBtnCompleteItem(item).addClass('pull-right'));
+            main.append(this._factory.getBtnDeleteItem(item).addClass('pull-right'));
+            main.append(this._factory.getBtnCompleteItem(item).addClass('pull-right'));
         }
         row.append(parent);
         row.append(main);
         table.append(row);
     }
     this.div.append(table);
-}
-
-GtdList.prototype.getBtnCompleteItem = function(item) {
-    return $(
-        '<a href="javascript:void(0);"\
-            onclick="Dajaxice.gtdmanager.item_complete(complete_callback, {\'item_id\':' + item.id + '})"\
-        >Done</a>'
-    ).addClass('btn btn-success btn-sm');
-}
-
-GtdList.prototype._getBtnDelete = function(item, model) {
-    return $(
-        '<a href="javascript:void(0);"\
-            onclick="Dajaxice.gtdmanager.' + model + '_delete(delete_callback, {\'item_id\':' + item.id + '})"\
-        >X</a>'
-    ).addClass('btn btn-danger btn-sm');
-}
-
-GtdList.prototype.getBtnDeleteItem = function(item) {
-    return this._getBtnDelete(item, 'item');
-}
-
-GtdList.prototype.getBtnDeleteContext = function(ctx) {
-    return this._getBtnDelete(ctx, 'context');
-}
-
-GtdList.prototype._getEditForm = function(item, model) {
-    return $(
-        '<a href="javascript:void(0);"\
-            onclick="Dajaxice.gtdmanager.' + model + '_get_form(\
-                display_form.bind(this, \'Edit ' + model + '\'), {\'item_id\':' + item.id + '}\
-            )"\
-         >' + item.name + '</a>'
-    );
-}
-
-GtdList.prototype.getFormEditItem = function(item) {
-    return this._getEditForm(item, 'item');
-}
-
-GtdList.prototype.getFormEditContext = function(ctx) {
-    return this._getEditForm(ctx, 'context');
 }

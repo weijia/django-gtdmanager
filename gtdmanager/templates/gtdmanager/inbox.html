@@ -1,11 +1,7 @@
 {% extends 'gtdmanager/base.html' %}
 
 {% block body %}
-<p>
-<button type="button" class="btn btn-primary"
-    onclick="Dajaxice.gtdmanager.item_create(display_form.bind(this, 'Create inbox item'))">
-		New inbox item
-</button>
+<p id="new_item">
 </p>
 
 <div class="col-xs-10">
@@ -42,4 +38,9 @@
 	</table>
 </div>
 
+{% endblock %}
+
+{% block finish_scripts %}
+    var factory = new GtdControlFactory()
+    $("#new_item").append(factory.getBtnCreateItem())
 {% endblock %}

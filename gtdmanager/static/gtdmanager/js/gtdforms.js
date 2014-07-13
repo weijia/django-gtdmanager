@@ -1,4 +1,28 @@
-function uri2json(uri) {
+/**
+ *  Class for handling forms via Dajaxice
+ */
+
+function GtdForm(caption) {
+	this.caption = caption;
+}
+
+GtdForm.prototype.display_form = function (data) {
+    if (data.form_html) {
+		var caption = $('#itemModalLabel')[0];
+		caption.textContent = this.caption;
+		var formDiv = $('#itemModalContent')[0];
+		formDiv.innerHTML = data.form_html;
+		var form = formDiv.firstChild.nextSibling
+		form.onsubmit = data.itemId ? this._submit.bind(this, data.itemId, form.action)
+								    : this._submit.bind(this, null, form.action);
+		$('#itemModal').modal('show');
+		setTimeout(function() { $('#id_name').focus(); }, 500);
+	} else {
+		console.log("No HTML form data returned", data)
+	}
+}
+
+GtdForm.prototype._uri2json = function (uri) {
     var match,
         pl     = /\+/g,  // Regex for replacing addition symbol with a space
         search = /([^&=]+)=?([^&]*)/g,
@@ -19,67 +43,23 @@ function uri2json(uri) {
     return uriParams;
 }
 
-function get_method(create, action) {
-	if (create) {
-		if (action.indexOf("item") > -1) {
-			return Dajaxice.gtdmanager.item_create;
-		} else if (action.indexOf("reminder") > -1) {
-			return Dajaxice.gtdmanager.reminder_create;
-		} else if (action.indexOf("next") > -1) {
-			return Dajaxice.gtdmanager.next_create;
-		}  else if (action.indexOf("project") > -1) {
-			return Dajaxice.gtdmanager.project_create;
-		}  else if (action.indexOf("context") > -1) {
-			return Dajaxice.gtdmanager.context_create;
-		}
-	} else {
-		if (action.indexOf("item") > -1) {
-			return Dajaxice.gtdmanager.item_update;
-		} else if (action.indexOf("reminder") > -1) {
-			return Dajaxice.gtdmanager.reminder_update;
-		} else if (action.indexOf("next") > -1) {
-			return Dajaxice.gtdmanager.next_update;
-		} else if (action.indexOf("project") > -1) {
-			return Dajaxice.gtdmanager.project_update;
-		} else if (action.indexOf("context") > -1) {
-			return Dajaxice.gtdmanager.context_update;
-		}
-	}
-}
-
-function update_callback(formCaption, data) {
+GtdForm.prototype._update_callback = function(data) {
     if (data.success) {
 		$('#itemModal').modal('hide');
 		window.location.reload();
 	} else {
-		display_form(formCaption, data);
+		this._display_form(data);
 	}
 }
 
-function submit(formCaption, itemId, action) {
+GtdForm.prototype._submit = function (itemId, action) {
     data = $('form').serialize(true);
 	if (itemId) {
 		data += '&item_id=' + itemId;
 	}
-	var method = get_method(itemId ? false : true, action);
-	method(update_callback.bind(this, formCaption), uri2json(data))
+	var method = get_dajaxice_method_url(action);
+	method(this._update_callback.bind(this), this._uri2json(data))
 	return false;
-}
-
-function display_form(formCaption, data) {
-    if (data.form_html) {
-		var caption = $('#itemModalLabel')[0];
-		caption.textContent = formCaption;
-		var formDiv = $('#itemModalContent')[0];
-		formDiv.innerHTML = data.form_html;
-		var form = formDiv.firstChild.nextSibling
-		form.onsubmit = data.itemId ? submit.bind(this, formCaption, data.itemId, form.action)
-								    : submit.bind(this, formCaption, null, form.action);
-		$('#itemModal').modal('show');
-		setTimeout(function() { $('#id_name').focus(); }, 500);
-	} else {
-		console.log("No HTML form data returned", data)
-	}
 }
 
 function delete_callback(data) {
