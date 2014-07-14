@@ -27,7 +27,8 @@ def get_model(request, instance):
 def handle_form(request, item, formClass, **kwargs):
     # kwargs is here for Dajaxice support
     data = kwargs or request.POST
-    if data.get("argv", None) == "undefined":
+    argv = data.get("argv", None)
+    if argv in ("undefined", "{}"):
         data = None
     form = formClass(data, instance=item)
     if form.is_valid():
