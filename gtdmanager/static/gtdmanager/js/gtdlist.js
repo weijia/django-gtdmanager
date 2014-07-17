@@ -74,8 +74,8 @@ GtdList.prototype.buildItems = function(data, widths, buttons) {
         var main = $('<td></td>');
         main.append(this._factory.getLinkEditItem(item));
         if (buttons) {
-            main.append(this._factory.getBtnDeleteItem(item).addClass('pull-right'));
-            main.append(this._factory.getBtnCompleteItem(item).addClass('pull-right'));
+            main.append(this._factory.getBtnDeleteItem(item).addClass('pull-right btn-table'));
+            main.append(this._factory.getBtnCompleteItem(item).addClass('pull-right btn-table'));
         }
         row.append(parent);
         row.append(main);
