@@ -79,3 +79,11 @@ GtdPages.prototype.buildContexts = function(data) {
     list = this._appendList('list-contexts', 4);
     list.buildContexts(data, this.context_setdefault_callback.bind(this));
 }
+
+GtdPages.prototype.buildInbox = function(data) {
+    this._contentDiv.empty();
+    var newItemP = $('<p></p>').append(this._factory.getBtnCreateItem());
+    this._contentDiv.append(newItemP);
+    var list = this._appendList('list-items', 10)
+    list.buildInboxList(data);
+}

@@ -65,21 +65,53 @@ GtdList.prototype.buildItems = function(data, widths, buttons) {
         var item = data[i];
         var row = $('<tr></tr>');
 
-        var parent = $('<td></td>');
-        if (item.parent_id) {
-            var parentData = $('<a href="' + Django.url('gtdmanager:project_detail', item.parent_id) + '">' +
-                             item.parent_name + '</a>');
-            parent.append(parentData);
-        }
         var main = $('<td></td>');
         main.append(this._factory.getLinkEditItem(item));
         if (buttons) {
             main.append(this._factory.getBtnDeleteItem(item).addClass('pull-right btn-table'));
             main.append(this._factory.getBtnCompleteItem(item).addClass('pull-right btn-table'));
         }
-        row.append(parent);
+        row.append(this._parentTD(item));
         row.append(main);
         table.append(row);
     }
     this.div.append(table);
+}
+
+GtdList.prototype.buildInboxList = function(data) {
+    var table = this._buildTable({"Project": 2, "Task": 3, "Action": 5});
+    for (var i=0; i<data.length; i++) {
+        item = data[i];
+        var row = $('<tr></tr>');
+        row.append(this._parentTD(item));
+
+        var main = $('<td></td>');
+        main.append(this._factory.getLinkEditItem(item));
+        row.append(main);
+
+        var actions = $('<td></td>');
+        // TODO setup correct callbacks
+        actions.append(this._factory.getBtnDeleteItem(item).addClass('btn-table'));
+        actions.append(this._factory.getBtnItemReference(item, delete_callback).addClass('btn-table'));
+        actions.append(this._factory.getBtnItemSomeday(item, delete_callback).addClass('btn-table'));
+        actions.append(this._factory.getBtnItemToProject(item, delete_callback).addClass('btn-table'));
+        actions.append(this._factory.getBtnItemWaitfor(item, delete_callback).addClass('btn-table'));
+        actions.append(this._factory.getBtnCompleteItem(item).addClass('btn-table'));
+        actions.append(this._factory.getBtnItemRemider(item).addClass('btn-table'));
+        actions.append(this._factory.getBtnItemNext(item).addClass('btn-table'));
+        row.append(actions);
+
+        table.append(row);
+    }
+    this.div.append(table);
+}
+
+GtdList.prototype._parentTD = function(item) {
+    var parent = $('<td></td>');
+    if (item.parent_id) {
+        var parentData = $('<a href="' + Django.url('gtdmanager:project_detail', item.parent_id) + '">' +
+                         item.parent_name + '</a>');
+        parent.append(parentData);
+    }
+    return parent;
 }

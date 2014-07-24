@@ -14,16 +14,6 @@ from gtdmanager.forms import ItemForm, ContextForm, NextForm, ReminderForm, Proj
 """
 Helpers
 """
-def change_item_status(item_id, new_status):
-    item = get_object_or_404(Item, pk=item_id)
-    if new_status == Item.COMPLETED:
-        item.complete()
-    elif new_status == Item.DELETED:
-        item.gtddelete()
-    else:
-        item.status = new_status
-        item.save()
-
 def make_unresolved(item, cls):
     item.status = Item.UNRESOLVED
     item.save()
@@ -39,27 +29,10 @@ def home(request):
     return HttpResponseRedirect(reverse('gtdmanager:next'))
 
 def inbox(request):
-    items = Item.objects.filter(status=Item.UNRESOLVED)
-    return render_to_response('gtdmanager/inbox.html', { 'btnName': 'inbox', 'items' : items },
-                              RequestContext(request))
-
-def item_reference(request, item_id):
-    change_item_status(item_id, Item.REFERENCE)
-    return HttpResponseRedirect(reverse('gtdmanager:inbox'))
-
-def item_someday(request, item_id):
-    change_item_status(item_id, Item.SOMEDAY)
-    return HttpResponseRedirect(reverse('gtdmanager:inbox'))
-
-def item_wait(request, item_id):
-    change_item_status(item_id, Item.WAITING_FOR)
-    return HttpResponseRedirect(reverse('gtdmanager:inbox'))
-
-def item_to_project(request, item_id):
-    item = get_object_or_404(Item, pk=item_id)
-    project = Item.objects.convertTo(Project, item)
-    project.save()
-    return HttpResponseRedirect(reverse('gtdmanager:project_detail', args=(item.id,)))
+    items = [i.to_json(True) for i in Item.objects.filter(status=Item.UNRESOLVED)]
+    return render_to_response("gtdmanager/inbox.html",
+        {'btnName': 'inbox', 'listData': json.dumps(items, cls = DjangoJSONEncoder)},
+        RequestContext(request))
 
 def reminder_to_item(request, item_id, redir_page):
     rem = get_object_or_404(Reminder, pk=item_id)

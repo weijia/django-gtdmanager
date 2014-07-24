@@ -8,6 +8,20 @@ from models import Item, Reminder, Next, Project, Context
 from forms import ItemForm, ReminderForm, NextForm, ProjectForm, ContextForm
 from django.core.serializers.json import DjangoJSONEncoder
 
+
+"""
+Helpers
+"""
+def change_item_status(item_id, new_status):
+    result = True
+    item = get_object_or_404(Item, pk=item_id)
+    if new_status == Item.COMPLETED:
+        item.complete()
+    elif new_status == Item.DELETED:
+        item.gtddelete()
+    else:
+        item.status = new_status
+        item.save()
 """
 Forms
 """
@@ -36,6 +50,10 @@ def handle_form(request, item, formClass, **kwargs):
         return get_model(request, form.instance)
     form_html = render_crispy_form(form, context=RequestContext(request))
     return render_to_json({'success': False, 'form_html': form_html})
+
+"""
+CRUD Methods
+"""
 
 @dajaxice_register(method='GET', name='gtdmanager.item_get')
 def item_get(request, item_id):
@@ -165,6 +183,9 @@ def context_delete(request, item_id):
         result["message"] = str(e)
     return render_to_json(result)
 
+"""
+Other methods
+"""
 @dajaxice_register(method='POST', name='gtdmanager.context_setdefault')
 def context_setdefault(request, item_id):
     context = get_object_or_404(Context, pk=item_id)
@@ -178,6 +199,32 @@ def item_complete(request, item_id):
     item.complete()
     return render_to_json({"success": True})
 
+@require_POST
+@dajaxice_register(method='POST', name='gtdmanager.item_reference')
+def item_reference(request, item_id):
+    change_item_status(item_id, Item.REFERENCE)
+    return render_to_json({"success": True, "data": {"id": int(item_id)}})
+
+@require_POST
+@dajaxice_register(method='POST', name='gtdmanager.item_someday')
+def item_someday(request, item_id):
+    change_item_status(item_id, Item.SOMEDAY)
+    return render_to_json({"success": True, "data": {"id": int(item_id)}})
+
+@require_POST
+@dajaxice_register(method='POST', name='gtdmanager.item_waitfor')
+def item_waitfor(request, item_id):
+    change_item_status(item_id, Item.WAITING_FOR)
+    return render_to_json({"success": True, "data": {"id": int(item_id)}})
+
+@require_POST
+@dajaxice_register(method='POST', name='gtdmanager.item_toproject')
+def item_toproject(request, item_id):
+    item = get_object_or_404(Item, pk=item_id)
+    project = Item.objects.convertTo(Project, item)
+    project.save()
+    return render_to_json({"success": True, "data": {"id": project.id}})
+
 @dajaxice_register(method='GET', name='gtdmanager.project_complete')
 def project_complete(request, item_id):
     p = get_object_or_404(Project, pk=item_id)
@@ -188,3 +235,4 @@ def project_complete(request, item_id):
 def archive_clean(request):
     Item.objects.filter(status__in=(Item.COMPLETED, Item.DELETED)).delete()
     return render_to_json({"success": True})
+

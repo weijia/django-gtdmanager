@@ -407,3 +407,48 @@ class ConvertTest(AjaxTestBase):
     def test_context_setdefault_nonexisting(self):
         url = reverse('gtdmanager:context_setdefault', kwargs={"item_id": 142})
         self.assertEqual(404, Client().post(url).status_code)
+
+    def _convertItem(self, view):
+        item = Item(name="to convert")
+        item.save()
+        self.assertEqual(item.status, Item.UNRESOLVED)
+        data = self.checkResponse(Client().post(reverse(view, kwargs={"item_id": item.id})))
+        self.assertDictContainsSubset({"id": item.id}, data)
+        self.assertEqual(len(Item.objects.all()), 1)  # no new item not created
+        return item.id, data
+
+    def _convertNonexisting(self, view):
+        response = Client().post(reverse(view, kwargs={"item_id": 15}))
+        self.assertEqual(response.status_code, 404)
+
+    def test_item_reference(self):
+        item_id, data = self._convertItem('gtdmanager:item_reference')
+        item = Item.objects.get(id=item_id)
+        self.assertEqual(item.status, Item.REFERENCE)
+
+    def test_item_reference_nonexisting(self):
+        self._convertNonexisting('gtdmanager:item_reference')
+
+    def test_item_someday(self):
+        item_id, data = self._convertItem('gtdmanager:item_someday')
+        item = Item.objects.get(id=item_id)
+        self.assertEqual(item.status, Item.SOMEDAY)
+
+    def test_item_someday_nonexisting(self):
+        self._convertNonexisting('gtdmanager:item_reference')
+
+    def test_item_waiting(self):
+        item_id, data = self._convertItem('gtdmanager:item_waitfor')
+        item = Item.objects.get(id=item_id)
+        self.assertEqual(item.status, Item.WAITING_FOR)
+
+    def test_item_waiting_nonexisting(self):
+        self._convertNonexisting('gtdmanager:item_waitfor')
+
+    def test_item_toproject(self):
+        item_id, data = self._convertItem('gtdmanager:item_toproject')
+        item = Item.objects.get(id=item_id)
+        self.assertEqual(item.status, Item.PROJECT)
+
+    def test_item_toproject_nonexisting(self):
+        self._convertNonexisting('gtdmanager:item_toproject')

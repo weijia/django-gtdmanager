@@ -1,46 +1,6 @@
 {% extends 'gtdmanager/base.html' %}
 
-{% block body %}
-<p id="new_item">
-</p>
-
-<div class="col-xs-10">
-	<table class="table table-condensed table-striped">
-		<thead><tr>
-			<th class="col-xs-2">Project</th>
-			<th class="col-xs-3">Task</th>
-			<th class="col-xs-5">Action</th>
-		</tr></thead>
-		{% for item in items %}
-		<tr>
-			<td>{% if item.parent != None %}
-				<a href="{% url 'gtdmanager:project_detail' item.parent.id %}">[ {{item.parent}} ]</a>
-				{% endif %}
-			</td>
-			<td><a href="javascript:void(0);" onclick="Dajaxice.gtdmanager.item_get_form(display_form.bind(this, 'Edit item'), {'item_id':{{item.id}}})">
-				{{item.name}}</a></td>
-			<td>
-				<a href="javascript:void(0);" onclick="Dajaxice.gtdmanager.item_delete(delete_callback, {'item_id':{{item.id}}})"
-				   class="btn btn-danger btn-sm">X</a>
-				<a href="{% url 'gtdmanager:item_reference' item.id %}" class="btn btn-primary btn-sm">Ref</a>
-				<a href="{% url 'gtdmanager:item_to_project' item.id %}" class="btn btn-primary btn-sm">Project</a>
-				<a href="{% url 'gtdmanager:item_someday' item.id %}" class="btn btn-primary btn-sm">Someday</a>
-				<a href="{% url 'gtdmanager:item_wait' item.id %}" class="btn btn-primary btn-sm">Wait</a>
-				<a href="javascript:void(0);" onclick="Dajaxice.gtdmanager.item_complete(complete_callback, {'item_id':{{item.id}}})"
-				   class="btn btn-success btn-sm">Done</a>
-				<a href="javascript:void(0);" onclick="Dajaxice.gtdmanager.reminder_get_form(display_form.bind(this, 'Edit reminder'), {'item_id':{{item.id}}})"
-						class="btn btn-primary btn-sm">Remind</a>
-				<a href="javascript:void(0);" onclick="Dajaxice.gtdmanager.next_get_form(display_form.bind(this, 'Edit next'), {'item_id':{{item.id}}})"
-						class="btn btn-primary btn-sm">Next</a>
-			</td>
-		</tr>
-		{% endfor %}
-	</table>
-</div>
-
-{% endblock %}
-
 {% block finish_scripts %}
-    var factory = new GtdControlFactory()
-    $("#new_item").append(factory.getBtnCreateItem())
+	var pages = new GtdPages();
+	pages.buildInbox({{listData | safe}});
 {% endblock %}

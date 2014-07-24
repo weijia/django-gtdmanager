@@ -17,11 +17,14 @@ class GtdViewTest(GtdManagerTestCase):
         self.assertEqual(response.status_code, 200)
         return json.loads(response.context[entryName])
 
-class InboxTest(GtdManagerTestCase):
+class InboxTest(GtdViewTest):
     def test_page_working(self):
-        client = Client()
-        response = client.get(reverse('gtdmanager:inbox'))
-        self.assertEqual(response.status_code, 200)
+        data = self._getListData('gtdmanager:inbox')
+        self.assertEqual([], data)
+
+    def test_btnName(self):
+        response = Client().get(reverse('gtdmanager:inbox'))
+        self.assertEqual("inbox", response.context["btnName"])
 
     def test_delete_item(self):
         item = Item(name='item')
@@ -46,55 +49,6 @@ class InboxTest(GtdManagerTestCase):
 
     def test_complete_item_nonexisting(self):
         response = Client().get(reverse('gtdmanager:item_complete', args=(15, )))
-        self.assertEqual(response.status_code, 404)
-
-    def test_reference_item(self):
-        item = Item(name='reference')
-        item.save()
-        self.assertEqual(item.status, Item.UNRESOLVED)
-        response = Client().get(reverse('gtdmanager:item_reference', args=(item.id,)))
-        item = Item.objects.get(id=item.id)
-        self.assertEqual(item.status, Item.REFERENCE)
-
-    def test_reference_item_nonexisting(self):
-        response = Client().get(reverse('gtdmanager:item_reference', args=(15,)))
-        self.assertEqual(response.status_code, 404)
-
-    def test_someday_item(self):
-        item = Item(name='maybe')
-        item.save()
-        self.assertEqual(item.status, Item.UNRESOLVED)
-        response = Client().get(reverse('gtdmanager:item_someday', args=(item.id,)))
-        item = Item.objects.get(id=item.id)
-        self.assertEqual(item.status, Item.SOMEDAY)
-
-    def test_someday_item_nonexisting(self):
-        response = Client().get(reverse('gtdmanager:item_someday', args=(15,)))
-        self.assertEqual(response.status_code, 404)
-
-    def test_wait_item(self):
-        item = Item(name='waiting for Xmas')
-        item.save()
-        self.assertEqual(item.status, Item.UNRESOLVED)
-        response = Client().get(reverse('gtdmanager:item_wait', args=(item.id,)))
-        item = Item.objects.get(id=item.id)
-        self.assertEqual(item.status, Item.WAITING_FOR)
-
-    def test_wait_item_nonexisting(self):
-        response = Client().get(reverse('gtdmanager:item_wait', args=(15,)))
-        self.assertEqual(response.status_code, 404)
-
-    def test_item_to_project(self):
-        item = Item(name='perfect project')
-        item.save()
-        self.assertEqual(item.status, Item.UNRESOLVED)
-        Client().get(reverse('gtdmanager:item_to_project', args=(item.id,)))
-        item = Item.objects.get(id=item.id)
-        self.assertEqual(item.status, Item.PROJECT)
-        self.assertEqual(len(Item.objects.all()), 1)  # no new item not created
-
-    def test_item_to_project_nonexisting(self):
-        response = Client().get(reverse('gtdmanager:item_to_project', args=(15,)))
         self.assertEqual(response.status_code, 404)
 
 class NextTest(GtdManagerTestCase):

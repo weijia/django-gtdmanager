@@ -27,6 +27,30 @@ GtdControlFactory.prototype.getBtnCleanArchive = function(callback) {
     return $('<button>Remove archived items</button>').addClass('btn btn-danger').click(callback);
 }
 
+GtdControlFactory.prototype.getBtnItemReference = function(item, callback) {
+    return this._getLinkBtn(item, "item", "reference", "Ref", callback).addClass('btn-primary');
+}
+
+GtdControlFactory.prototype.getBtnItemSomeday = function(item, callback) {
+    return this._getLinkBtn(item, "item", "someday", "Someday", callback).addClass('btn-primary');
+}
+
+GtdControlFactory.prototype.getBtnItemToProject = function(item, callback) {
+    return this._getLinkBtn(item, "item", "toproject", "Project", callback).addClass('btn-primary');
+}
+
+GtdControlFactory.prototype.getBtnItemWaitfor = function(item, callback) {
+    return this._getLinkBtn(item, "item", "waitfor", "Wait", callback).addClass('btn-primary');
+}
+
+GtdControlFactory.prototype.getBtnItemRemider = function(item) {
+    return this._getLinkEdit(item, "reminder", null, "Remind").addClass('btn-primary');
+}
+
+GtdControlFactory.prototype.getBtnItemNext = function(item) {
+    return this._getLinkEdit(item, "next", null, "Next").addClass('btn-primary');
+}
+
 GtdControlFactory.prototype.getLinkEditItem = function(item, captionName) {
     return this._getLinkEdit(item, 'item', captionName);
 }
@@ -34,6 +58,7 @@ GtdControlFactory.prototype.getLinkEditItem = function(item, captionName) {
 GtdControlFactory.prototype.getLinkEditContext = function(ctx) {
     return this._getLinkEdit(ctx, 'context');
 }
+
 
 /* Private */
 
@@ -61,6 +86,11 @@ GtdControlFactory.prototype._getLinkBtn = function(item, model, action, text, ca
     return this._getAjaxLink(item, model, action, text, callback).addClass('btn btn-sm');
 }
 
+GtdControlFactory.prototype._getBtnAction = function(item, caption, model, action, title) {
+    var form = new GtdForm(title);
+    return this._getLinkBtn(item, model, action, caption, form.display_form.bind(form));
+}
+
 GtdControlFactory.prototype._getBtnCreate = function(model, modelCaptionName) {
     captionName = this._getCaptionName(model, modelCaptionName);
     var form = new GtdForm('Create ' + captionName);
@@ -80,8 +110,8 @@ GtdControlFactory.prototype._getCaptionName = function(model, captionName) {
     return captionName && captionName != undefined ? captionName : model;
 }
 
-GtdControlFactory.prototype._getLinkEdit = function(item, model, modelCaptionName) {
-    captionName = this._getCaptionName(model, modelCaptionName);
-    var form = new GtdForm("Edit " + captionName);
-    return this._getAjaxLink(item, model, "form", item.name, form.display_form.bind(form));
+GtdControlFactory.prototype._getLinkEdit = function(item, model, modelCaptionName, btnCaption) {
+    formCaption = this._getCaptionName(model, modelCaptionName);
+    bCaption = this._getCaptionName(item.name, btnCaption);
+    return this._getBtnAction(item, bCaption, model, "form", formCaption);
 }
