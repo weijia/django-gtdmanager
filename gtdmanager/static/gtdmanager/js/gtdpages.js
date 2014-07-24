@@ -51,6 +51,13 @@ GtdPages.prototype._archiveTable = function (title, divName, listData) {
     list.buildItems(listData, [2, 3], false);
 }
 
+
+GtdPages.prototype._ticklerTable = function (title, divName, listData, withDate) {
+    this._contentDiv.append($('<h2>' + title + '</h2>'));
+    var list = this._appendList(divName, 8)
+    list.buildTickler(listData, withDate);
+}
+
 GtdPages.prototype.buildArchive = function(completed, deleted) {
     this._contentDiv.empty();
     this._contentDiv.append($('<h1>Archive</h1>'));
@@ -86,4 +93,24 @@ GtdPages.prototype.buildInbox = function(data) {
     this._contentDiv.append(newItemP);
     var list = this._appendList('list-items', 10)
     list.buildInboxList(data);
+}
+
+GtdPages.prototype.buildTickler = function(tomorrows, this_week, futures) {
+    this._contentDiv.empty();
+    this._contentDiv.append($('<h1>Tickler</h1>'));
+    if (tomorrows.length + this_week.length + futures.length == 0) {
+        this._contentDiv.append($('<span> No tickler found</span>'));
+    } else {
+        if (tomorrows.length) {
+            this._ticklerTable("Tomorrow", 'list-items-tomorrow', tomorrows, "");
+            this._contentDiv.append($('<div class="clearDiv" />'));
+        }
+        if (this_week.length) {
+            this._ticklerTable("This week", 'list-items-thisweek', this_week, "l (d.m.)");
+            this._contentDiv.append($('<div class="clearDiv" />'));
+        }
+        if (futures.length) {
+            this._ticklerTable("Future", 'list-items-future', futures, "d.m.Y");
+        }
+    }
 }

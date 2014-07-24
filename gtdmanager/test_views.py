@@ -197,33 +197,27 @@ class ArchiveTest(GtdViewTest):
         self.assertDictContainsSubset({"name": deleted.name}, data[0])
 
 class TicklerTest(GtdViewTest):
-    def test_working(self):
-        reminder = Reminder(name='rem', remind_at = timezone.now() + timedelta(days=1))
-        reminder.save()
-        reminder2 = Reminder(name='rem2', remind_at = timezone.now() + timedelta(days=2))
-        reminder2.save()
-        reminder3 = Reminder(name='rem3', remind_at = timezone.now() + timedelta(days=10))
-        reminder3.save()
-        response = Client().get(reverse('gtdmanager:tickler'))
-        self.assertEqual(response.status_code, 200)
-        tomorrows = [reminder,]
-        this_week = []
-        futures = [reminder3,]
-        if timezone.now().isoweekday() > 5: #Saturday or Sunday
-            futures.append(reminder2)
-        else:
-            this_week.append(reminder2)
-        self.assertItemsEqual(tomorrows, response.context['tomorrows'])
-        self.assertItemsEqual(this_week, response.context['this_week'])
-        self.assertItemsEqual(futures, response.context['futures'])
+    def test_tomorrow(self):
+        r = Reminder(name='rem', remind_at = timezone.now() + timedelta(days=1))
+        r.save()
+        data = self._getListData('gtdmanager:tickler', 'tomorrows')
+        self.assertDictContainsSubset({"name": r.name}, data[0])
+
+    def test_futures(self):
+        r = Reminder(name='rem', remind_at = timezone.now() + timedelta(days=10))
+        r.save()
+        data = self._getListData('gtdmanager:tickler', 'futures')
+        self.assertDictContainsSubset({"name": r.name}, data[0])
+
+    def test_this_week(self):
+        r = Reminder(name='rem', remind_at = timezone.now() + timedelta(days=2))
+        r.save()
+        section = "futures" if timezone.now().isoweekday() > 5 else "this_week" # > 5 means Saturday or Sunday
+        data = self._getListData('gtdmanager:tickler', section)
+        self.assertDictContainsSubset({"name": r.name}, data[0])
 
     def test_completed_deleted(self):
-        completed = Reminder(name='compl', remind_at = timezone.now() + timedelta(days=7))
-        completed.complete()
-        completed.save()
-        deleted = Reminder(name='del', remind_at = timezone.now() + timedelta(days=7))
-        deleted.complete()
-        deleted.save()
-        response = Client().get(reverse('gtdmanager:tickler'))
-        self.assertEqual(response.status_code, 200)
-        self.assertItemsEqual((), response.context['futures'])
+        Reminder(name='compl', remind_at = timezone.now() + timedelta(days=7)).complete()
+        Reminder(name='del', remind_at = timezone.now() + timedelta(days=7)).delete()
+        data = self._getListData('gtdmanager:tickler', 'futures')
+        self.assertEquals([], data)

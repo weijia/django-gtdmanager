@@ -81,7 +81,7 @@ GtdList.prototype.buildItems = function(data, widths, buttons) {
 GtdList.prototype.buildInboxList = function(data) {
     var table = this._buildTable({"Project": 2, "Task": 3, "Action": 5});
     for (var i=0; i<data.length; i++) {
-        item = data[i];
+        var item = data[i];
         var row = $('<tr></tr>');
         row.append(this._parentTD(item));
 
@@ -97,9 +97,39 @@ GtdList.prototype.buildInboxList = function(data) {
         actions.append(this._factory.getBtnItemToProject(item, delete_callback).addClass('btn-table'));
         actions.append(this._factory.getBtnItemWaitfor(item, delete_callback).addClass('btn-table'));
         actions.append(this._factory.getBtnCompleteItem(item).addClass('btn-table'));
-        actions.append(this._factory.getBtnItemRemider(item).addClass('btn-table'));
-        actions.append(this._factory.getBtnItemNext(item).addClass('btn-table'));
+        actions.append(this._factory.getBtnItemRemider(item).addClass('btn btn-sm btn-table'));
+        actions.append(this._factory.getBtnItemNext(item).addClass('btn btn-sm btn-table'));
         row.append(actions);
+
+        table.append(row);
+    }
+    this.div.append(table);
+}
+
+GtdList.prototype.buildTickler = function(data, dateformat) {
+    this.div.empty();
+
+    headerData = {"Project": 2, "Name": 4};
+    if (dateformat) {
+        headerData["Date"] = "2  centerText";
+    } else {
+        headerData[""] = "2  centerText";
+    }
+    var table = this._buildTable(headerData);
+
+    for (var i=0; i<data.length; i++) {
+        var item = data[i];
+        var row = $('<tr></tr>');
+        row.append(this._parentTD(item));
+
+        var main = $('<td></td>');
+        main.append(this._factory.getLinkEditReminder(item));
+        main.append(this._factory.getBtnDeleteItem(item).addClass('pull-right btn-table'));
+        main.append(this._factory.getBtnCompleteItem(item).addClass('pull-right btn-table'));
+        row.append(main);
+
+        datetd = $('<td class="centerText"></td>').append( this._formatDate(new Date(item.remind_at), dateformat) );
+        row.append(datetd);
 
         table.append(row);
     }
@@ -114,4 +144,18 @@ GtdList.prototype._parentTD = function(item) {
         parent.append(parentData);
     }
     return parent;
+}
+
+// TODO: replace with some sane method
+GtdList.prototype._formatDate = function(date, format) {
+    var daynames = ["Sun", "Mon", "Tue", "Wen", "Thu", "Fri", "Sat"];
+    if (format == "") {
+        return "";
+    } else if (format == "d.m.Y") {
+        return date.getDate() + "." + date.getMonth() + "." + date.getFullYear();
+    } else if (format == "l (d.m.)") {
+        var dayname = daynames[date.getDay()]
+        return dayname + " (" + date.getDate() + "." + date.getMonth() + ".)";
+    }
+
 }

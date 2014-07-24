@@ -59,6 +59,9 @@ GtdControlFactory.prototype.getLinkEditContext = function(ctx) {
     return this._getLinkEdit(ctx, 'context');
 }
 
+GtdControlFactory.prototype.getLinkEditReminder = function(item) {
+    return this._getLinkEdit(item, "reminder");
+}
 
 /* Private */
 
@@ -111,7 +114,7 @@ GtdControlFactory.prototype._getCaptionName = function(model, captionName) {
 }
 
 GtdControlFactory.prototype._getLinkEdit = function(item, model, modelCaptionName, btnCaption) {
-    formCaption = this._getCaptionName(model, modelCaptionName);
+    formCaption = "Edit " + this._getCaptionName(model, modelCaptionName);
     bCaption = this._getCaptionName(item.name, btnCaption);
-    return this._getBtnAction(item, bCaption, model, "form", formCaption);
+    return this._getBtnAction(item, bCaption, model, "form", formCaption).removeClass('btn btn-sm');
 }

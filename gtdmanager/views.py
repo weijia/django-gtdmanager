@@ -89,7 +89,7 @@ def references(request):
 
 def tickler(request):
     reminders = Reminder.objects.unfinished().order_by('remind_at')
-    pending = [r for r in reminders if not r.active()]
+    pending = [r for r in reminders if not r.active()] # TODO: test
     tomorrows = []
     this_week = []
     futures = []
@@ -100,14 +100,15 @@ def tickler(request):
     next_monday = datetime.combine(next_monday_dt, time()).replace(tzinfo=tz)
     for rem in pending:
         if rem.remind_at < tomorrow:
-            tomorrows.append(rem)
+            tomorrows.append(rem.to_json(True))
         elif rem.remind_at < next_monday:
-            this_week.append(rem)
+            this_week.append(rem.to_json(True))
         else:
-            futures.append(rem)
+            futures.append(rem.to_json(True))
 
+    convert_fn = lambda items: json.dumps(items, cls = DjangoJSONEncoder)
     return render_to_response('gtdmanager/tickler.html',
-       {'btnName': 'pending', 'tomorrows': tomorrows, 'this_week': this_week, 'futures': futures},
+       {'btnName': 'pending', 'tomorrows': convert_fn(tomorrows), 'this_week': convert_fn(this_week), 'futures': convert_fn(futures)},
         RequestContext(request))
 
 def contexts(request):
