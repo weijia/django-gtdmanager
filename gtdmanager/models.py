@@ -246,12 +246,6 @@ class Project(Item):
     def subprojects(self, unfinished_only = False):
         return self.context_items(Project, unfinished_only)
 
-    def active_childs(self):
-        childs = list(self.item_set.filter(status=Item.WAITING_FOR))
-        childs.extend(self.nexts(True))
-        childs.extend(self.reminders(True))
-        return childs
-
     def complete(self):
         for p in self.subprojects(True):
             p.complete()
@@ -276,6 +270,9 @@ class Project(Item):
                 'nexts': [n.to_json() for n in self.nexts(True)],
                 'reminders': [r.to_json() for r in self.reminders(True)]
             }
+
+            actives = (ret['items']['subprojects'], ret['items']['nexts'], ret['items']['reminders'])
+            ret['activeCount'] = sum((len(active) for active in actives))
 
             status_map = {Item.WAITING_FOR: 'waiting', Item.SOMEDAY: 'somedays',
                           Item.REFERENCE: 'references', Item.COMPLETED: 'completed',
