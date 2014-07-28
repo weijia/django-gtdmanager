@@ -136,6 +136,33 @@ GtdList.prototype.buildTickler = function(data, dateformat) {
     this.div.append(table);
 }
 
+GtdList.prototype.buildProjects = function(data) {
+    this.div.empty();
+    var table = this._buildTable({"Parent": 2, "Name": 6});
+    this.div.append(table);
+    for (var i=0; i<data.length; i++) {
+        var item = data[i];
+        var row = $('<tr></tr>');
+
+        row.append(this._parentTD(item));
+
+        var total = 0;
+        for (var name in item.items) {
+            var elm = item.items[name];
+            if (elm instanceof Array) {
+                total += elm.length
+            }
+        }
+        var status = ' (' + item.activeCount +' active, '+ total + ' total)'
+        var main = $('<td></td>');
+        main.append($('<a href='+ Django.url('gtdmanager:project_detail', item.id) +'>' + item.name + '</a>'));
+        main.append($('<span>' + status + '</span>'));
+        row.append(main);
+
+        table.append(row);
+    }
+}
+
 GtdList.prototype._parentTD = function(item) {
     var parent = $('<td></td>');
     if (item.parent_id) {

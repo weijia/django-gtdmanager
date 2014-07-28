@@ -99,14 +99,12 @@ class NextTest(GtdManagerTestCase):
         response = Client().get(reverse('gtdmanager:next'))
         self.assertItemsEqual((rem,), response.context['reminders'])
 
-class ProjectsTest(GtdManagerTestCase):
+class ProjectsTest(GtdViewTest):
     def test_working(self):
         p = Project(name='Proj')
         p.save()
-        response = Client().get(reverse('gtdmanager:projects'))
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.context['btnName'], 'projects')
-        self.assertItemsEqual((p,), response.context['projects'])
+        data = self._getListData('gtdmanager:projects')
+        self.assertDictContainsSubset({"name": p.name}, data[0])
 
 class ProjectDetailTest(GtdManagerTestCase):
     def test_working(self):

@@ -114,3 +114,14 @@ GtdPages.prototype.buildTickler = function(tomorrows, this_week, futures) {
         }
     }
 }
+
+GtdPages.prototype.buildProjects = function(data) {
+    this._contentDiv.empty();
+    this._contentDiv.append($('<h1>Projects</h1>'));
+    if (data.length) {
+        var list = this._appendList('list-projects', 8)
+        list.buildProjects(data);
+    } else {
+        this._contentDiv.append($('<p>No project found</p>'));
+    }
+}

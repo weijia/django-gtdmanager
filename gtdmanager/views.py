@@ -54,9 +54,10 @@ def next(request):
         'nexts': nexts, 'reminders': reminders})
 
 def projects(request):
-    projects = Project.objects.unfinished()
+    projects = [ p.to_json(True, True) for p in Project.objects.unfinished()]
     return render_to_response('gtdmanager/projects.html',
-            {'btnName': 'projects', 'projects': projects, }, RequestContext(request) )
+            {'btnName': 'projects', 'listData': json.dumps(projects, cls = DjangoJSONEncoder) },
+            RequestContext(request) )
 
 def project_detail(request, project_id):
     p = get_object_or_404(Project, pk=project_id)

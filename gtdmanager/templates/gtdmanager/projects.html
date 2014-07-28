@@ -1,31 +1,6 @@
 {% extends 'gtdmanager/base.html' %}
 
-{% block body %}
-<h1>Projects</h1>
-{% if projects %}
-    <div class="col-xs-8">
-        <table class="table table-condensed table-striped">
-            <thead>
-                <tr>
-                    <th class="col-xs-2">Parent</th>
-                    <th class="col-xs-6">Name</th>
-                </tr>
-            </thead>
-            {% for project in projects %}
-            <tr>
-                <td>{% if project.parent != None %}
-                    <a href="{% url 'gtdmanager:project_detail' project.parent.id %}">[ {{project.parent}} ]</a>
-                    {% endif %}
-                </td>
-                <td>
-                    <a href="{% url 'gtdmanager:project_detail' project.id %}">{{project.name}}</a>
-                    ({{project.active_childs|length}} active, {{project.item_set.count}} total)
-                </td>
-            </tr>
-            {% endfor %}
-        </table>
-    </div>
-{% else %}
-    No project found
-{% endif %}
+{% block finish_scripts %}
+    var pages = new GtdPages();
+	pages.buildProjects({{listData | safe}});
 {% endblock %}
