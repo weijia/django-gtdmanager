@@ -163,6 +163,30 @@ GtdList.prototype.buildProjects = function(data) {
     }
 }
 
+GtdList.prototype.buildContextItem = function(data, isReminder) {
+    this.div.empty();
+    var table = this._buildTable({"Parent": 2, "Name": 2, "Context": "2 centerText", "Action": "2 centerText"});
+    this.div.append(table);
+    for (var i=0; i<data.length; i++) {
+        var item = data[i];
+        var row = $('<tr></tr>');
+        row.append(this._parentTD(item));
+
+        var main = $('<td></td>');
+        main.append( isReminder ? this._factory.getLinkEditReminder(item)
+                                : this._factory.getLinkEditNext(item));
+        row.append(main);
+        row.append($('<td class="centerText"></td>').append(this._factory.getContextsSpan(item)));
+
+        var actions = $('<td class="centerText"></td>');
+        actions.append(this._factory.getBtnDeleteItem(item).addClass('btn-table'));
+        actions.append(this._factory.getBtnCompleteItem(item).addClass('btn-table'));
+        row.append(actions);
+
+        table.append(row);
+    }
+}
+
 GtdList.prototype._parentTD = function(item) {
     var parent = $('<td></td>');
     if (item.parent_id) {

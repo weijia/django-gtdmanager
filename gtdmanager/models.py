@@ -169,7 +169,7 @@ class ContextsItem(Item):
 
     def to_json(self, parent_name = False):
         ret = super(ContextsItem, self).to_json(parent_name)
-        ret['contexts'] = [ctx.id for ctx in self.contexts.all()]
+        ret['contexts'] = {ctx.id: ctx.name for ctx in self.contexts.all()}
         return ret
 
 class Next(ContextsItem):

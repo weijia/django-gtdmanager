@@ -58,6 +58,12 @@ GtdPages.prototype._ticklerTable = function (title, divName, listData, withDate)
     list.buildTickler(listData, withDate);
 }
 
+GtdPages.prototype._contextItemTable = function (tableName, divName, data, isReminder) {
+    this._contentDiv.append($('<h2>' + tableName + '</h2>'));
+    var list = this._appendList(divName, 8)
+    list.buildContextItem(data, isReminder);
+}
+
 GtdPages.prototype.buildArchive = function(completed, deleted) {
     this._contentDiv.empty();
     this._contentDiv.append($('<h1>Archive</h1>'));
@@ -93,6 +99,21 @@ GtdPages.prototype.buildInbox = function(data) {
     this._contentDiv.append(newItemP);
     var list = this._appendList('list-items', 10)
     list.buildInboxList(data);
+}
+
+
+GtdPages.prototype.buildNext = function(nexts, reminders) {
+    this._contentDiv.empty();
+    this._contentDiv.append($('<h1>Next</h1>'));
+     if (reminders.length) {
+        this._contextItemTable('Reminders', 'list-items-reminder', reminders, true);
+        this._contentDiv.append($('<div class="clearDiv" />'));
+    }
+    if (nexts.length) {
+        this._contextItemTable('Nexts', 'list-items-next', nexts, false);
+        this._contentDiv.append($('<div class="clearDiv" />'));
+    }
+
 }
 
 GtdPages.prototype.buildTickler = function(tomorrows, this_week, futures) {

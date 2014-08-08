@@ -364,13 +364,15 @@ class GetTest(GetTestBase):
         aware = timezone.localtime(r.remind_at)
         self.assertEqual(dct['remind_at'], self.formatDjangoDatetime(aware))
         def_ctx = Context.objects.default_context()
-        self.assertEqual([def_ctx.id], dct['contexts']);
+        # json keys must be string
+        self.assertEqual({str(def_ctx.id): def_ctx.name}, dct['contexts']);
 
     def test_get_next(self):
         r, dct = self.setup_model(Next, 'nxt', 'gtdmanager:next_get')
         self.check_model(r, dct)
         def_ctx = Context.objects.default_context()
-        self.assertEqual([def_ctx.id], dct['contexts']);
+        # json keys must be string
+        self.assertEqual({str(def_ctx.id): def_ctx.name}, dct['contexts']);
 
     def test_get_context(self):
         ctx, dct = self.setup_model(Context, 'newCtx', 'gtdmanager:context_get')

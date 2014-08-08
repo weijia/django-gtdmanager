@@ -51,36 +51,47 @@ class InboxTest(GtdViewTest):
         response = Client().get(reverse('gtdmanager:item_complete', args=(15, )))
         self.assertEqual(response.status_code, 404)
 
-class NextTest(GtdManagerTestCase):
+class NextTest(GtdViewTest):
 
-    def test_simple(self):
-        # both autosaved
+    def test_next(self):
+        # autosaved
         task = Next(name='some task')
-        rem = Reminder(name='some rem', remind_at=timezone.now())
-        response = Client().get(reverse('gtdmanager:next'))
-        self.assertEquals(response.status_code, 200)
-        self.assertItemsEqual((task,), response.context['nexts'])
-        self.assertItemsEqual((rem,), response.context['reminders'])
+        data = self._getListData('gtdmanager:next', 'nexts')
+        self.assertDictContainsSubset({"name": task.name}, data[0])
 
-    def test_finished_filtered(self):
-        task1 = Next(name='finished')
-        task1.status = Item.COMPLETED
-        task1.save()
-        task2 = Reminder(name='deleted')
-        task2.status = Item.DELETED
-        task2.save()
-        response = Client().get(reverse('gtdmanager:next'))
-        self.assertItemsEqual((), response.context['nexts'])
-        self.assertItemsEqual((), response.context['reminders'])
+    def test_reminder(self):
+        # autosaved
+        rem = Reminder(name='some rem', remind_at=timezone.now())
+        data = self._getListData('gtdmanager:next', 'reminders')
+        self.assertDictContainsSubset({"name": rem.name}, data[0])
+
+    def test_completed_next_filtered(self):
+        Next(name='finished').complete()
+        data = self._getListData('gtdmanager:next', 'nexts')
+        self.assertEqual([], data)
+
+    def test_completed_reminder_filtered(self):
+        Reminder(name='completed').complete()
+        data = self._getListData('gtdmanager:next', 'reminders')
+        self.assertEqual([], data)
+
+    def test_deleted_next_filtered(self):
+        Next(name='deleted').gtddelete()
+        data = self._getListData('gtdmanager:next', 'nexts')
+        self.assertEqual([], data)
+
+    def test_deleted_reminder_filtered(self):
+        Reminder(name='deleted').gtddelete()
+        data = self._getListData('gtdmanager:next', 'reminders')
+        self.assertEqual([], data)
 
     def test_hide_unactive_reminders(self):
-        rem = Reminder(name='tada')
-        rem.remind_at = timezone.now() + timedelta(days=5)
-        rem.save()
-        response = Client().get(reverse('gtdmanager:next'))
-        self.assertItemsEqual((), response.context['reminders'])
+        #autosaved
+        rem = Reminder(name='tada', remind_at=timezone.now() + timedelta(days=5))
+        data = self._getListData('gtdmanager:next', 'reminders')
+        self.assertEqual([], data)
 
-    def create_nextItem_two_contexts(self, cls, name):
+    def create_context_item_with_two_contexts(self, cls, name):
         ctx = Context(name='other')
         ctx.save()
         item = cls(name=name)
@@ -88,16 +99,16 @@ class NextTest(GtdManagerTestCase):
         return item
 
     def test_no_multiple_nexts_when_multiple_contexts(self):
-        n = self.create_nextItem_two_contexts(Next, 'next')
-        response = Client().get(reverse('gtdmanager:next'))
-        self.assertItemsEqual((n,), response.context['nexts'])
+        n = self.create_context_item_with_two_contexts(Next, 'next')
+        data = self._getListData('gtdmanager:next', 'nexts')
+        self.assertEquals(1, len(data))
 
     def test_no_multiple_reminders_when_multiple_contexts(self):
-        rem = self.create_nextItem_two_contexts(Reminder, 'reminder')
+        rem = self.create_context_item_with_two_contexts(Reminder, 'reminder')
         rem.remindAt = timezone.now()
         rem.save()
-        response = Client().get(reverse('gtdmanager:next'))
-        self.assertItemsEqual((rem,), response.context['reminders'])
+        data = self._getListData('gtdmanager:next', 'reminders')
+        self.assertEquals(1, len(data))
 
 class ProjectsTest(GtdViewTest):
     def test_working(self):

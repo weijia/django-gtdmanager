@@ -373,7 +373,7 @@ class NextTest(GtdManagerTestCase):
         data = nxt.to_json()
         self.assertNotIn('item_ptr_id', data)
         def_ctx = Context.objects.default_context()
-        self.assertEqual([def_ctx.id], data['contexts']);
+        self.assertEqual({def_ctx.id: def_ctx.name}, data['contexts']);
 
 class ReminderTest(GtdManagerTestCase):
 
@@ -400,4 +400,4 @@ class ReminderTest(GtdManagerTestCase):
         data = rem.to_json()
         self.assertNotIn('item_ptr_id', data)
         def_ctx = Context.objects.default_context()
-        self.assertEqual([def_ctx.id], data['contexts']);
+        self.assertEqual({def_ctx.id: def_ctx.name}, data['contexts']);

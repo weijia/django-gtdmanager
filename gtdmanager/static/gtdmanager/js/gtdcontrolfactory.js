@@ -63,6 +63,20 @@ GtdControlFactory.prototype.getLinkEditReminder = function(item) {
     return this._getLinkEdit(item, "reminder");
 }
 
+GtdControlFactory.prototype.getLinkEditNext = function(item) {
+    return this._getLinkEdit(item, "next");
+}
+
+GtdControlFactory.prototype.getContextsSpan = function(item) {
+    var ctx_names = "";
+    for (var ctx_id in item.contexts) {
+        if (item.contexts.hasOwnProperty(ctx_id)) {
+            ctx_names += item.contexts[ctx_id] + " ";
+        }
+    }
+    return $('<span>'+ ctx_names+'</span>');
+}
+
 /* Private */
 
 GtdControlFactory.prototype._linkBtnBase = function(useBtnTag, item, model, action, text, callback) {

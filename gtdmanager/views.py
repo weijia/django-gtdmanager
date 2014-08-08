@@ -47,11 +47,12 @@ def next_to_item(request, item_id, redir_page):
 def next(request):
     sort_fn = lambda a,b: cmp(a.contexts.first().name, b.contexts.first().name)
     fetch = Next.objects.unfinished()
-    nexts = sorted(fetch, sort_fn)
+    nexts = [r.to_json(True) for r in sorted(fetch, sort_fn)]
     fetch = Reminder.objects.active()
-    reminders = sorted(fetch, sort_fn)
+    reminders = [r.to_json(True) for r in sorted(fetch, sort_fn)]
+    convert_fn = lambda items: json.dumps(items, cls = DjangoJSONEncoder)
     return render_to_response('gtdmanager/next.html', {'btnName': 'next',
-        'nexts': nexts, 'reminders': reminders})
+        'nexts': convert_fn(nexts), 'reminders': convert_fn(reminders)})
 
 def projects(request):
     projects = [ p.to_json(True, True) for p in Project.objects.unfinished()]
