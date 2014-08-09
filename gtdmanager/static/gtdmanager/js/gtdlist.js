@@ -124,8 +124,8 @@ GtdList.prototype.buildTickler = function(data, dateformat) {
 
         var main = $('<td></td>');
         main.append(this._factory.getLinkEditReminder(item));
-        main.append(this._factory.getBtnDeleteItem(item).addClass('pull-right btn-table'));
-        main.append(this._factory.getBtnCompleteItem(item).addClass('pull-right btn-table'));
+        main.append(this._factory.getBtnDeleteProject(item).addClass('pull-right btn-table'));
+        main.append(this._factory.getBtnCompleteProject(item).addClass('pull-right btn-table'));
         row.append(main);
 
         datetd = $('<td class="centerText"></td>').append( this._formatDate(new Date(item.remind_at), dateformat) );
@@ -136,31 +136,49 @@ GtdList.prototype.buildTickler = function(data, dateformat) {
     this.div.append(table);
 }
 
-GtdList.prototype.buildProjects = function(data) {
+GtdList.prototype._listProjects = function(data, headerData) {
     this.div.empty();
-    var table = this._buildTable({"Parent": 2, "Name": 6});
+    var table = this._buildTable(headerData);
     this.div.append(table);
     for (var i=0; i<data.length; i++) {
         var item = data[i];
         var row = $('<tr></tr>');
 
-        row.append(this._parentTD(item));
-
-        var total = 0;
-        for (var name in item.items) {
-            var elm = item.items[name];
-            if (elm instanceof Array) {
-                total += elm.length
-            }
+        if (headerData) {
+            row.append(this._parentTD(item));
         }
-        var status = ' (' + item.activeCount +' active, '+ total + ' total)'
+
+        var status = ""
+        if (headerData) {
+            var total = 0;
+            for (var name in item.items) {
+                var elm = item.items[name];
+                if (elm instanceof Array) {
+                    total += elm.length
+                }
+            }
+            var status = ' (' + item.activeCount +' active, '+ total + ' total)'
+        }
         var main = $('<td></td>');
         main.append($('<a href='+ Django.url('gtdmanager:project_detail', item.id) +'>' + item.name + '</a>'));
         main.append($('<span>' + status + '</span>'));
-        row.append(main);
 
+        if (headerData == null) {
+            main.append(this._factory.getBtnDeleteProject(item).addClass('pull-right btn-table'));
+            main.append(this._factory.getBtnCompleteProject(item).addClass('pull-right btn-table'));
+        }
+
+        row.append(main);
         table.append(row);
     }
+}
+
+GtdList.prototype.buildProjects = function(data) {
+    this._listProjects(data, {"Parent": 2, "Name": 6});
+}
+
+GtdList.prototype.buildSubprojects = function(data) {
+    this._listProjects(data, null);
 }
 
 GtdList.prototype.buildContextItem = function(data, isReminder) {

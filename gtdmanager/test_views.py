@@ -12,8 +12,8 @@ Test pages funcionality
 
 class GtdViewTest(GtdManagerTestCase):
 
-    def _getListData(self, page, entryName = 'listData'):
-        response = Client().get(reverse(page))
+    def _getListData(self, page, entryName = 'listData', args=None):
+        response = Client().get(reverse(page, args=args))
         self.assertEqual(response.status_code, 200)
         return json.loads(response.context[entryName])
 
@@ -117,38 +117,14 @@ class ProjectsTest(GtdViewTest):
         data = self._getListData('gtdmanager:projects')
         self.assertDictContainsSubset({"name": p.name}, data[0])
 
-class ProjectDetailTest(GtdManagerTestCase):
+class ProjectDetailTest(GtdViewTest):
     def test_working(self):
         p = Project(name='p')
         p.save()
-        sub = Project(name='subproject', parent=p)
-        sub.save()
-        completed = Item(name='compl', status=Item.COMPLETED, parent=p)
-        completed.save()
-        deleted = Item(name='del', status=Item.DELETED, parent=p)
-        deleted.save()
-        someday = Item(name='sm', status=Item.SOMEDAY, parent=p)
-        someday.save()
-        reference = Item(name='ref', status=Item.REFERENCE, parent=p)
-        reference.save()
-        waiting = Item(name='wait', status=Item.WAITING_FOR, parent=p)
-        waiting.save()
-        reminder = Reminder(name='arem', parent=p)
-        reminder.save()
-        anext = Next(name='next', parent=p)
-        anext.save()
-        self.assertEqual(p.item_set.count(), 8)
-
-        response = Client().get(reverse('gtdmanager:project_detail', args=(p.id,)))
-        self.assertEqual(response.status_code, 200)
-        self.assertItemsEqual(response.context['subprojects'], (sub,))
-        self.assertItemsEqual(response.context['nexts'], (anext,))
-        self.assertItemsEqual(response.context['reminders'], (reminder,))
-        self.assertItemsEqual(response.context['waiting'], (waiting,))
-        self.assertItemsEqual(response.context['somedays'], (someday,))
-        self.assertItemsEqual(response.context['references'], (reference,))
-        self.assertItemsEqual(response.context['completed'], (completed,))
-        self.assertItemsEqual(response.context['deleted'], (deleted,))
+        self.setupProject(p)
+        data = self._getListData('gtdmanager:project_detail', args=(p.id,))
+        self.check_model(p, data)
+        self.check_project_json(data['items'])
 
 class ContextsTest(GtdViewTest):
 

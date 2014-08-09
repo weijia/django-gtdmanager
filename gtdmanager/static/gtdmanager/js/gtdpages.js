@@ -45,6 +45,11 @@ GtdPages.prototype.confirm_clean = function() {
     }
 }
 
+GtdPages.prototype._itemTable = function (divName, listData) {
+    var list = this._appendList(divName, 8);
+    list.buildItems(listData, [2, 6], true);
+}
+
 GtdPages.prototype._archiveTable = function (title, divName, listData) {
     this._contentDiv.append($('<h2>' + title + '</h2>'));
     var list = this._appendList(divName, 8)
@@ -58,10 +63,24 @@ GtdPages.prototype._ticklerTable = function (title, divName, listData, withDate)
     list.buildTickler(listData, withDate);
 }
 
+GtdPages.prototype._subprojectsTable = function (divName, listData) {
+    this._contentDiv.append($('<h2>Subprojects</h2>'));
+    var list = this._appendList(divName, 8)
+    list.buildSubprojects(listData);
+}
+
 GtdPages.prototype._contextItemTable = function (tableName, divName, data, isReminder) {
     this._contentDiv.append($('<h2>' + tableName + '</h2>'));
     var list = this._appendList(divName, 8)
     list.buildContextItem(data, isReminder);
+}
+
+GtdPages.prototype.buildItems = function(header, items) {
+    this._contentDiv.empty();
+    this._contentDiv.append($('<h1>' + header + '</h1>'));
+    if (items.length) {
+        this._itemTable('list-items', items);
+    }
 }
 
 GtdPages.prototype.buildArchive = function(completed, deleted) {
@@ -105,7 +124,7 @@ GtdPages.prototype.buildInbox = function(data) {
 GtdPages.prototype.buildNext = function(nexts, reminders) {
     this._contentDiv.empty();
     this._contentDiv.append($('<h1>Next</h1>'));
-     if (reminders.length) {
+    if (reminders.length) {
         this._contextItemTable('Reminders', 'list-items-reminder', reminders, true);
         this._contentDiv.append($('<div class="clearDiv" />'));
     }
@@ -145,4 +164,44 @@ GtdPages.prototype.buildProjects = function(data) {
     } else {
         this._contentDiv.append($('<p>No project found</p>'));
     }
+}
+
+GtdPages.prototype._detail = function(header, items, fn, args) {
+    if (items.length) {
+        if (header) { this._contentDiv.append($('<h2>' + header + '</h2>')); }
+        index = args.indexOf('_');
+        args[index] = items;
+        fn.apply(this, args);
+        this._contentDiv.append($('<div class="clearDiv" />'));
+    }
+}
+
+GtdPages.prototype.buildProjectDetail = function(item) {
+    this._contentDiv.empty();
+    var header = $('<div id="subproject-edit-header" class="col-xs-8"></div>');
+    headline = $('<h1></h1>');
+    headline.append($('<span>Project </span>'));
+    headline.append(this._factory.getLinkEditItem(item));
+    headline.append(this._factory.getBtnDeleteItem(item, "Delete").addClass('pull-right'));
+    headline.append(this._factory.getBtnCompleteItem(item, "Complete").addClass('pull-right'));
+    header.append(headline);
+    this._contentDiv.append(header);
+
+
+    if (item.parent_id != null) {
+        header.append($('<span>Parent: </span>'));
+        header.append($('<a href="' + Django.url('gtdmanager:project_detail', item.parent_id) + '">' +
+                         item.parent_name + '</a>'));
+    }
+    this._contentDiv.append(header);
+    this._contentDiv.append($('<div class="clearDiv" />'));
+
+    this._detail(null, item.items.subprojects, this._subprojectsTable.bind(this), ['list-items-subproject', '_']);
+    this._detail(null, item.items.nexts, this._contextItemTable.bind(this), ['Nexts', 'list-items-next', '_', false]);
+    this._detail('Waiting for', item.items.waiting, this._itemTable.bind(this), ['list-items-wait', '_']);
+    this._detail(null, item.items.reminders, this._contextItemTable.bind(this), ['Reminders', 'list-items-reminder', '_', true]);
+    this._detail('Someday/maybe', item.items.somedays, this._itemTable.bind(this), ['list-items-someday', '_']);
+    this._detail('References', item.items.references, this._itemTable.bind(this), ['list-items-reference', '_']);
+    this._detail(null, item.items.completed, this._archiveTable.bind(this), ['Completed', 'list-items-completed', '_']);
+    this._detail(null, item.items.deleted, this._archiveTable.bind(this), ['Deleted', 'list-items-deleted', '_']);
 }

@@ -14,14 +14,6 @@ def createParent(name):
     return p
 
 class AjaxTestBase(GtdManagerTestCase):
-    def checkModel(self, cls, data, parent):
-        item = cls.objects.get(name=data['name'])
-        self.assertEqual(data['name'], item.name)
-        self.assertEqual(data['description'], item.description)
-        self.assertEqual(data['status'], dict(Item.STATUSES)[item.status])
-        if parent:
-            self.assertEqual(parent, item.parent)
-        return item
 
     def checkContext(self, ctx, data, shouldBeDefault):
         self.assertEqual(ctx.id, data['id'])
@@ -45,7 +37,7 @@ class CreateTest(AjaxTestBase):
         if parent:
             data["parent"] = parent.id
         data = self.checkResponse(Client().post(reverse('gtdmanager:item_create'), data))
-        self.checkModel(Item, data, parent)
+        self.check_model_cls(Item, data, parent)
 
     def test_create_item(self):
         self.template_test_create_item()
@@ -62,7 +54,7 @@ class CreateTest(AjaxTestBase):
         if parent:
             data["parent"] = parent.id
         data = self.checkResponse(Client().post(reverse('gtdmanager:reminder_create'), data))
-        rem = self.checkModel(Reminder, data, parent)
+        rem = self.check_model_cls(Reminder, data, parent)
         timeDB = timezone.localtime(rem.remind_at).strftime("%Y-%m-%d %H:%M:%S")
         self.assertEqual(s, timeDB)
         self.assertItemsEqual([ctx], rem.contexts.all())
@@ -80,7 +72,7 @@ class CreateTest(AjaxTestBase):
         if parent:
             data["parent"] = parent.id
         data = self.checkResponse(Client().post(reverse('gtdmanager:next_create'), data))
-        nxt = self.checkModel(Next, data, parent)
+        nxt = self.check_model_cls(Next, data, parent)
         self.assertItemsEqual([ctx], nxt.contexts.all())
 
     def test_create_next(self):
@@ -95,7 +87,7 @@ class CreateTest(AjaxTestBase):
         if parent:
             data["parent"] = parent.id
         data = self.checkResponse(Client().post(reverse('gtdmanager:project_create'), data))
-        p = self.checkModel(Project, data, parent)
+        p = self.check_model_cls(Project, data, parent)
 
     def test_create_project(self):
         self.template_create_project()
@@ -130,7 +122,7 @@ class UpdateTest(AjaxTestBase):
         data = self.checkResponse(
             Client().post(reverse('gtdmanager:item_update', kwargs={"item_id": old.id}), data)
         )
-        self.checkModel(Item, data, p2)
+        self.check_model_cls(Item, data, p2)
 
     def test_update_project(self):
         old = Project(name='proj', description='ultimate', parent=createParent('par1'))
@@ -141,7 +133,7 @@ class UpdateTest(AjaxTestBase):
         data = self.checkResponse(
             Client().post(reverse('gtdmanager:project_update', kwargs={"item_id": old.id}), data)
         )
-        self.checkModel(Project, data, p2)
+        self.check_model_cls(Project, data, p2)
 
     def test_update_next(self):
         old = Next(name='nxt', description='', parent=createParent('par1'))
@@ -154,7 +146,7 @@ class UpdateTest(AjaxTestBase):
         data = self.checkResponse(
             Client().post(reverse('gtdmanager:next_update', kwargs={"item_id": old.id}), data)
         )
-        nxt = self.checkModel(Next, data, p2)
+        nxt = self.check_model_cls(Next, data, p2)
         self.assertItemsEqual([new_ctx], nxt.contexts.all())
 
     def test_update_reminder(self):
@@ -171,7 +163,7 @@ class UpdateTest(AjaxTestBase):
         data = self.checkResponse(
             Client().post(reverse('gtdmanager:reminder_update', kwargs={"item_id": old.id}), data)
         )
-        rem = self.checkModel(Reminder, data, new_parent)
+        rem = self.check_model_cls(Reminder, data, new_parent)
         timeDB = timezone.localtime(rem.remind_at).strftime("%Y-%m-%d %H:%M:%S")
         self.assertEqual(s, timeDB)
         self.assertItemsEqual([new_ctx], rem.contexts.all())
@@ -333,25 +325,6 @@ class GetTest(GetTestBase):
 
     class Meta():
         data_field = 'data'
-
-    def formatDjangoDatetime(self, o):
-        """
-        Returns same format for date-aware datetime as DjangoJsonSerializer
-        """
-        r = o.isoformat()
-        if o.microsecond:
-            r = r[:23] + r[26:]
-        if r.endswith('+00:00'):
-            r = r[:-6] + 'Z'
-        return r
-
-    def check_model(self, instance, data):
-        self.assertEqual(data['name'], instance.name)
-        self.assertEqual(data['description'], instance.description)
-        aware = timezone.localtime(instance.lastChanged)
-        self.assertEqual(data['lastChanged'], self.formatDjangoDatetime(aware))
-        self.assertEqual(data['parent_id'], instance.parent_id)
-        self.assertEqual(parse_date(data['createdAt']), instance.createdAt)
 
     def test_get_item(self):
         item, dct = self.setup_model(Item, 'test_get', 'gtdmanager:item_get')

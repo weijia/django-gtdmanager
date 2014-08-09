@@ -11,12 +11,20 @@ GtdControlFactory.prototype.getBtnCreateItem = function() {
     return this._getBtnCreate('item', 'inbox item');
 }
 
-GtdControlFactory.prototype.getBtnCompleteItem = function(item) {
-    return this._getBtnComplete(item, "item");
+GtdControlFactory.prototype.getBtnCompleteItem = function(item, caption) {
+    return this._getBtnComplete(item, "item", caption);
 }
 
-GtdControlFactory.prototype.getBtnDeleteItem = function(item) {
-    return this._getBtnDelete(item, 'item');
+GtdControlFactory.prototype.getBtnCompleteProject = function(item, caption) {
+    return this._getBtnComplete(item, "project", caption);
+}
+
+GtdControlFactory.prototype.getBtnDeleteItem = function(item, caption) {
+    return this._getBtnDelete(item, 'item', caption);
+}
+
+GtdControlFactory.prototype.getBtnDeleteProject = function(item, caption) {
+    return this._getBtnDelete(item, 'project', caption);
 }
 
 GtdControlFactory.prototype.getBtnDeleteContext = function(ctx) {
@@ -115,16 +123,18 @@ GtdControlFactory.prototype._getBtnCreate = function(model, modelCaptionName) {
         form.display_form.bind(form)).addClass('btn-primary');
 }
 
-GtdControlFactory.prototype._getBtnComplete = function(item, model) {
-    return this._getLinkBtn(item, model, "complete", "Done", complete_callback).addClass('btn-success');
-}
-
-GtdControlFactory.prototype._getBtnDelete = function(item, model) {
-    return this._getLinkBtn(item, model, "delete", "X", delete_callback).addClass('btn-danger');
-}
-
 GtdControlFactory.prototype._getCaptionName = function(model, captionName) {
     return captionName && captionName != undefined ? captionName : model;
+}
+
+GtdControlFactory.prototype._getBtnComplete = function(item, model, caption) {
+    var c = this._getCaptionName("Done", caption);
+    return this._getLinkBtn(item, model, "complete", c, complete_callback).addClass('btn-success');
+}
+
+GtdControlFactory.prototype._getBtnDelete = function(item, model, caption) {
+    var c = this._getCaptionName("X", caption);
+    return this._getLinkBtn(item, model, "delete", c, delete_callback).addClass('btn-danger');
 }
 
 GtdControlFactory.prototype._getLinkEdit = function(item, model, modelCaptionName, btnCaption) {

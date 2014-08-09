@@ -4,6 +4,7 @@ from django.utils import timezone
 from datetime import timedelta
 from gtdmanager.models import Item, Project, Context, Next, Reminder, init_models
 from gtdmanager.forms import ProjectForm
+from django.utils.dateparse import parse_date
 
 """
 Models Tests
@@ -42,6 +43,33 @@ class GtdManagerTestCase(TestCase):
         Item(name='ref', status=Item.REFERENCE, parent=p).save()
         Item(name='compl', parent=p).complete()
         Item(name='dele', parent=p).gtddelete()
+
+    def formatDjangoDatetime(self, o):
+        """
+        Returns same format for date-aware datetime as DjangoJsonSerializer
+        """
+        r = o.isoformat()
+        if o.microsecond:
+            r = r[:23] + r[26:]
+        if r.endswith('+00:00'):
+            r = r[:-6] + 'Z'
+        return r
+
+    def check_model(self, instance, data):
+        self.assertEqual(data['name'], instance.name)
+        self.assertEqual(data['description'], instance.description)
+        self.assertEqual(data['status'], dict(Item.STATUSES)[instance.status])
+        aware = timezone.localtime(instance.lastChanged)
+        self.assertEqual(data['lastChanged'], self.formatDjangoDatetime(aware))
+        self.assertEqual(parse_date(data['createdAt']), instance.createdAt)
+        self.assertEqual(data['parent_id'], instance.parent_id)
+
+    def check_model_cls(self, cls, data, parent):
+        item = cls.objects.get(name=data['name'])
+        if parent:
+            self.assertEqual(parent, item.parent)
+        self.check_model(item, data)
+        return item
 
     def check_items_group(self, items, groupName, itemName, itemType):
         self.assertEqual(1, len(items[groupName]))

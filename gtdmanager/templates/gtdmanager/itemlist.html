@@ -1,13 +1,6 @@
 {% extends 'gtdmanager/base.html' %}
 
-{% block body %}
-<h1>{{header}}</h1>
-<div id='list-items' class="col-xs-8">
-</div>
-{% endblock %}
-
 {% block finish_scripts %}
-	var data = {{ listData | safe }};
-	var list = new GtdList('list-items');
-	list.buildItems(data, [2, 6], true);
+	var pages = new GtdPages();
+	pages.buildItems('{{header}}', {{ listData | safe }});
 {% endblock %}

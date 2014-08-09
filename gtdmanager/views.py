@@ -62,18 +62,9 @@ def projects(request):
 
 def project_detail(request, project_id):
     p = get_object_or_404(Project, pk=project_id)
-    nexts = p.nexts(True)
-    reminders = p.reminders(True)
-    subs = p.subprojects(True)
-    waiting = p.item_set.filter(status=Item.WAITING_FOR)
-    somedays = p.item_set.filter(status=Item.SOMEDAY)
-    refs = p.item_set.filter(status=Item.REFERENCE)
-    completed = p.item_set.filter(status=Item.COMPLETED)
-    deleted = p.item_set.filter(status=Item.DELETED)
     return render_to_response('gtdmanager/project_detail.html',
-            {'p': p, 'btnName': 'projects', 'nexts': nexts, 'reminders': reminders, 'subprojects': subs,
-             'waiting': waiting, 'somedays': somedays, 'references': refs, 'completed': completed,
-             'deleted': deleted}, RequestContext(request) )
+            {'p': p, 'btnName': 'projects', 'listData': json.dumps(p.to_json(True, True), cls = DjangoJSONEncoder)},
+            RequestContext(request) )
 
 def _itemlist(request, status, contextBase):
     items = [i.to_json(True) for i in Item.objects.filter(status=status)]
