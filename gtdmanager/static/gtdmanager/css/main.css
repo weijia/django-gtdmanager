@@ -28,3 +28,5 @@ div.inline > h2, a, btn { display: inline; }
 .btn-table {
     margin-right: 4px;
 }
+
+#subproject-edit-header { padding-left: 0px; }

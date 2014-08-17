@@ -45,15 +45,15 @@ GtdPages.prototype.confirm_clean = function() {
     }
 }
 
-GtdPages.prototype._itemTable = function (divName, listData) {
+GtdPages.prototype._itemTable = function (divName, listData, withParent) {
     var list = this._appendList(divName, 8);
-    list.buildItems(listData, [2, 6], true);
+    list.buildItems(listData, withParent ? [2, 6] : [8], true);
 }
 
-GtdPages.prototype._archiveTable = function (title, divName, listData) {
+GtdPages.prototype._archiveTable = function (title, divName, listData, withParent) {
     this._contentDiv.append($('<h2>' + title + '</h2>'));
     var list = this._appendList(divName, 8)
-    list.buildItems(listData, [2, 3], false);
+    list.buildItems(listData, withParent ? [3, 5] : [8], false);
 }
 
 
@@ -69,17 +69,17 @@ GtdPages.prototype._subprojectsTable = function (divName, listData) {
     list.buildSubprojects(listData);
 }
 
-GtdPages.prototype._contextItemTable = function (tableName, divName, data, isReminder) {
+GtdPages.prototype._contextItemTable = function (tableName, divName, data, isReminder, withParent) {
     this._contentDiv.append($('<h2>' + tableName + '</h2>'));
     var list = this._appendList(divName, 8)
-    list.buildContextItem(data, isReminder);
+    list.buildContextItem(data, isReminder, withParent);
 }
 
 GtdPages.prototype.buildItems = function(header, items) {
     this._contentDiv.empty();
     this._contentDiv.append($('<h1>' + header + '</h1>'));
     if (items.length) {
-        this._itemTable('list-items', items);
+        this._itemTable('list-items', items, true);
     }
 }
 
@@ -95,12 +95,12 @@ GtdPages.prototype.buildArchive = function(completed, deleted) {
     }
 
     if (completed.length) {
-        this._archiveTable('Completed', 'list-items-completed', completed);
+        this._archiveTable('Completed', 'list-items-completed', completed, true);
         this._contentDiv.append($('<div class="clearDiv" />'));
     }
 
     if (deleted.length) {
-        this._archiveTable('Deleted', 'list-items-deleted', deleted);
+        this._archiveTable('Deleted', 'list-items-deleted', deleted, true);
     }
 }
 
@@ -125,11 +125,11 @@ GtdPages.prototype.buildNext = function(nexts, reminders) {
     this._contentDiv.empty();
     this._contentDiv.append($('<h1>Next</h1>'));
     if (reminders.length) {
-        this._contextItemTable('Reminders', 'list-items-reminder', reminders, true);
+        this._contextItemTable('Reminders', 'list-items-reminder', reminders, true, true);
         this._contentDiv.append($('<div class="clearDiv" />'));
     }
     if (nexts.length) {
-        this._contextItemTable('Nexts', 'list-items-next', nexts, false);
+        this._contextItemTable('Nexts', 'list-items-next', nexts, false, true);
         this._contentDiv.append($('<div class="clearDiv" />'));
     }
 
@@ -183,7 +183,7 @@ GtdPages.prototype.buildProjectDetail = function(item) {
     headline.append($('<span>Project </span>'));
     headline.append(this._factory.getLinkEditItem(item));
     headline.append(this._factory.getBtnDeleteItem(item, "Delete").addClass('pull-right'));
-    headline.append(this._factory.getBtnCompleteItem(item, "Complete").addClass('pull-right'));
+    headline.append(this._factory.getBtnCompleteItem(item, "Complete").addClass('pull-right btn-table'));
     header.append(headline);
     this._contentDiv.append(header);
 
@@ -197,11 +197,11 @@ GtdPages.prototype.buildProjectDetail = function(item) {
     this._contentDiv.append($('<div class="clearDiv" />'));
 
     this._detail(null, item.items.subprojects, this._subprojectsTable.bind(this), ['list-items-subproject', '_']);
-    this._detail(null, item.items.nexts, this._contextItemTable.bind(this), ['Nexts', 'list-items-next', '_', false]);
-    this._detail('Waiting for', item.items.waiting, this._itemTable.bind(this), ['list-items-wait', '_']);
-    this._detail(null, item.items.reminders, this._contextItemTable.bind(this), ['Reminders', 'list-items-reminder', '_', true]);
-    this._detail('Someday/maybe', item.items.somedays, this._itemTable.bind(this), ['list-items-someday', '_']);
-    this._detail('References', item.items.references, this._itemTable.bind(this), ['list-items-reference', '_']);
-    this._detail(null, item.items.completed, this._archiveTable.bind(this), ['Completed', 'list-items-completed', '_']);
-    this._detail(null, item.items.deleted, this._archiveTable.bind(this), ['Deleted', 'list-items-deleted', '_']);
+    this._detail(null, item.items.nexts, this._contextItemTable.bind(this), ['Nexts', 'list-items-next', '_', false, false]);
+    this._detail('Waiting for', item.items.waiting, this._itemTable.bind(this), ['list-items-wait', '_', false]);
+    this._detail(null, item.items.reminders, this._contextItemTable.bind(this), ['Reminders', 'list-items-reminder', '_', true, false]);
+    this._detail('Someday/maybe', item.items.somedays, this._itemTable.bind(this), ['list-items-someday', '_', false]);
+    this._detail('References', item.items.references, this._itemTable.bind(this), ['list-items-reference', '_', false]);
+    this._detail(null, item.items.completed, this._archiveTable.bind(this), ['Completed', 'list-items-completed', '_', false]);
+    this._detail(null, item.items.deleted, this._archiveTable.bind(this), ['Deleted', 'list-items-deleted', '_', false]);
 }

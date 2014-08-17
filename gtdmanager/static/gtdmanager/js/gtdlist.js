@@ -58,7 +58,9 @@ GtdList.prototype.buildContexts = function(data, setdefaultClbk) {
 
 GtdList.prototype.buildItems = function(data, widths, buttons) {
     this.div.empty();
-    headerData = {"Project": widths[0], "Name": widths[1]};
+    var withParent = widths.length > 1;
+    var headerData = withParent ? {"Project": widths[0], "Name": widths[1]}
+                                : {"Name": widths[0]};
     var table = this._buildTable(headerData);
 
     for (var i=0; i<data.length; i++) {
@@ -71,7 +73,7 @@ GtdList.prototype.buildItems = function(data, widths, buttons) {
             main.append(this._factory.getBtnDeleteItem(item).addClass('pull-right btn-table'));
             main.append(this._factory.getBtnCompleteItem(item).addClass('pull-right btn-table'));
         }
-        row.append(this._parentTD(item));
+        if (withParent) { row.append(this._parentTD(item)); }
         row.append(main);
         table.append(row);
     }
@@ -111,9 +113,9 @@ GtdList.prototype.buildTickler = function(data, dateformat) {
 
     headerData = {"Project": 2, "Name": 4};
     if (dateformat) {
-        headerData["Date"] = "2  centerText";
+        headerData["Date"] = "2 centerText";
     } else {
-        headerData[""] = "2  centerText";
+        headerData[""] = "2 centerText";
     }
     var table = this._buildTable(headerData);
 
@@ -124,12 +126,15 @@ GtdList.prototype.buildTickler = function(data, dateformat) {
 
         var main = $('<td></td>');
         main.append(this._factory.getLinkEditReminder(item));
-        main.append(this._factory.getBtnDeleteProject(item).addClass('pull-right btn-table'));
-        main.append(this._factory.getBtnCompleteProject(item).addClass('pull-right btn-table'));
         row.append(main);
 
         datetd = $('<td class="centerText"></td>').append( this._formatDate(new Date(item.remind_at), dateformat) );
         row.append(datetd);
+
+        actions = $('<td></td>')
+        actions.append(this._factory.getBtnCompleteProject(item).addClass('pull-right btn-table'));
+        actions.append(this._factory.getBtnDeleteProject(item).addClass('pull-right btn-table'));
+        row.append(actions);
 
         table.append(row);
     }
@@ -181,14 +186,16 @@ GtdList.prototype.buildSubprojects = function(data) {
     this._listProjects(data, null);
 }
 
-GtdList.prototype.buildContextItem = function(data, isReminder) {
+GtdList.prototype.buildContextItem = function(data, isReminder, withParent) {
     this.div.empty();
-    var table = this._buildTable({"Parent": 2, "Name": 2, "Context": "2 centerText", "Action": "2 centerText"});
+    headerData = withParent ? {"Parent": 2, "Name": 2, "Context": "2 centerText", "": "2"}
+                            : {"Name": 3, "Context": "3 centerText", "": "2"}
+    var table = this._buildTable(headerData);
     this.div.append(table);
     for (var i=0; i<data.length; i++) {
         var item = data[i];
         var row = $('<tr></tr>');
-        row.append(this._parentTD(item));
+        if (withParent) { row.append(this._parentTD(item)); }
 
         var main = $('<td></td>');
         main.append( isReminder ? this._factory.getLinkEditReminder(item)
@@ -196,9 +203,9 @@ GtdList.prototype.buildContextItem = function(data, isReminder) {
         row.append(main);
         row.append($('<td class="centerText"></td>').append(this._factory.getContextsSpan(item)));
 
-        var actions = $('<td class="centerText"></td>');
-        actions.append(this._factory.getBtnDeleteItem(item).addClass('btn-table'));
-        actions.append(this._factory.getBtnCompleteItem(item).addClass('btn-table'));
+        var actions = $('<td></td>');
+        actions.append(this._factory.getBtnDeleteItem(item).addClass('btn-table pull-right'));
+        actions.append(this._factory.getBtnCompleteItem(item).addClass('btn-table pull-right'));
         row.append(actions);
 
         table.append(row);
