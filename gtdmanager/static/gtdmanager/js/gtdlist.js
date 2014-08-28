@@ -2,14 +2,17 @@
  * Class for building and manipulating item lists
  * @param {string} divName - id of div in which the list will be built
  */
-function GtdList(divName) {
+function GtdList(divName, controlFactory) {
     id = divName[0] == '#' ? divName : '#' + divName;
     this.div = $(id)
     if (this.div.length != 1) {
         console.log("Cannot find div " + id);
         this.div = null;
     }
-    this._factory = new GtdControlFactory();
+    this._factory = controlFactory;
+
+    document.addEventListener('gtddelete', this._delete.bind(this))
+    document.addEventListener('gtdcomplete', this._delete.bind(this))
 }
 
 GtdList.prototype._buildTable = function(headerData) {
@@ -94,10 +97,10 @@ GtdList.prototype.buildInboxList = function(data) {
         var actions = $('<td></td>');
         // TODO setup correct callbacks
         actions.append(this._factory.getBtnDeleteItem(item).addClass('btn-table'));
-        actions.append(this._factory.getBtnItemReference(item, delete_callback).addClass('btn-table'));
-        actions.append(this._factory.getBtnItemSomeday(item, delete_callback).addClass('btn-table'));
-        actions.append(this._factory.getBtnItemToProject(item, delete_callback).addClass('btn-table'));
-        actions.append(this._factory.getBtnItemWaitfor(item, delete_callback).addClass('btn-table'));
+        actions.append(this._factory.getBtnItemReference(item).addClass('btn-table'));
+        actions.append(this._factory.getBtnItemSomeday(item).addClass('btn-table'));
+        actions.append(this._factory.getBtnItemToProject(item).addClass('btn-table'));
+        actions.append(this._factory.getBtnItemWaitfor(item).addClass('btn-table'));
         actions.append(this._factory.getBtnCompleteItem(item).addClass('btn-table'));
         actions.append(this._factory.getBtnItemRemider(item).addClass('btn btn-sm btn-table'));
         actions.append(this._factory.getBtnItemNext(item).addClass('btn btn-sm btn-table'));
@@ -220,6 +223,11 @@ GtdList.prototype._parentTD = function(item) {
         parent.append(parentData);
     }
     return parent;
+}
+
+
+GtdList.prototype._delete = function(data) {
+    window.location.reload();
 }
 
 // TODO: replace with some sane method

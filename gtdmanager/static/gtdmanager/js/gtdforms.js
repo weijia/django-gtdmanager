@@ -2,8 +2,9 @@
  *  Class for handling forms via Dajaxice
  */
 
-function GtdForm(caption) {
+function GtdForm(caption, events) {
 	this.caption = caption;
+	this._events = events;
 }
 
 GtdForm.prototype.display_form = function (data) {
@@ -46,9 +47,9 @@ GtdForm.prototype._uri2json = function (uri) {
 GtdForm.prototype._update_callback = function(data) {
     if (data.success) {
 		$('#itemModal').modal('hide');
-		window.location.reload();
+		this._events.emit('gtdupdate', data)
 	} else {
-		this._display_form(data);
+		this.display_form(data);
 	}
 }
 
@@ -60,20 +61,4 @@ GtdForm.prototype._submit = function (itemId, action) {
 	var method = get_dajaxice_method_url(action);
 	method(this._update_callback.bind(this), this._uri2json(data))
 	return false;
-}
-
-function delete_callback(data) {
-	if (data.success) {
-		window.location.reload();
-	} else {
-		alert("Delete failed");
-	}
-}
-
-function complete_callback(data) {
-	if (data.success) {
-		window.location.reload();
-	} else {
-		alert("Complete failed");
-	}
 }

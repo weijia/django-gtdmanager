@@ -8,12 +8,13 @@ function GtdPages(divName) {
         console.log("Cannot find content div");
         this.div = null;
     }
-    this._factory = new GtdControlFactory()
+    this._events = new GtdEvents()
+    this._factory = new GtdControlFactory(this._events)
 }
 
 GtdPages.prototype._appendList = function (divName, rows) {
     this._contentDiv.append($('<div id="'+ divName + '" class="col-xs-' + rows + '"></div>'));
-    return new GtdList(divName);
+    return new GtdList(divName, this._factory);
 }
 
 GtdPages.prototype.displayError = function(msg, data) {
